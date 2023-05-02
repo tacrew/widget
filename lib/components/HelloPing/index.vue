@@ -1,6 +1,15 @@
 <template>
-  <div class="hello-ping">Hello Ping</div>
+  <div class="hello-ping">Hello Ping {{ msg }}</div>
 </template>
+
+<script setup lang="ts">
+// @ts-nocheck
+import { defineProps } from 'vue';
+
+defineProps({
+  msg: String,
+});
+</script>
 
 <style scoped>
 .hello-ping {
