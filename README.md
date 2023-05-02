@@ -2,8 +2,16 @@
 
 ## install
 
+- npm
+
 ```
 npm install ping-widget
+```
+
+- cdn
+
+```
+https://unpkg.com/ping-widget@0.0.2/dist/ping-widget.js
 ```
 
 ## Usage
@@ -12,9 +20,8 @@ npm install ping-widget
 import pingWidget from '../dist/ping-widget.js';
 
 // web components
-<hello-ping />
+<hello-ping />;
 ```
-
 
 This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
 
