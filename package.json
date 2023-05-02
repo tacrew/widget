@@ -1,8 +1,9 @@
 {
   "name": "ping-widget",
-  "private": true,
-  "version": "0.0.0",
+  "private": false,
+  "version": "0.0.1",
   "type": "module",
+  "main": "dist/ping-widget.js",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
