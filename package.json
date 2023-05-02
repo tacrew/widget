@@ -4,6 +4,27 @@
   "version": "0.0.1",
   "type": "module",
   "main": "dist/ping-widget.js",
+  "author": {
+    "name": "Alisa | Side Protocol",
+    "email": "alisa@side.one"
+  },
+  "homepage": "https://github.com/alisaweb3/ping-widget",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/alisaweb3/ping-widget"
+  },
+  "license": "MIT",
+  "description": "Ping widget",
+  "keywords": [
+    "vue3",
+    "webcomponent",
+    "widget",
+    "explorer",
+    "blockchain",
+    "sidechain",
+    "Side Protocol",
+    "Ping.pub"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc && vite build",
