@@ -10,12 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.2.47"
+    "vue": "^3.2.47",
+    "vue3-webcomponent-wrapper": "^0.2.0"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.1.0",
     "typescript": "^5.0.2",
     "vite": "^4.3.2",
+    "vite-plugin-css-injected-by-js": "^3.1.0",
     "vue-tsc": "^1.4.2"
   }
 }

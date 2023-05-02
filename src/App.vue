@@ -6,6 +6,8 @@ import pingWidget from '../dist/ping-widget.js';
 <template>
   <div>
     Ping Widget Version: {{ pingWidget?.version }}
+
+    <hello-ping />
   </div>
 </template>
 
