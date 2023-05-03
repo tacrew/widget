@@ -1,5 +1,5 @@
 <template>
-  <div class="hello-ping">Hello Ping {{ msg }}</div>
+  <div class="font-bold text-red-400 text-4xl">Hello Ping {{ msg }}</div>
 </template>
 
 <script setup lang="ts">
@@ -10,11 +10,3 @@ defineProps({
   msg: String,
 });
 </script>
-
-<style scoped>
-.hello-ping {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e66;
-}
-</style>

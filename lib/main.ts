@@ -1,4 +1,5 @@
 // @ts-nocheck
+import './main.css';
 import { createApp, h } from 'vue';
 import wrapper from 'vue3-webcomponent-wrapper';
 import HelloPing from './components/HelloPing/index.vue';
