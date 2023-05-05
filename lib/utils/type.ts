@@ -7,3 +7,12 @@ export const withInstall = <T>(comp: T) => {
 
   return comp as T & Plugin;
 };
+
+
+export interface Coin {
+  amount: string,
+  denom: string,
+}
+export interface Configuration {
+
+}

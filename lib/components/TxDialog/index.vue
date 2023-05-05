@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import {getAccount, getBalance} from '../../utils/http'
+import { Coin } from '../../utils/type';
 
 const props = defineProps({
   type: String,
   endpoint: String,
   sender: String,
-  params: Object,
+  feeDenom: String,
+  params: String,
 });
 const advance = ref(false)
 const titles = {
@@ -15,33 +17,42 @@ const titles = {
   send: "Send Token",
 }
 const sending = ref(false);
-async function sendTx() {
-  sending.value = true
-  if(props.endpoint && props.sender) {
-    const balance = await getBalance(props.endpoint, props.sender)
-    const account = await getAccount(props.endpoint, props.sender)
+const balance = ref([] as Coin[])
+const account = ref({})
 
-    console.log("result:", balance, account)
+const p = JSON.parse(props.params||"{}")
+const fees = ref(Number(p.fees?.amount||2000))
+const open = ref(false);
+async function initData() {
+  if(open.value && props.endpoint && props.sender) {
+    balance.value = await getBalance(props.endpoint, props.sender).balances
+    account.value = await getAccount(props.endpoint, props.sender);
+
     sending.value = false
   }
-  
+}
+async function sendTx() {
+
 }
 </script>
 <template>
   <div>
     <!-- Put this part before </body> tag -->
-    <input type="checkbox" :id="type" class="modal-toggle" />
+    <input v-model="open" type="checkbox" :id="type" class="modal-toggle" @change="initData()" />
     <label :for="type" class="modal cursor-pointer">
       <label class="modal-box relative" for="">
         <label :for="type" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
         <h3 class="text-lg font-bold">{{ titles[type||""]}}</h3>
         <form class="space-y-6" action="#" method="POST">
           <div :class="advance?'':'hidden'">
-            <div>
-              <label for="fees" class="block text-sm font-medium leading-6 text-gray-900">Fees</label>
-              <div class="mt-2">
-                <input id="fees" name="fees" type="number" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Fees</span>
+              </label>
+              <label class="input-group">
+                <input v-model="fees" type="text" placeholder="0.01" class="input input-bordered" />
+                <span>{{  }}</span>
+              </label>
             </div>
             <div>
               <div class="flex items-center justify-between">

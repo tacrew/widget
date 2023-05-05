@@ -5,6 +5,9 @@ import pingWidget from '../lib/main';
 
 const sender = 'rizon1jxv0u20scum4trha72c7ltfgfqef6nsc3hg7ch';
 const endpoint = 'https://api.rizon.chaintools.tech';
+const params = JSON.stringify({
+  fees: { amount: "1000000", denom: "uatolo" }
+})
 </script>
 
 <template>
@@ -18,6 +21,7 @@ const endpoint = 'https://api.rizon.chaintools.tech';
       type="delegate"
       :sender="sender"
       :endpoint="endpoint"
+      :params="params"
     ></ping-tx-dialog>
 
     <label for="send" class="btn">Send</label>
@@ -25,6 +29,7 @@ const endpoint = 'https://api.rizon.chaintools.tech';
       type="send"
       :sender="sender"
       :endpoint="endpoint"
+      :params="params"
     ></ping-tx-dialog>
   </div>
 </template>
