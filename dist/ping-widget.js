@@ -3834,7 +3834,7 @@ const xl = eo, Dl = { class: "font-bold text-red-400 text-4xl" }, Vl = /* @__PUR
     ], 64));
   }
 }), Cl = xl(cs, El, Jc);
-window.customElements.define("hello-ping", Cl);
+window.customElements.define("ping-hello", Cl);
 const Tl = {
   version: "0.0.1",
   components: {
