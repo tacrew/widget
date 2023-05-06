@@ -9,12 +9,25 @@ import { LedgerSigner } from '@cosmjs/ledger-amino'
 import { ethToEvmos } from '@tharsis/address-converter'
 
 export enum WalletName {
-    Keplr,
-    Ledger,
-    MetaMask,
+    Keplr = "Keplr",
+    Ledger = "LedgerUSB",
+    LedgerBLE = "LedgerBLE",
+    Metamask = "Metemask",
     // None Signning
-    Address,
-    NameService,
+    Address = "Address",
+    NameService = "Nameservice",
+}
+
+export interface ConnectedWallet {
+    wallet: WalletName,
+    cosmosAddress: string
+    hdPath?: string 
+}
+
+export interface Account {
+    address: string,
+    algo: string,
+    pubkey: Uint8Array,
 }
 
 export interface WalletArgument {
@@ -30,7 +43,7 @@ export interface AbstractWallet {
   /**
    * The the accounts from the wallet (addresses)
    */
-  getAccounts(): Promise<any>
+  getAccounts(): Promise<Account[]>
 
   supportCoinType(coinType?: string): Promise<boolean>
 
@@ -38,12 +51,16 @@ export interface AbstractWallet {
 }
 
 export function createWallet(name: WalletName, arg: WalletArgument) : AbstractWallet {
+    console.log("wallet arg:", arg)
     switch (name) {
         case WalletName.Keplr:
             return new KeplerWallet(arg)
         case WalletName.Ledger:
             return new LedgerWallet(arg)
-        case WalletName.MetaMask:
+        case WalletName.LedgerBLE:
+            arg.transport = "BLE"
+            return new LedgerWallet(arg)
+        case WalletName.Metamask:
             return new KeplerWallet(arg)
         case WalletName.Address:
             return new AddressWallet(arg)
@@ -60,7 +77,7 @@ export class AddressWallet implements AbstractWallet {
         this.address = arg.address|| ""
     }
 
-    getAccounts(): Promise<any> {
+    getAccounts(): Promise<Account[]> {
         throw new Error('Method not implemented.')
     }
     supportCoinType(coinType?: string | undefined): Promise<boolean> {
@@ -92,9 +109,9 @@ export class KeplerWallet implements AbstractWallet {
     name: WalletName.Keplr
     chainId: string
     constructor(arg: WalletArgument) {
-        this.chainId = arg.chainId || "cosmoshub"
+        this.chainId = "cosmoshub"
     }
-    async getAccounts(): Promise<any> {
+    async getAccounts(): Promise<Account[]> {
         if (!window.getOfflineSigner || !window.keplr) {
           throw new Error('Please install keplr extension')
         }
@@ -121,14 +138,14 @@ export class LedgerWallet implements AbstractWallet {
         this.transport = arg.transport || 'usb'
         this.hdPath = arg.hdPath || ''
     }
-    async getAccounts(): Promise<any> {
+    async getAccounts(): Promise<Account[]> {
         const transport = this.transport === 'usb' ? await TransportWebUSB.create() : await TransportWebBLE.create()
         // extract Cointype from from HDPath
         const coinType = Number(stringToPath(this.hdPath)[1])
         let ledgerAppName = 'Cosmos'
         switch (coinType) {
             // case 60:
-            //     return EthereumLedgerSigner.create(device, hdpath) // 'Ethereum'
+            //  return EthereumLedgerSigner.create(device, hdpath) // 'Ethereum'
             case 529:
                 ledgerAppName = 'Secret' // 'Secret'
                 break
