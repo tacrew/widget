@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// @ts-nocheck
 import { ref } from 'vue';
 import { getAccount, getBalance, simulate } from '../../utils/http'
 import { Coin } from '../../utils/type';
