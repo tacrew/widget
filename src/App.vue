@@ -1,5 +1,6 @@
 <script setup lang="ts">
 // @ts-ignore
+import { ref } from 'vue';
 // import pingWidget from '../dist/ping-widget.js';
 import pingWidget from '../lib/main';
 
