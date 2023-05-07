@@ -22,12 +22,16 @@ const sending = ref(false);
 const balance = ref([] as Coin[])
 const account = ref({} as { account_number: string, sequence: string })
 
+// functional variable
 const p = JSON.parse(props.params || "{}")
-const fees = ref(Number(p.fees?.amount || 2000))
-const gasInfo = ref(200000)
 const view = ref("input") // input, submiting
 const open = ref(false);
 const error = ref("")
+
+// input field
+const fees = ref(Number(p.fees?.amount || 2000))
+const gasInfo = ref(200000)
+const memo = ref("Ping.pub")
 
 async function initData() {
   if (open.value && props.endpoint && props.sender) {
@@ -63,7 +67,7 @@ async function sendTx() {
     signerAddress: props.sender,
     messages,
     fee: { gas: String(gasInfo.value), amount: [{ amount: String(fees.value), denom: "uatom" }] },
-    memo: "",
+    memo: memo.value,
     signerData: {
       accountNumber: Number(acc.account.account_number),
       sequence: Number(acc.account.sequence),
@@ -98,7 +102,6 @@ async function sendTx() {
 
     //   console.log("gasInfo:", gasInfo)
     const txRaw = await client.sign(tx)
-    console.log("sign:", txRaw, acc)
     const response = await client.broadcastTx(props.endpoint, txRaw)
     // show submitting view
     view.value = 'submitting'
@@ -137,14 +140,14 @@ async function sendTx() {
                 <label for="gas" class="block text-sm font-medium leading-6 text-gray-900">Gas</label>
               </div>
               <div class="mt-2">
-                <input id="gas" name="gas" type="number" autocomplete="current-password" required
+                <input id="gas" v-model="gasInfo" type="number" autocomplete="current-password" required
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
               </div>
             </div>
             <div>
               <label for="memo" class="block text-sm font-medium leading-6 text-gray-900">Memo</label>
               <div class="mt-2">
-                <input id="memo" name="memo" type="text"
+                <input id="memo" v-model="memo" type="text"
                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
               </div>
             </div>
