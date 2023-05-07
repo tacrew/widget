@@ -1,8 +1,6 @@
 <script setup lang="ts">
 // @ts-ignore
 import { ref } from 'vue';
-// import pingWidget from '../dist/ping-widget.js';
-import { ref } from 'vue';
 import pingWidget from '../lib/main';
 
 const sender = 'cosmos1m8mma95ta2zajqtmfp5c5y3wgeyqzcrc72shjp';
