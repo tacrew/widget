@@ -1,7 +1,6 @@
 // @ts-nocheck
 import './main.css';
 import { createApp, h } from 'vue';
-import * as wallet from './utils/wallet';
 import wrapper from 'vue3-webcomponent-wrapper';
 
 import HelloPing from './components/HelloPing/index.vue';
@@ -25,5 +24,4 @@ if (!window.customElements.get('ping-connect-wallet')) {
 
 export default {
   version: '0.0.2',
-  wallet,
 };
