@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import {getAccount, getBalance} from '../../utils/http'
+import {getAccount, getBalance, simulate} from '../../utils/http'
 import { Coin } from '../../utils/type';
+import { WalletName, createWallet } from '../../../lib/wallet/Wallet'
+import { UniClient } from '../../../lib/wallet/UniClient'
 
 const props = defineProps({
   type: String,
@@ -18,21 +20,83 @@ const titles = {
 }
 const sending = ref(false);
 const balance = ref([] as Coin[])
-const account = ref({})
+const account = ref({} as {account_number: string, sequence: string})
 
 const p = JSON.parse(props.params||"{}")
 const fees = ref(Number(p.fees?.amount||2000))
 const open = ref(false);
 async function initData() {
   if(open.value && props.endpoint && props.sender) {
-    balance.value = await getBalance(props.endpoint, props.sender).balances
-    account.value = await getAccount(props.endpoint, props.sender);
-
+    balance.value = await getBalance(props.endpoint, props.sender)
+    account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
+    console.log(balance.value)
+    console.log(account.value)
     sending.value = false
   }
 }
 async function sendTx() {
+  if(!props.sender) throw new Error("sender should not be empty!")
+  if(!props.endpoint) throw new Error("Endpoint is empty")
 
+  const acc = await getAccount(props.endpoint, props.sender);
+
+  console.log('acc', acc.account)
+
+  const tx = {
+    chainId: "cosmoshub-4",
+    signerAddress: props.sender,
+    messages: [
+        {
+          typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+          value: {
+            delegatorAddress: props.sender,
+            validatorAddress: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
+          },
+        },
+      ],
+    fee: { gas: "200000", amount: [{amount: "20000", denom: "uatom"}]},
+    memo: "",
+    signerData: {
+      accountNumber: Number(acc.account.account_number),
+      sequence: Number(acc.account.sequence),
+      chainId: "cosmoshub-1"
+    }
+  }
+  console.log("tx:", tx)
+  const client = new UniClient(WalletName.Keplr, {chainId: "cosmoshub-4"})
+
+  try{
+    
+  const gasInfo = await client.simulate( props.endpoint, [
+      {
+        typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+        value: {
+          delegatorAddress: props.sender,
+          validatorAddress: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
+        },
+      },
+      {
+        typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission',
+        value: {
+          validatorAddress: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
+        },
+      },
+    ],
+    "",
+    Number(account.value.sequence),
+  ) 
+
+  console.log("gasInfo:", gasInfo)
+
+}catch(e) {
+  console.log(e)
+}
+  // const txRaw = await client.sign(tx)
+
+  // console.log("sign:", txRaw, acc)
+
+  // const reponse = await client.broadcastTx(props.endpoint, txRaw)
+  // console.log("broadcast:", reponse)
 }
 </script>
 <template>

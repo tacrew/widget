@@ -1,25 +1,15 @@
 <script setup lang="ts">
 // @ts-ignore
 // import pingWidget from '../dist/ping-widget.js';
+import { ref } from 'vue';
 import pingWidget from '../lib/main';
 
-const sender = 'rizon1jxv0u20scum4trha72c7ltfgfqef6nsc3hg7ch';
-const endpoint = 'https://api.rizon.chaintools.tech';
+const sender = 'cosmos1m8mma95ta2zajqtmfp5c5y3wgeyqzcrc72shjp';
+const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures';
+const chainId = "cosmoshub-4"
+const hdPath = "m/44'/118/0'/0/0"
 
-console.log(pingWidget?.wallet.walletStrategy)
-
-const walletAddress = ref();
-
-const getAddress = async () => {
-  try {
-    const res = await pingWidget?.wallet.getAddresses();
-    console.log(res);
-    walletAddress.value = res;
-  } catch (e: any) {
-    console.log(e.errorMessage)
-    walletAddress.value = e.errorMessage;
-  }
-}
+const params = JSON.stringify({})
 </script>
 
 <template>
@@ -28,6 +18,7 @@ const getAddress = async () => {
 
     <hello-ping :msg="pingWidget?.version" />
 
+    <ping-connect-wallet :chain-id="chainId" :hd-path="hdPath"/>
     <label for="delegate" class="btn">Delegate</label>
     <ping-tx-dialog
       type="delegate"
