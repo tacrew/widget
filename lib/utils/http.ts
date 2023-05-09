@@ -4,6 +4,7 @@ import { AuthInfo, Fee, Tx, TxBody } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { encodePubkey } from "@cosmjs/proto-signing";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
+import { Coin } from 'util/types' 
 
 export async function get(url: string) {
     return (await fetch(url)).json()
@@ -36,3 +37,45 @@ export async function getBalance(endpoint: string, address: string) {
     return get(url)
 }
 
+export async function getDelegateRewards(endpoint: string, address: string) {
+    const url = `${endpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`
+    return get(url)
+}
+
+export async function getDelegations(endpoint: string, validator_addr: string,  address: string) : Promise< {
+    delegation_response: {
+        balance: Coin,
+        delegation: {
+            delegator_address: string,
+            shares: string,
+            validator_address: string
+        }
+    }
+}> {
+    const url = `${endpoint}/cosmos/staking/v1beta1/validators/${validator_addr}/delegations/${address}`
+    return get(url)
+}
+
+export async function getActiveValidators(endpoint: string) {
+    const url = `${endpoint}/cosmos/staking/v1beta1/validators?pagination.limit=300&status=BOND_STATUS_BONDED`
+    return get(url)
+}
+
+export async function getInactiveValidators(endpoint: string) {
+    const url = `${endpoint}/cosmos/staking/v1beta1/validators?pagination.limit=300&status=BOND_STATUS_UNBONDED`
+    return get(url)
+}
+
+// /cosmos/staking/v1beta1/params
+export async function getStakingParam(endpoint: string) : Promise<{
+    params: {
+        unbonding_time: string;
+        max_validators: number;
+        max_entries: number;
+        historical_entries: number;
+        bond_denom: string;
+    };
+}> {
+    const url = `${endpoint}/cosmos/staking/v1beta1/params`
+    return get(url)
+}

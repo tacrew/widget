@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // @ts-nocheck
-import { ref } from 'vue';
+import { ref, computed, defineAsyncComponent } from 'vue';
 import { getAccount, getBalance, simulate } from '../../utils/http'
 import { Coin } from '../../utils/type';
 import { WalletName, createWallet } from '../../../lib/wallet/Wallet'
@@ -13,12 +13,35 @@ const props = defineProps({
   feeDenom: String,
   params: String,
 });
+
+const msgType = computed(() => {
+  switch (props.type?.toLowerCase()) {
+    case 'send':
+      return defineAsyncComponent(() => import('./messages/Send.vue'))
+    case "delegate":
+      return defineAsyncComponent(() => import('./messages/Delegate.vue'))
+    case "withdraw":
+      return defineAsyncComponent(() => import('./messages/Withdraw.vue'))
+    case "withdraw_commission":
+      return defineAsyncComponent(() => import('./messages/WithdrawCommission.vue'))
+    case "redelegate":
+      return defineAsyncComponent(() => import('./messages/Redelegate.vue'))
+    case "transfer":
+      return defineAsyncComponent(() => import('./messages/Transfer.vue'))
+    case "unbond":
+      return defineAsyncComponent(() => import('./messages/Unbond.vue'))
+    case "vote":
+      return defineAsyncComponent(() => import('./messages/Vote.vue'))
+    case "deposit":
+      return defineAsyncComponent(() => import('./messages/Deposit.vue'))
+    default:
+      return defineAsyncComponent(() => import('./messages/Send.vue'))
+  }
+})
+
+const titles = {}
+
 const advance = ref(false)
-const titles = {
-  delegate: "Delegate",
-  withdraw: "Withdraw",
-  send: "Send Token",
-}
 const sending = ref(false);
 const balance = ref([] as Coin[])
 const account = ref({} as { account_number: string, sequence: string })
@@ -30,20 +53,24 @@ const open = ref(false);
 const error = ref("")
 
 // input field
+const msgBox = ref(null)
 const fees = ref(Number(p.fees?.amount || 2000))
 const gasInfo = ref(200000)
 const memo = ref("Ping.pub")
 
 async function initData() {
   if (open.value && props.endpoint && props.sender) {
-    balance.value = await getBalance(props.endpoint, props.sender)
-    account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
-    console.log(balance.value)
-    console.log(account.value)
+    await getBalance(props.endpoint, props.sender).then(x => {
+      balance.value = x.balances
+    })
+    // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
+    console.log("bal:", balance.value)
+    console.log("account", account.value)
     sending.value = false
   }
 }
 async function sendTx() {
+  // console.log(msgs.value.msgs)
   if (!props.sender) throw new Error("sender should not be empty!")
   if (!props.endpoint) throw new Error("Endpoint is empty")
   sending.value = true  // disable sending btn
@@ -53,16 +80,19 @@ async function sendTx() {
   console.log('acc', acc.account)
 
   // TODO: get message from sub component
-  const messages = [
-    {
-      typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-      value: {
-        delegatorAddress: props.sender,
-        validatorAddress: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
-      },
-    },
-  ]
+  // const messages = [
+  //   {
+  //     typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+  //     value: {
+  //       delegatorAddress: props.sender,
+  //       validatorAddress: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
+  //     },
+  //   },
+  // ]
+  const messages = msgBox.value.msgs
 
+  console.log("messages: ", messages)
+  
   const tx = {
     chainId: "cosmoshub-4",
     signerAddress: props.sender,
@@ -106,9 +136,9 @@ async function sendTx() {
     const response = await client.broadcastTx(props.endpoint, txRaw)
     // show submitting view
     view.value = 'submitting'
-    
+
     console.log("broadcast:", response)
-    setTimeout(()=> open.value = false, 6000)
+    setTimeout(() => open.value = false, 6000)
   } catch (e) {
     console.error(e)
     sending.value = false
@@ -116,6 +146,7 @@ async function sendTx() {
     setTimeout(() => error.value = "", 5000)
   }
 }
+
 </script>
 <template>
   <div>
@@ -124,7 +155,8 @@ async function sendTx() {
     <label :for="type" class="modal cursor-pointer">
       <label class="modal-box relative" for="">
         <label :for="type" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-        <h3 class="text-lg font-bold">{{ titles[type || ""] }}</h3>
+        <h3 class="text-lg font-bold">{{ titles[type || "Send Transaction"] }}</h3>
+        <component :is="msgType" ref="msgBox" :endpoint="endpoint" :sender="sender" :balances="balance" :params="params" />
         <form v-if="view === 'input'" class="space-y-6" action="#" method="POST">
           <div :class="advance ? '' : 'hidden'">
             <div class="form-control">
@@ -132,32 +164,24 @@ async function sendTx() {
                 <span class="label-text">Fees</span>
               </label>
               <label class="input-group">
-                <input v-model="fees" type="text" placeholder="0.01" class="input input-bordered" />
-                <span>{{ }}</span>
+                <input v-model="fees" type="text" placeholder="0.001" class="input input-bordered" />
+                <select class="select input input-bordered">
+                  <option disabled selected>Select Fee Token</option>
+                  <option v-for="t in balance">{{ t.denom }}</option>
+                </select>
               </label>
             </div>
-            <div>
-              <div class="flex items-center justify-between">
-                <label for="gas" class="block text-sm font-medium leading-6 text-gray-900">Gas</label>
-              </div>
-              <div class="mt-2">
-                <input id="gas" v-model="gasInfo" type="number" autocomplete="current-password" required
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Gas</span>
+              </label>
+              <input v-model="gasInfo" type="number" placeholder="2000000" class="input input-bordered" />
             </div>
-            <div>
-              <label for="memo" class="block text-sm font-medium leading-6 text-gray-900">Memo</label>
-              <div class="mt-2">
-                <input id="memo" v-model="memo" type="text"
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              </div>
-            </div>
-            <div>
-              <label for="wallet" class="block text-sm font-medium leading-6 text-gray-900">Wallet</label>
-              <div class="mt-2">
-                <input id="email" name="email" type="email" required
-                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-              </div>
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Memo</span>
+              </label>
+              <input v-model="memo" type="text" placeholder="Memo" class="input input-bordered" />
             </div>
           </div>
         </form>
