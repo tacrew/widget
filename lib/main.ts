@@ -17,5 +17,5 @@ if (!window.customElements.get('ping-connect-wallet')) {
 }
 
 export default {
-    version: '0.0.2',
+    version: '0.0.5',
 };
