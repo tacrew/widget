@@ -5,6 +5,7 @@ import { WalletName, createWallet, Account, ConnectedWallet } from '../../../lib
 const props = defineProps({
   chainId: String,
   hdPath: String,
+  prefix: String,
 });
 const DEFAULT_PATH = "m/44'/118/0'/0/0"
 const sending = ref(false);
