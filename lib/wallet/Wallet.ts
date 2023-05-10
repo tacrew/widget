@@ -146,7 +146,7 @@ export class KeplerWallet implements AbstractWallet {
     supportCoinType(coinType?: string | undefined): Promise<boolean> {
         return Promise.resolve(true);
     }
-    async sign( signerAddress: string, signDoc: SignDoc| StdS ): Promise<any> {
+    async sign( signerAddress: string, signDoc: SignDoc ): Promise<any> {
         const offlineSigner = window.getOfflineSigner(this.chainId)
         return await offlineSigner.signDirect(signerAddress, signDoc);
 
