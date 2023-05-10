@@ -6,6 +6,7 @@ const props = defineProps({
   chainId: String,
   hdPath: String,
 });
+const DEFAULT_PATH = "m/44'/118/0'/0/0"
 const sending = ref(false);
 const open = ref(false);
 const error = ref('')
@@ -14,7 +15,7 @@ async function initData() {
 }
 const name = ref(WalletName.Keplr)
 const list = [WalletName.Keplr, WalletName.Ledger]
-const connected = ref(JSON.parse(localStorage.getItem("connected-wallet")||"{}") as ConnectedWallet)
+const connected = ref(JSON.parse(localStorage.getItem(props.hdPath || DEFAULT_PATH)||"{}") as ConnectedWallet)
 
 function selectWallet(wallet: WalletName) {
   name.value = wallet
@@ -29,7 +30,7 @@ async function connect() {
     if(accounts.length > 0) {
       const [first] = accounts
       connected.value = {wallet: name.value, cosmosAddress: first.address, hdPath: props.hdPath}
-      localStorage.setItem("connected-wallet", JSON.stringify(connected.value))
+      localStorage.setItem(props.hdPath || DEFAULT_PATH , JSON.stringify(connected.value))
     }
     open.value = false
   }).catch((e) => {
@@ -39,7 +40,7 @@ async function connect() {
   sending.value = false
 }
 function disconnect() {
-  localStorage.removeItem("connected-wallet")
+  localStorage.removeItem(props.hdPath || DEFAULT_PATH)
   connected.value = {} as ConnectedWallet
 }
 
