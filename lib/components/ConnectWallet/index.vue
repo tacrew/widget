@@ -116,18 +116,23 @@ function disconnect() {
         <label for="PingConnectWallet" class="modal cursor-pointer z-[999999]">
             <label class="modal-box relative rounded-lg" for="">
                 <h3 class="text-xl font-semibold">Connect Wallet</h3>
-                <ul role="list" class="bg-gray-100 rounded-lg mt-4 px-3 py-3">
+                <ul
+                    role="list"
+                    class="bg-gray-100 dark:bg-gray-900 rounded-lg mt-4 px-3 py-3"
+                >
                     <li
-                        class="flex items-center px-2 py-3 hover:bg-gray-200 rounded-lg cursor-pointer"
+                        class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-base-content rounded-lg cursor-pointer"
                         v-for="(i, k) of list"
                         @click="selectWallet(i)"
                     >
                         <img
-                            class="h-10 w-10 bg-gray-50 mr-4"
+                            class="h-10 w-10 rounded-full bg-gray-50 mr-4"
                             src="https://wallet.keplr.app/keplr-brand-assets/keplr-logo.svg"
                             alt=""
                         />
-                        <p class="text-base font-semibold flex-1">
+                        <p
+                            class="text-base font-semibold flex-1 dark:text-gray-300"
+                        >
                             {{ i }}
                         </p>
                         <div>
