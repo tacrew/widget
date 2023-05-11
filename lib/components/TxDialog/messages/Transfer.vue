@@ -71,7 +71,15 @@ function selectDest() {
 
 function updateIBCToken() {
     const hash = String(denom.value).replace("ibc/", "")
-    if(!ibcDenomTraces[hash]) {
+    if(!denom.value.startsWith("ibc/")) return ;
+    if(ibcDenomTraces.value[denom.value]) {
+        const trace = ibcDenomTraces.value[denom.value]
+        const split = trace.path.split('/')
+        sourceChain.value = {
+            channel_id: split[1],
+            port_id: split[0]
+        }
+    } else {
         getDenomTraces(props.endpoint, hash).then(trace => {
             ibcDenomTraces.value[denom.value] = trace.denom_trace
             const split = trace.denom_trace.path.split('/')
