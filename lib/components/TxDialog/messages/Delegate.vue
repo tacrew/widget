@@ -26,7 +26,9 @@ getStakingParam(props.endpoint).then(x => {
 
 getActiveValidators(props.endpoint).then(x => {
     activeValidators.value = x.validators
-    validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
+    if(!params.validator_address) {
+        validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
+    }
 })
 
 const msgs = computed(() => {

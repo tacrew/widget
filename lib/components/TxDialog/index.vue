@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // @ts-nocheck
 import { ref, computed, defineAsyncComponent } from 'vue';
-import { getAccount, getBalance, simulate } from '../../utils/http'
+import { getAccount, getBalance, simulate, getLatestBlock } from '../../utils/http'
 import { Coin } from '../../utils/type';
 import { WalletName, createWallet } from '../../../lib/wallet/Wallet'
 import { UniClient } from '../../../lib/wallet/UniClient'
@@ -57,15 +57,17 @@ const msgBox = ref(null)
 const fees = ref(Number(p.fees?.amount || 2000))
 const gasInfo = ref(200000)
 const memo = ref("Ping.pub")
+const chainId = ref("cosmoshub-4")
 
 async function initData() {
   if (open.value && props.endpoint && props.sender) {
-    await getBalance(props.endpoint, props.sender).then(x => {
+    getBalance(props.endpoint, props.sender).then(x => {
       balance.value = x.balances
     })
-    // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
     console.log("bal:", balance.value)
-    console.log("account", account.value)
+    getLatestBlock(props.endpoint).then(x => {
+      chainId.value = x.block.header.chain_id
+    })
     sending.value = false
   }
 }
@@ -79,22 +81,12 @@ async function sendTx() {
 
   console.log('acc', acc.account)
 
-  // TODO: get message from sub component
-  // const messages = [
-  //   {
-  //     typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-  //     value: {
-  //       delegatorAddress: props.sender,
-  //       validatorAddress: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
-  //     },
-  //   },
-  // ]
   const messages = msgBox.value.msgs
 
   console.log("messages: ", messages)
-  
+
   const tx = {
-    chainId: "cosmoshub-4",
+    chainId: chainId.value,
     signerAddress: props.sender,
     messages,
     fee: { gas: String(gasInfo.value), amount: [{ amount: String(fees.value), denom: "uatom" }] },
@@ -102,14 +94,14 @@ async function sendTx() {
     signerData: {
       accountNumber: Number(acc.account.account_number),
       sequence: Number(acc.account.sequence),
-      chainId: "cosmoshub-1"
+      chainId: chainId.value
     }
   }
   console.log("tx:", tx)
 
   try {
 
-    const client = new UniClient(WalletName.Keplr, { chainId: "cosmoshub-4" })
+    const client = new UniClient(WalletName.Keplr, { chainId: chainId.value })
 
     // TODO simulate gas info later
     //   const gasInfo = await client.simulate( props.endpoint, [
@@ -147,6 +139,9 @@ async function sendTx() {
   }
 }
 
+function showTitle() {
+  return (props.type || "Send Tx").replace("_", " ")
+}
 </script>
 <template>
   <div>
@@ -155,8 +150,9 @@ async function sendTx() {
     <label :for="type" class="modal cursor-pointer">
       <label class="modal-box relative" for="">
         <label :for="type" class="btn btn-sm btn-circle absolute right-2 top-2">✕</label>
-        <h3 class="text-lg font-bold">{{ titles[type || "Send Transaction"] }}</h3>
-        <component :is="msgType" ref="msgBox" :endpoint="endpoint" :sender="sender" :balances="balance" :params="params" />
+        <h3 class="text-lg font-bold capitalize">{{ showTitle() }}</h3>
+        <component :is="msgType" ref="msgBox" :endpoint="endpoint" :sender="sender" :balances="balance"
+          :params="params" />
         <form v-if="view === 'input'" class="space-y-6" action="#" method="POST">
           <div :class="advance ? '' : 'hidden'">
             <div class="form-control">

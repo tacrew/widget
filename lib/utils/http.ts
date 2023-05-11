@@ -26,6 +26,11 @@ export async function post(url: string, data: any) {
       // const response = axios.post((config ? config.api : this.config.api) + url, data)
       return response.json() // parses JSON response into native JavaScript objects
 }
+// /cosmos/base/tendermint/v1beta1/blocks/latest
+export async function getLatestBlock(endpoint: string) {
+    const url = `${endpoint}/cosmos/base/tendermint/v1beta1/blocks/latest`
+    return get(url)
+}
 
 export async function getAccount(endpoint: string, address: string) {
     const url = `${endpoint}/cosmos/auth/v1beta1/accounts/${address}`
