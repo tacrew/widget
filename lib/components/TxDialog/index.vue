@@ -17,25 +17,35 @@ const props = defineProps({
 const msgType = computed(() => {
     switch (props.type?.toLowerCase()) {
         case 'send':
-            return defineAsyncComponent(() => import("./messages/Send.vue"));
+            return defineAsyncComponent(() => import('./messages/Send.vue'));
         case 'delegate':
-            return defineAsyncComponent(() => import("./messages/Delegate.vue"));
+            return defineAsyncComponent(
+                () => import('./messages/Delegate.vue')
+            );
         case 'withdraw':
-            return defineAsyncComponent(() => import("./messages/Withdraw.vue"));
+            return defineAsyncComponent(
+                () => import('./messages/Withdraw.vue')
+            );
         case 'withdraw_commission':
-            return defineAsyncComponent(() => import("./messages/WithdrawCommission.vue"));
+            return defineAsyncComponent(
+                () => import('./messages/WithdrawCommission.vue')
+            );
         case 'redelegate':
-            return defineAsyncComponent(() => import("./messages/Redelegate.vue"));
+            return defineAsyncComponent(
+                () => import('./messages/Redelegate.vue')
+            );
         case 'transfer':
-            return defineAsyncComponent(() => import("./messages/Transfer.vue"));
+            return defineAsyncComponent(
+                () => import('./messages/Transfer.vue')
+            );
         case 'unbond':
-            return defineAsyncComponent(() => import("./messages/Unbond.vue"));
+            return defineAsyncComponent(() => import('./messages/Unbond.vue'));
         case 'vote':
-            return defineAsyncComponent(() => import("./messages/Vote.vue"));
+            return defineAsyncComponent(() => import('./messages/Vote.vue'));
         case 'deposit':
-            return defineAsyncComponent(() => import("./messages/Deposit.vue"));
+            return defineAsyncComponent(() => import('./messages/Deposit.vue'));
         default:
-            return defineAsyncComponent(() => import("./messages/Send.vue"));
+            return defineAsyncComponent(() => import('./messages/Send.vue'));
     }
 });
 
@@ -53,20 +63,20 @@ const open = ref(false);
 const error = ref('');
 
 // input field
-const msgBox = ref({ msgs: []});
+const msgBox = ref({ msgs: [] });
 const fees = ref(Number(p.fees?.amount || 2000));
 const gasInfo = ref(200000);
 const memo = ref('Ping.pub');
-const chainId = ref("cosmoshub-4")
+const chainId = ref('cosmoshub-4');
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         await getBalance(props.endpoint, props.sender).then((x) => {
             balance.value = x.balances;
         });
-        getLatestBlock(props.endpoint).then(x => {
-          chainId.value = x.block.header.chain_id
-        })
+        getLatestBlock(props.endpoint).then((x) => {
+            chainId.value = x.block.header.chain_id;
+        });
         // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
         console.log('bal:', balance.value);
         sending.value = false;
@@ -125,11 +135,11 @@ async function sendTx() {
 }
 
 function showTitle() {
-  return (props.type || "Sending Transaction").replace("_", " ")
+    return (props.type || 'Sending Transaction').replace('_', ' ');
 }
 </script>
 <template>
-    <div>
+    <div class="text-gray-600">
         <!-- Put this part before </body> tag -->
         <input
             v-model="open"
