@@ -149,13 +149,13 @@ function showTitle() {
             @change="initData()"
         />
         <label :for="type" class="modal cursor-pointer">
-            <label class="modal-box relative" for="">
+            <label class="modal-box relative p-5" for="">
                 <label
                     :for="type"
-                    class="btn btn-sm btn-circle absolute right-2 top-2"
+                    class="btn btn-sm btn-circle absolute right-4 top-4"
                     >✕</label
                 >
-                <h3 class="text-lg font-bold capitalize">
+                <h3 class="text-lg font-bold capitalize dark:text-gray-300">
                     {{ showTitle() }}
                 </h3>
                 <component
@@ -177,14 +177,16 @@ function showTitle() {
                             <label class="label">
                                 <span class="label-text">Fees</span>
                             </label>
-                            <label class="input-group">
+                            <label class="input-group flex items-center">
                                 <input
                                     v-model="fees"
                                     type="text"
                                     placeholder="0.001"
-                                    class="input input-bordered"
+                                    class="input input-bordered flex-1 w-0 dark:text-gray-300"
                                 />
-                                <select class="select input input-bordered">
+                                <select
+                                    class="select input input-bordered w-[200px]"
+                                >
                                     <option disabled selected>
                                         Select Fee Token
                                     </option>
@@ -202,7 +204,7 @@ function showTitle() {
                                 v-model="gasInfo"
                                 type="number"
                                 placeholder="2000000"
-                                class="input input-bordered"
+                                class="input input-bordered dark:text-gray-300"
                             />
                         </div>
                         <div class="form-control">
@@ -213,7 +215,7 @@ function showTitle() {
                                 v-model="memo"
                                 type="text"
                                 placeholder="Memo"
-                                class="input input-bordered"
+                                class="input input-bordered dark:text-gray-300"
                             />
                         </div>
                     </div>
@@ -244,16 +246,20 @@ function showTitle() {
 
                 <div
                     v-if="view === 'input'"
-                    class="modal-action flex justify-between justify-items-center"
+                    class="modal-action flex justify-between items-center"
                 >
-                    <span
-                        ><input
+                    <div class="flex items-center cursor-pointer">
+                        <input
                             v-model="advance"
                             type="checkbox"
                             :id="`${type}-advance`"
-                            class="checkbox"
-                        /><label :for="`${type}-advance`">Advance</label></span
-                    >
+                            class="checkbox checkbox-sm checkbox-primary mr-2"
+                        /><label
+                            :for="`${type}-advance`"
+                            class="cursor-pointer dark:text-gray-400"
+                            >Advance</label
+                        >
+                    </div>
                     <label
                         class="btn"
                         :class="sending ? 'loading' : ''"
