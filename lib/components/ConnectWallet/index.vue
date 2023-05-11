@@ -11,7 +11,7 @@ const props = defineProps({
     chainId: String,
     hdPath: String,
 });
-const DEFAULT_HDPATH = ""
+const DEFAULT_HDPATH = "m/44'/118/0'/0/0"
 const sending = ref(false);
 const open = ref(false);
 const error = ref('');
