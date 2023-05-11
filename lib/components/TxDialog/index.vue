@@ -6,6 +6,16 @@ import { Coin } from '../../utils/type';
 import { WalletName } from '../../../lib/wallet/Wallet';
 import { UniClient } from '../../../lib/wallet/UniClient';
 
+import Delegate from './messages/Delegate.vue';
+import Deposit from './messages/Deposit.vue';
+import Redelegate from './messages/Redelegate.vue';
+import Send from './messages/Send.vue';
+import Transfer from './messages/Transfer.vue';
+import Unbond from './messages/Unbond.vue';
+import Vote from './messages/Vote.vue';
+import Withdraw from './messages/Withdraw.vue';
+import WithdrawCommission from './messages/WithdrawCommission.vue';
+
 const props = defineProps({
     type: String,
     endpoint: String,
@@ -17,35 +27,25 @@ const props = defineProps({
 const msgType = computed(() => {
     switch (props.type?.toLowerCase()) {
         case 'send':
-            return defineAsyncComponent(() => import('./messages/Send.vue'));
+            return Send;
         case 'delegate':
-            return defineAsyncComponent(
-                () => import('./messages/Delegate.vue')
-            );
+            return Delegate;
         case 'withdraw':
-            return defineAsyncComponent(
-                () => import('./messages/Withdraw.vue')
-            );
+            return Withdraw;
         case 'withdraw_commission':
-            return defineAsyncComponent(
-                () => import('./messages/WithdrawCommission.vue')
-            );
+            return WithdrawCommission;
         case 'redelegate':
-            return defineAsyncComponent(
-                () => import('./messages/Redelegate.vue')
-            );
+            return Redelegate;
         case 'transfer':
-            return defineAsyncComponent(
-                () => import('./messages/Transfer.vue')
-            );
+            return Transfer;
         case 'unbond':
-            return defineAsyncComponent(() => import('./messages/Unbond.vue'));
+            return Unbond;
         case 'vote':
-            return defineAsyncComponent(() => import('./messages/Vote.vue'));
+            return Vote;
         case 'deposit':
-            return defineAsyncComponent(() => import('./messages/Deposit.vue'));
+            return Deposit;
         default:
-            return defineAsyncComponent(() => import('./messages/Send.vue'));
+            return Send;
     }
 });
 
