@@ -6,6 +6,16 @@ import { Coin } from '../../utils/type';
 import { WalletName } from '../../../lib/wallet/Wallet';
 import { UniClient } from '../../../lib/wallet/UniClient';
 
+import Delegate from './messages/Delegate.vue';
+import Deposit from './messages/Deposit.vue';
+import Redelegate from './messages/Redelegate.vue';
+import Send from './messages/Send.vue';
+import Transfer from './messages/Transfer.vue';
+import Unbond from './messages/Unbond.vue';
+import Vote from './messages/Vote.vue';
+import Withdraw from './messages/Withdraw.vue';
+import WithdrawCommission from './messages/WithdrawCommission.vue';
+
 const props = defineProps({
     type: String,
     endpoint: String,
@@ -17,25 +27,25 @@ const props = defineProps({
 const msgType = computed(() => {
     switch (props.type?.toLowerCase()) {
         case 'send':
-            return defineAsyncComponent(() => import("./messages/Send.vue"));
+            return Send;
         case 'delegate':
-            return defineAsyncComponent(() => import("./messages/Delegate.vue"));
+            return Delegate;
         case 'withdraw':
-            return defineAsyncComponent(() => import("./messages/Withdraw.vue"));
+            return Withdraw;
         case 'withdraw_commission':
-            return defineAsyncComponent(() => import("./messages/WithdrawCommission.vue"));
+            return WithdrawCommission;
         case 'redelegate':
-            return defineAsyncComponent(() => import("./messages/Redelegate.vue"));
+            return Redelegate;
         case 'transfer':
-            return defineAsyncComponent(() => import("./messages/Transfer.vue"));
+            return Transfer;
         case 'unbond':
-            return defineAsyncComponent(() => import("./messages/Unbond.vue"));
+            return Unbond;
         case 'vote':
-            return defineAsyncComponent(() => import("./messages/Vote.vue"));
+            return Vote;
         case 'deposit':
-            return defineAsyncComponent(() => import("./messages/Deposit.vue"));
+            return Deposit;
         default:
-            return defineAsyncComponent(() => import("./messages/Send.vue"));
+            return Send;
     }
 });
 
@@ -53,20 +63,20 @@ const open = ref(false);
 const error = ref('');
 
 // input field
-const msgBox = ref({ msgs: []});
+const msgBox = ref({ msgs: [] });
 const fees = ref(Number(p.fees?.amount || 2000));
 const gasInfo = ref(200000);
 const memo = ref('Ping.pub');
-const chainId = ref("cosmoshub-4")
+const chainId = ref('cosmoshub-4');
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         await getBalance(props.endpoint, props.sender).then((x) => {
             balance.value = x.balances;
         });
-        getLatestBlock(props.endpoint).then(x => {
-          chainId.value = x.block.header.chain_id
-        })
+        getLatestBlock(props.endpoint).then((x) => {
+            chainId.value = x.block.header.chain_id;
+        });
         // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
         console.log('bal:', balance.value);
         sending.value = false;
@@ -125,11 +135,11 @@ async function sendTx() {
 }
 
 function showTitle() {
-  return (props.type || "Sending Transaction").replace("_", " ")
+    return (props.type || 'Sending Transaction').replace('_', ' ');
 }
 </script>
 <template>
-    <div>
+    <div class="text-gray-600">
         <!-- Put this part before </body> tag -->
         <input
             v-model="open"
@@ -139,13 +149,13 @@ function showTitle() {
             @change="initData()"
         />
         <label :for="type" class="modal cursor-pointer">
-            <label class="modal-box relative" for="">
+            <label class="modal-box relative p-5" for="">
                 <label
                     :for="type"
-                    class="btn btn-sm btn-circle absolute right-2 top-2"
+                    class="btn btn-sm btn-circle absolute right-4 top-4"
                     >✕</label
                 >
-                <h3 class="text-lg font-bold capitalize">
+                <h3 class="text-lg font-bold capitalize dark:text-gray-300">
                     {{ showTitle() }}
                 </h3>
                 <component
@@ -167,14 +177,16 @@ function showTitle() {
                             <label class="label">
                                 <span class="label-text">Fees</span>
                             </label>
-                            <label class="input-group">
+                            <label class="input-group flex items-center">
                                 <input
                                     v-model="fees"
                                     type="text"
                                     placeholder="0.001"
-                                    class="input input-bordered"
+                                    class="input input-bordered flex-1 w-0 dark:text-gray-300"
                                 />
-                                <select class="select input input-bordered">
+                                <select
+                                    class="select input input-bordered w-[200px]"
+                                >
                                     <option disabled selected>
                                         Select Fee Token
                                     </option>
@@ -192,7 +204,7 @@ function showTitle() {
                                 v-model="gasInfo"
                                 type="number"
                                 placeholder="2000000"
-                                class="input input-bordered"
+                                class="input input-bordered dark:text-gray-300"
                             />
                         </div>
                         <div class="form-control">
@@ -203,7 +215,7 @@ function showTitle() {
                                 v-model="memo"
                                 type="text"
                                 placeholder="Memo"
-                                class="input input-bordered"
+                                class="input input-bordered dark:text-gray-300"
                             />
                         </div>
                     </div>
@@ -234,16 +246,20 @@ function showTitle() {
 
                 <div
                     v-if="view === 'input'"
-                    class="modal-action flex justify-between justify-items-center"
+                    class="modal-action flex justify-between items-center"
                 >
-                    <span
-                        ><input
+                    <div class="flex items-center cursor-pointer">
+                        <input
                             v-model="advance"
                             type="checkbox"
                             :id="`${type}-advance`"
-                            class="checkbox"
-                        /><label :for="`${type}-advance`">Advance</label></span
-                    >
+                            class="checkbox checkbox-sm checkbox-primary mr-2"
+                        /><label
+                            :for="`${type}-advance`"
+                            class="cursor-pointer dark:text-gray-400"
+                            >Advance</label
+                        >
+                    </div>
                     <label
                         class="btn"
                         :class="sending ? 'loading' : ''"
