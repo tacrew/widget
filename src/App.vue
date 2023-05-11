@@ -9,7 +9,8 @@ const hdPath = "m/44'/118/0'/0/0";
 
 const params = JSON.stringify({
   proposal_id: "1",
-  validator_address: "junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2"
+  validator_address: "junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2",
+  chain_name: "juno"
 });
 
 const types = ["send", "delegate", "vote", "redelegate", "unbond", "transfer", "deposit", "withdraw", "withdraw_commission"]

@@ -71,6 +71,16 @@ export async function getInactiveValidators(endpoint: string) {
     return get(url)
 }
 
+// /ibc/apps/transfer/v1/denom_traces/{hash}
+export async function getDenomTraces(endpoint: string, hash: string) : Promise<{
+    denom_trace: {
+        path: string;
+        base_denom: string;
+    };
+}> {
+    const url = `${endpoint}/ibc/apps/transfer/v1/denom_traces/${hash}`
+    return get(url)
+}
 // /cosmos/staking/v1beta1/params
 export async function getStakingParam(endpoint: string) : Promise<{
     params: {
