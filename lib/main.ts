@@ -5,16 +5,18 @@ import wrapper from 'vue3-webcomponent-wrapper';
 
 import TxDialog from './components/TxDialog/index.vue';
 import ConnectWallet from './components/ConnectWallet/index.vue';
+import TokenConvert from './components/TokenConvert/index.vue';
 
-if (!window.customElements.get('ping-tx-dialog')) {
-    const WcTxDialog = wrapper(TxDialog, createApp, h);
-    window.customElements.define('ping-tx-dialog', WcTxDialog);
+function registry(name: string, module: any) {
+    if (!window.customElements.get(name)) {
+        const component = wrapper(module, createApp, h);
+        window.customElements.define(name, component);
+    }
 }
 
-if (!window.customElements.get('ping-connect-wallet')) {
-    const WcTxDialog = wrapper(ConnectWallet, createApp, h);
-    window.customElements.define('ping-connect-wallet', WcTxDialog);
-}
+registry('ping-tx-dialog', TxDialog)
+registry('ping-connect-wallet', ConnectWallet)
+registry('ping-token-convert', TokenConvert)
 
 export default {
     version: '0.0.5',

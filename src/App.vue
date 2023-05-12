@@ -47,6 +47,7 @@ const switchTheme = () => {
             Theme: {{ theme }}
         </div>
 
+        <div>&nbsp;</div>
         <ping-connect-wallet :chain-id="chainId" :hd-path="hdPath" />
 
         <select v-model="toOpen">
@@ -80,6 +81,13 @@ const switchTheme = () => {
             :endpoint="endpoint"
             :params="params"
         ></ping-tx-dialog>
+
+        <label for="PingTokenConvert" class="btn">Token Convert</label>
+        <ping-token-convert
+            chain-name="juno"
+            :endpoint="endpoint"
+            :params="params"
+        ></ping-token-convert>
     </div>
 </template>
 
