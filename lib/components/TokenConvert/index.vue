@@ -244,7 +244,7 @@ const outAmount = computed(() => {
         />
 
         <label for="PingTokenConvert" class="modal cursor-pointer">
-            <label class="modal-box relative rounded-lg" for="">
+            <label class="modal-box dark:bg-[#2a2a3a] relative rounded-lg" for="">
                 <h3 class="text-xl font-semibold">Token Convert</h3>
 
                 <div v-if="!osmosisPath" class="text-error mt-3">
