@@ -25,7 +25,6 @@ const chains = ref([] as IBCPath[])
 const sourceChain = ref({} as { channel_id: string, port_id: string } | undefined)
 const ibcDenomTraces = ref({} as Record<string, {path: string, base_denom: string}>)
 
-
 const client = new ChainRegistryClient()
 
 client.fetchIBCPaths().then(paths => {
