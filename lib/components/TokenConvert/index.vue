@@ -282,7 +282,7 @@ const outAmount = computed(() => {
                                 <div
                                     v-for="(item, index) in inTokens"
                                     :key="index"
-                                    class="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                                    class="flex items-center px-4 py-2 hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"
                                     @click="swapIn = item"
                                 >
                                     <img
@@ -362,7 +362,7 @@ const outAmount = computed(() => {
                                     v-for="(item, index) in outTokens"
                                     :key="index"
                                     @click="swapOut = item"
-                                    class="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                                    class="flex items-center px-4 py-2 hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"
                                 >
                                     <img
                                         class="w-7 h-7 rounded-full mr-2"
