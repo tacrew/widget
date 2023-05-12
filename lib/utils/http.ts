@@ -4,7 +4,7 @@ import { AuthInfo, Fee, Tx, TxBody } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { encodePubkey } from "@cosmjs/proto-signing";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { Coin } from 'util/types' 
+import { Coin } from './type'
 
 export async function get(url: string) {
     return (await fetch(url)).json()
@@ -92,5 +92,16 @@ export async function getStakingParam(endpoint: string) : Promise<{
     };
 }> {
     const url = `${endpoint}/cosmos/staking/v1beta1/params`
+    return get(url)
+}
+
+export async function getOsmosisPools(endpoint: string) {
+    const url = `${endpoint}/osmosis/gamm/v1beta1/pools?pagination.limit=1000`
+    return get(url)
+}
+// https://lcd.osmosis.zone
+// /osmosis/gamm/v1beta1/{pool_id}/estimate/swap_exact_amount_in
+export async function estimateSwapAmountIn(endpoint: string, poolId: string, token: Coin) {
+    const url = `${endpoint}/osmosis/gamm/v1beta1/${poolId}/estimate/swap_exact_amount_in?token_in=${token.amount}${token.denom}`
     return get(url)
 }
