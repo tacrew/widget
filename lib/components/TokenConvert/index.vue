@@ -251,101 +251,167 @@ const outAmount = computed(() => {
                     <span>Not available for chain [{{ chainName }}]</span>
                 </div>
 
-                <div class="flex items-center">
+                <div
+                    class="flex items-center relative h-14 bg-gray-100 dark:bg-[#232333] rounded-tl-lg rounded-tr-lg mt-4"
+                >
                     <input
                         v-model="amountIn"
                         type="text"
                         placeholder="0.01"
-                        class="input"
+                        class="input bg-transparent flex-1 h-14 text-lg font-bold"
                     />
-                    <div class="dropdown">
-                        <label tabindex="0" class="flex items-center">
-                            <div>{{ swapIn?.symbol }}</div>
-                            <Icon icon="mdi:chevron-down" />
+                    <div class="dropdown dropdown-end absolute right-0">
+                        <label
+                            tabindex="0"
+                            class="flex items-center h-12 px-4 cursor-pointer"
+                        >
+                            <img
+                                :src="swapIn?.coinImageUrl"
+                                class="w-8 h-8 mr-3 rounded-full"
+                            />
+                            <div class="text-lg font-semibold mr-2">
+                                {{ swapIn?.symbol }}
+                            </div>
+                            <Icon icon="mdi:chevron-down" class="text-lg" />
                         </label>
                         <div
                             tabindex="0"
-                            class="card compact dropdown-content shadow bg-base-100 rounded-box w-64"
+                            class="dropdown-content shadow bg-base-100 rounded-lg w-64"
                         >
-                            <div class="card-body">
-                                <div v-for="b in inTokens">
-                                    <div class="avatar">
-                                        <div class="w-24 rounded-full">
-                                            <img :src="b.coinImageUrl" />
-                                        </div>
+                            <div class="py-2">
+                                <div
+                                    v-for="(item, index) in inTokens"
+                                    :key="index"
+                                    class="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                                    @click="swapIn = item"
+                                >
+                                    <img
+                                        class="w-7 h-7 rounded-full mr-2"
+                                        :src="item.coinImageUrl"
+                                    />
+                                    <div class="flex-1 text-sm">
+                                        {{ item.symbol }}
                                     </div>
-                                    {{ b.symbol }}
-                                    {{
-                                        showBalance(
-                                            b.ibcDenom || b.denom,
-                                            b.decimals
-                                        )
-                                    }}
+                                    <div
+                                        class="text-base font-semibold text-gray-600"
+                                    >
+                                        {{
+                                            showBalance(
+                                                item.ibcDenom || item.denom,
+                                                item.decimals
+                                            )
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    Balance:
-                    {{ showBalance(swapIn?.ibcDenom, swapIn?.decimals) }}
+                <div
+                    class="flex items-center py-2 px-4 bg-gray-200 dark:bg-[#171721] rounded-bl-lg rounded-br-lg"
+                >
+                    <div class="mr-3 text-sm">Balance:</div>
+                    <div class="text-base font-semibold">
+                        {{ showBalance(swapIn?.ibcDenom, swapIn?.decimals) }}
+                    </div>
                 </div>
 
-                <div class="" @click="switchs">
-                    <Icon
-                        icon="mdi:arrow-down-circle"
-                        color="#999"
-                        class="text-4xl"
-                    />
+                <!-- switch btn -->
+                <div class="flex items-center justify-center -mt-3 -mb-3">
+                    <div
+                        class="inline-block px-4 cursor-pointer"
+                        @click="switchs"
+                    >
+                        <Icon
+                            icon="mdi:arrow-down-circle"
+                            color="#676cf6"
+                            class="text-4xl dark:bg-gray-50 rounded-full"
+                        />
+                    </div>
                 </div>
 
-                <div class="flex items-center">
-                    <div>{{ `≈${outAmount}` }}</div>
-                    <div class="dropdown">
-                        <label tabindex="0" class="flex items-center">
-                            <div>{{ swapOut?.symbol }}</div>
-                            <Icon icon="mdi:chevron-down" />
+                <div
+                    class="flex items-center h-14 rounded-tl-lg rounded-tr-lg bg-gray-100 dark:bg-[#232333]"
+                >
+                    <div
+                        class="flex-1 w-0 text-xl font-semibold text-gray-600 dark:text-gray-50 pl-4"
+                    >
+                        {{ `≈ ${outAmount}` }}
+                    </div>
+                    <div class="dropdown dropdown-end">
+                        <label
+                            tabindex="0"
+                            class="flex items-center h-12 px-4 cursor-pointer"
+                        >
+                            <img
+                                :src="swapOut?.coinImageUrl"
+                                class="w-8 h-8 mr-3 rounded-full"
+                            />
+                            <div class="text-lg font-semibold mr-2">
+                                {{ swapOut?.symbol }}
+                            </div>
+                            <Icon icon="mdi:chevron-down" class="text-lg" />
                         </label>
                         <div
                             tabindex="0"
-                            class="card compact dropdown-content shadow bg-base-100 rounded-box w-64"
+                            class="compact dropdown-content shadow bg-base-100 w-64 rounded-lg"
                         >
-                            <div class="card-body">
-                                <div v-for="b in outTokens">
-                                    <div class="avatar">
-                                        <div class="w-24 rounded-full">
-                                            <img :src="b.coinImageUrl" />
-                                        </div>
+                            <div class="py-2">
+                                <div
+                                    v-for="(item, index) in outTokens"
+                                    :key="index"
+                                    @click="swapOut = item"
+                                    class="flex items-center px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                                >
+                                    <img
+                                        class="w-7 h-7 rounded-full mr-2"
+                                        :src="item.coinImageUrl"
+                                    />
+                                    <div class="flex-1 text-sm">
+                                        {{ item.symbol }}
                                     </div>
-                                    {{ b.symbol }}
-                                    {{
-                                        showBalance(
-                                            b.ibcDenom || b.denom,
-                                            b.decimals
-                                        )
-                                    }}
+                                    <div
+                                        class="text-base font-semibold text-gray-600"
+                                    >
+                                        {{
+                                            showBalance(
+                                                item.ibcDenom || item.denom,
+                                                item.decimals
+                                            )
+                                        }}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="">
-                    Balance:
-                    {{ showBalance(swapOut?.ibcDenom, swapOut?.decimals) }}
+                <div
+                    class="flex items-center py-2 px-4 bg-gray-200 dark:bg-[#171721] rounded-bl-lg rounded-br-lg"
+                >
+                    <div class="mr-3 text-sm dark:text-gray-400">Balance:</div>
+                    <div class="text-base font-semibold dark:text-gray-200">
+                        {{ showBalance(swapOut?.ibcDenom, swapOut?.decimals) }}
+                    </div>
                 </div>
 
-                <div>
-                    Swap Fee:
-                    {{ decimal2percent(pool?.pool_params.swap_fee) }}%
+                <div class="px-4 mt-4">
+                    <div class="flex items-center justify-between">
+                        <div class="text-sm text-gray-600 dark:text-gray-400">
+                            Swap Fee
+                        </div>
+                        <div class="text-base text-gray-800 dark:text-gray-200">
+                            {{ decimal2percent(pool?.pool_params.swap_fee) }}%
+                        </div>
+                    </div>
                 </div>
 
                 <div v-if="error" class="text-error mt-3">
                     <span>{{ error }}.</span>
                 </div>
 
-                <div class="mt-4">
+                <div class="mt-5">
                     <button
                         class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
                         :class="sending ? 'loading' : ''"
