@@ -65,7 +65,7 @@ async function initData() {
     sender.value = JSON.parse(
         localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
     ) as ConnectedWallet;
-    if (sender.value.cosmosAddress) {
+    if (sender.value.cosmosAddress && open.value ) {
         await getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
             (res) => {
                 osmoBalances.value = res.balances.filter(
