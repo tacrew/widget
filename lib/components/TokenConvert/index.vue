@@ -313,8 +313,10 @@ async function doSwap() {
             amount: (amount * 10 ** swapIn.value.decimals).toFixed(),
             denom: swapIn.value.ibcDenom 
         },
-        tokenOutMinAmount: ((outAmount.value * 0.9) * 10 ** swapOut.value.decimals).toFixed()
+        tokenOutMinAmount: ((outAmount.value * 0.99) * 10 ** swapOut.value.decimals).toFixed() // slippage: 1% 
     });
+
+    const gas = await stargateClient.simulate(address, [msg], "")
 
     const fee: StdFee = {
         amount: [
@@ -323,7 +325,7 @@ async function doSwap() {
             amount: '864'
         }
         ],
-        gas: '86364'
+        gas: (gas * 1.25).toFixed()
     };
     const response = await stargateClient.signAndBroadcast(address, [msg], fee, "Convert on ping.pub");
     console.log(response.code)
@@ -394,7 +396,7 @@ async function doDeposit() {
         }],
         fee: {
             gas: '200000',
-            amount: [{ amount: "5000", denom: 'uatom' }],
+            amount: [{ amount: "5000", denom: swapIn.value.denom }],
         },
         memo: "",
         signerData: {
@@ -487,7 +489,7 @@ async function doWithdraw() {
             amount: '1864'
         }
         ],
-        gas: (gas + gas * 0.25).toFixed()
+        gas: (gas * 1.25).toFixed()
     };
     const response = await stargateClient.signAndBroadcast(address, [msg], fee, "Convert on ping.pub");
     if(response.code === 0) {
