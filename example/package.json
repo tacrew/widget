@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "ping-widget": "^0.0.4",
+    "ping-widget": "^0.0.7",
     "vue": "^3.2.47"
   },
   "devDependencies": {

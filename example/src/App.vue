@@ -28,9 +28,7 @@ const toOpen = ref('send');
 
 <template>
     <div>
-        Ping Widget Version: 0.0.4
-
-        <hello-ping :msg="pingWidget?.version" />
+        Ping Widget Version: {{ pingWidget?.version }}
 
         <ping-connect-wallet :chain-id="chainId" :hd-path="hdPath" />
 
