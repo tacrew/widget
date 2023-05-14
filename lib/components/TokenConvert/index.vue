@@ -17,8 +17,6 @@ import { osmosis, ibc, getSigningOsmosisClient } from 'osmojs';
 import { tokens, type TokenConfig } from './tokens';
 import { decimal2percent } from '../../utils/format';
 import { StdFee, coin } from '@cosmjs/stargate';
-import { SigningModeDescriptor } from 'osmojs/types/codegen/cosmos/base/reflection/v2alpha1/reflection';
-import { SwapAmountInRoute } from 'osmojs/types/codegen/osmosis/poolmanager/v1beta1/swap_route';
 import { longify } from '@cosmjs/stargate/build/queryclient';
 import Long from 'long';
 import dayjs from 'dayjs';

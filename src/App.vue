@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
 
 const sender = 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a';
@@ -37,6 +37,11 @@ const switchTheme = () => {
     }
     document.documentElement.setAttribute('data-theme', theme.value);
 };
+
+onMounted(() => {
+    document.documentElement.classList.add('light');
+    document.documentElement.setAttribute('data-theme', 'light');
+})
 </script>
 
 <template>
