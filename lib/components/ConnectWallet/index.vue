@@ -114,7 +114,7 @@ const tipMsg = computed(()=> {
         <!-- modal btn -->
         <div
             v-if="connected.cosmosAddress"
-            class="dropdown dropdown-hover"
+            class="dropdown dropdown-hover ping-connect-dropdown"
         >
             <label tabindex="0" class="btn btn-sm m-1 lowercase"
                 >{{ connected.wallet }}-{{
