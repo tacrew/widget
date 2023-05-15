@@ -8,9 +8,9 @@ const chainId = 'juno-1';
 const hdPath = "m/44'/118/0'/0/0";
 
 const params = JSON.stringify({
-  proposal_id: "1",
-  validator_address: "junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2",
-  chain_name: "juno"
+    proposal_id: '1',
+    validator_address: 'junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2',
+    chain_name: 'juno',
 });
 
 const types = [
@@ -41,7 +41,10 @@ const switchTheme = () => {
 onMounted(() => {
     document.documentElement.classList.add('light');
     document.documentElement.setAttribute('data-theme', 'light');
-})
+});
+const walletStateChange = (res: any) => {
+   console.log(res, 'resres');
+};
 </script>
 
 <template>
@@ -53,7 +56,11 @@ onMounted(() => {
         </div>
 
         <div>&nbsp;</div>
-        <ping-connect-wallet :chain-id="chainId" :hd-path="hdPath" />
+        <ping-connect-wallet
+            :chain-id="chainId"
+            :hd-path="hdPath"
+            @change="walletStateChange"
+        />
 
         <select v-model="toOpen">
             <option v-for="i in types">{{ i }}</option>

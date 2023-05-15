@@ -149,7 +149,6 @@ export class KeplerWallet implements AbstractWallet {
     async sign( signerAddress: string, signDoc: SignDoc ): Promise<any> {
         const offlineSigner = window.getOfflineSigner(this.chainId)
         return await offlineSigner.signDirect(signerAddress, signDoc);
-
     }    
 }
 

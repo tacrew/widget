@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref,computed } from 'vue';
 import {
     WalletName,
     createWallet,
@@ -11,7 +11,12 @@ const props = defineProps({
     chainId: String,
     hdPath: String,
 });
-const DEFAULT_HDPATH = "m/44'/118/0'/0/0"
+// const emit = defineEmits<{
+//   (event: 'connectWalletRes', res: object): void
+// }>()
+const emit = defineEmits(['change']);
+
+const DEFAULT_HDPATH = "m/44'/118/0'/0/0";
 const sending = ref(false);
 const open = ref(false);
 const error = ref('');
@@ -20,7 +25,7 @@ const name = ref(WalletName.Keplr);
 const list = [WalletName.Keplr, WalletName.Ledger];
 const connected = ref(
     JSON.parse(
-        localStorage.getItem(props.hdPath || DEFAULT_HDPATH ) || '{}'
+        localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
     ) as ConnectedWallet
 );
 
@@ -48,9 +53,14 @@ async function connect() {
                         hdPath: props.hdPath,
                     };
                     localStorage.setItem(
-                        props.hdPath || DEFAULT_HDPATH ,
+                        props.hdPath || DEFAULT_HDPATH,
                         JSON.stringify(connected.value)
                     );
+                    emit('change', {
+                        type: 'connectedWallet',
+                        result: true,
+                        value: connected.value,
+                    });
                 }
                 open.value = false;
             })
@@ -59,6 +69,11 @@ async function connect() {
                 setTimeout(() => {
                     error.value = '';
                 }, 5000);
+                emit('change', {
+                    type: 'connectedWallet',
+                    result: false,
+                    value: {},
+                });
             });
     } catch (e) {
         error.value = e.message;
@@ -66,42 +81,109 @@ async function connect() {
     sending.value = false;
 }
 function disconnect() {
-    localStorage.removeItem( props.hdPath || DEFAULT_HDPATH );
+    localStorage.removeItem(props.hdPath || DEFAULT_HDPATH);
     connected.value = {} as ConnectedWallet;
+    emit('change', {
+        type: 'disconnectWallet',
+        result: true,
+        value: {},
+    });
 }
+let showCopyToast = ref(0)
+async function copyAdress(address: string){
+  try {
+    await navigator.clipboard.writeText(address);
+    showCopyToast.value = 1
+    setTimeout(()=>{
+      showCopyToast.value = 0
+    },1000)
+    /* Resolved - 文本被成功复制到剪贴板 */
+  } catch (err) {
+    showCopyToast.value = 2
+    setTimeout(()=>{
+      showCopyToast.value = 0
+    },1000)
+  }
+}
+const tipMsg = computed(()=> {
+  return showCopyToast.value === 2 ? {class: 'error', msg: 'Copy Error!'}: {class: 'success', msg: 'Copy Success!'}
+})
 </script>
 <template>
-    <div>
+    <div class="mb-4">
         <!-- modal btn -->
         <div
             v-if="connected.cosmosAddress"
-            class="dropdown dropdown-hover ping-connect-dropdown"
+            class="dropdown dropdown-hover"
         >
-            <label tabindex="0" class="btn m-1"
+            <label tabindex="0" class="btn btn-sm m-1 lowercase"
                 >{{ connected.wallet }}-{{
                     connected.cosmosAddress?.substring(
                         connected.cosmosAddress?.length - 4
                     )
                 }}</label
             >
-            <ul
+            <div
                 tabindex="0"
-                class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-52"
+                class="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto"
             >
-                <li>
-                    <a>{{ connected.cosmosAddress }}</a>
-                </li>
-                <li>
-                    <a>{{ connected.hdPath }}</a>
-                </li>
-                <div class="divider"></div>
-                <li><a @click="disconnect()">Disconnected</a></li>
-            </ul>
+                <div
+                    class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold"
+                >
+                    {{ connected.wallet }}
+                </div>
+                <div class="">
+                    <a
+                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        style="overflow-wrap: anywhere"
+                        @click="copyAdress(connected.cosmosAddress)"
+                    >
+                        {{ connected.cosmosAddress }}
+                    </a>
+                    <a
+                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        style="overflow-wrap: anywhere"
+                    >
+                        {{ connected.hdPath }}
+                    </a>
+                    <!-- <div class="divider mt-1 mb-1"></div>
+                    <RouterLink
+                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        to="/wallet/accounts"
+                        >Accounts</RouterLink
+                    >
+                    <RouterLink
+                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        to="/wallet/portfolio"
+                        >Portfolio</RouterLink
+                    > -->
+                    <div class="divider mt-1 mb-1"></div>
+                    <a
+                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        @click="disconnect()"
+                        >Disconnected</a
+                    >
+                </div>
+            </div>
+            <div class="toast" v-show="showCopyToast === 1">
+                <div class="alert alert-success">
+                    <div class="text-sm">
+                        <span>{{ tipMsg.msg }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="toast" v-show="showCopyToast === 2">
+                <div class="alert alert-error">
+                    <div class="text-sm">
+                        <span>{{ tipMsg.msg }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
         <label
             v-if="!connected.cosmosAddress"
             for="PingConnectWallet"
-            class="btn ping-connect-btn"
+            class="btn btn-sm ping-connect-btn capitalize"
             >Connect Wallet</label
         >
 
