@@ -1,11 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, defineAsyncComponent } from 'vue';
 
-import { getAccount, getBalance, getLatestBlock } from '../../utils/http';
-import { Coin } from '../../utils/type';
-import { WalletName } from '../../../lib/wallet/Wallet';
-import { UniClient } from '../../../lib/wallet/UniClient';
-
 import Delegate from './messages/Delegate.vue';
 import Deposit from './messages/Deposit.vue';
 import Redelegate from './messages/Redelegate.vue';
@@ -15,6 +10,7 @@ import Unbond from './messages/Unbond.vue';
 import Vote from './messages/Vote.vue';
 import Withdraw from './messages/Withdraw.vue';
 import WithdrawCommission from './messages/WithdrawCommission.vue';
+import { useTxDialog } from './useTxDialog';
 
 const props = defineProps({
     type: String,
@@ -23,6 +19,9 @@ const props = defineProps({
     feeDenom: String,
     params: String,
 });
+
+const txStore = useTxDialog()
+txStore.initial(props.type, props.endpoint, props.sender, props.params)
 
 const msgType = computed(() => {
     switch (props.type?.toLowerCase()) {
@@ -53,86 +52,21 @@ const titles = {};
 
 const advance = ref(false);
 const sending = ref(false);
-const balance = ref([] as Coin[]);
-const account = ref({} as { account_number: string; sequence: string });
 
 // functional variable
-const p = JSON.parse(props.params || '{}');
 const view = ref('input'); // input, submiting
 const open = ref(false);
 const error = ref('');
 
 // input field
 const msgBox = ref({ msgs: [] });
-const fees = ref(Number(p.fees?.amount || 2000));
-const gasInfo = ref(200000);
-const memo = ref('Ping.pub');
-const chainId = ref('cosmoshub-4');
 
 async function initData() {
-    if (open.value && props.endpoint && props.sender) {
-        await getBalance(props.endpoint, props.sender).then((x) => {
-            balance.value = x.balances;
-        });
-        getLatestBlock(props.endpoint).then((x) => {
-            chainId.value = x.block.header.chain_id;
-        });
-        // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
-        console.log('bal:', balance.value);
+    if (open.value) {
         sending.value = false;
     }
 }
-async function sendTx() {
-    // console.log(msgs.value.msgs)
-    if (!props.sender) throw new Error('sender should not be empty!');
-    if (!props.endpoint) throw new Error('Endpoint is empty');
-    sending.value = true; // disable sending btn
 
-    const acc = await getAccount(props.endpoint, props.sender);
-
-    console.log('acc', acc.account);
-
-    const messages = msgBox.value.msgs;
-
-    console.log('messages: ', messages);
-
-    const tx = {
-        chainId: chainId.value,
-        signerAddress: props.sender,
-        messages,
-        fee: {
-            gas: String(gasInfo.value),
-            amount: [{ amount: String(fees.value), denom: 'uatom' }],
-        },
-        memo: memo.value,
-        signerData: {
-            accountNumber: Number(acc.account.account_number),
-            sequence: Number(acc.account.sequence),
-            chainId: chainId.value,
-        },
-    };
-    console.log('tx:', tx);
-
-    try {
-        const client = new UniClient(WalletName.Keplr, {
-            chainId: chainId.value,
-        });
-
-        //   console.log("gasInfo:", gasInfo)
-        const txRaw = await client.sign(tx);
-        const response = await client.broadcastTx(props.endpoint, txRaw);
-        // show submitting view
-        view.value = 'submitting';
-
-        console.log('broadcast:', response);
-        setTimeout(() => (open.value = false), 6000);
-    } catch (e) {
-        console.error(e);
-        sending.value = false;
-        error.value = e;
-        setTimeout(() => (error.value = ''), 5000);
-    }
-}
 
 function showTitle() {
     return (props.type || 'Sending Transaction').replace('_', ' ');
@@ -163,7 +97,6 @@ function showTitle() {
                     ref="msgBox"
                     :endpoint="endpoint"
                     :sender="sender"
-                    :balances="balance"
                     :params="params"
                 />
                 <form
@@ -179,18 +112,19 @@ function showTitle() {
                             </label>
                             <label class="input-group flex items-center">
                                 <input
-                                    v-model="fees"
+                                    v-model="txStore.feeAmount"
                                     type="text"
                                     placeholder="0.001"
                                     class="input input-bordered flex-1 w-0 dark:text-gray-300"
                                 />
                                 <select
+                                    v-model="txStore.feeDenom"
                                     class="select input input-bordered w-[200px]"
                                 >
                                     <option disabled selected>
                                         Select Fee Token
                                     </option>
-                                    <option v-for="t in balance">
+                                    <option v-for="t in txStore.balances">
                                         {{ t.denom }}
                                     </option>
                                 </select>
@@ -201,7 +135,7 @@ function showTitle() {
                                 <span class="label-text">Gas</span>
                             </label>
                             <input
-                                v-model="gasInfo"
+                                v-model="txStore.gas"
                                 type="number"
                                 placeholder="2000000"
                                 class="input input-bordered dark:text-gray-300"
@@ -212,7 +146,7 @@ function showTitle() {
                                 <span class="label-text">Memo</span>
                             </label>
                             <input
-                                v-model="memo"
+                                v-model="txStore.memo"
                                 type="text"
                                 placeholder="Memo"
                                 class="input input-bordered dark:text-gray-300"

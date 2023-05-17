@@ -78,7 +78,7 @@ defineExpose({msgs})
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Validator</span>
-                <a class="label-text" @click="loadInactiveValidators()">Inactive</a>
+                <a class="label-text" @click="loadInactiveValidators()">Show Inactive</a>
             </label>
             <select v-model="validator" class="select select-bordered">
                 <option value="">Select a validator</option>

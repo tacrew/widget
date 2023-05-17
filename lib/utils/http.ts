@@ -42,6 +42,11 @@ export async function getBalance(endpoint: string, address: string) {
     return get(url)
 }
 
+export async function getCoinMetadata(endpoint: string, denom: string) {
+    const url = `${endpoint}/cosmos/bank/v1beta1/denoms_metadata/${denom}`
+    return get(url)
+}
+
 export async function getDelegateRewards(endpoint: string, address: string) {
     const url = `${endpoint}/cosmos/distribution/v1beta1/delegators/${address}/rewards`
     return get(url)
