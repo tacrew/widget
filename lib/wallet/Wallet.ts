@@ -64,10 +64,24 @@ export interface AbstractWallet {
    * The the accounts from the wallet (addresses)
    */
   getAccounts(): Promise<Account[]>
-
   supportCoinType(coinType?: string): Promise<boolean>
-
   sign(signerAddress: string, signDoc: SignDoc): Promise<any>
+}
+
+
+const DEFAULT_HDPATH = "m/44'/118/0'/0/0";
+
+export function readWallet(hdPath?: string) {
+    return JSON.parse(
+        localStorage.getItem(hdPath || DEFAULT_HDPATH) || '{}'
+    ) as ConnectedWallet
+}
+export function writeWallet(connected: ConnectedWallet , hdPath?: string) {
+    localStorage.setItem( hdPath || DEFAULT_HDPATH,JSON.stringify(connected))
+}
+
+export function removeWallet(hdPath?: string) {
+    localStorage.removeItem(hdPath || DEFAULT_HDPATH);
 }
 
 export function createWallet(name: WalletName, arg: WalletArgument) : AbstractWallet {
@@ -132,6 +146,7 @@ export class KeplerWallet implements AbstractWallet {
     registry: Registry
     constructor(arg: WalletArgument) {
         this.chainId = arg.chainId || "cosmoshub"
+        // @ts-ignore
         if (!window.getOfflineSigner || !window.keplr) {
             throw new Error('Please install keplr extension')
         }
@@ -139,7 +154,9 @@ export class KeplerWallet implements AbstractWallet {
     }
     async getAccounts(): Promise<Account[]> {
         // const chainId = 'cosmoshub'
+        // @ts-ignore
         await window.keplr.enable(this.chainId )
+        // @ts-ignore
         const offlineSigner = window.getOfflineSigner(this.chainId)
         return offlineSigner.getAccounts()
     }
@@ -147,6 +164,7 @@ export class KeplerWallet implements AbstractWallet {
         return Promise.resolve(true);
     }
     async sign( signerAddress: string, signDoc: SignDoc ): Promise<any> {
+        // @ts-ignore
         const offlineSigner = window.getOfflineSigner(this.chainId)
         return await offlineSigner.signDirect(signerAddress, signDoc);
     }    

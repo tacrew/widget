@@ -5,29 +5,25 @@ import {
     createWallet,
     Account,
     ConnectedWallet,
+removeWallet,
+writeWallet,
 } from '../../../lib/wallet/Wallet';
+import { readWallet } from '../../../lib/wallet/Wallet';
 
 const props = defineProps({
     chainId: String,
     hdPath: String,
 });
-// const emit = defineEmits<{
-//   (event: 'connectWalletRes', res: object): void
-// }>()
-const emit = defineEmits(['change']);
 
-const DEFAULT_HDPATH = "m/44'/118/0'/0/0";
+const emit = defineEmits(['connect', "disconnect", "update"]);
+
 const sending = ref(false);
 const open = ref(false);
 const error = ref('');
 async function initData() {}
 const name = ref(WalletName.Keplr);
 const list = [WalletName.Keplr, WalletName.Ledger];
-const connected = ref(
-    JSON.parse(
-        localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
-    ) as ConnectedWallet
-);
+const connected = ref(readWallet(props.hdPath) as ConnectedWallet);
 
 function selectWallet(wallet: WalletName) {
     name.value = wallet;
@@ -52,13 +48,8 @@ async function connect() {
                         cosmosAddress: first.address,
                         hdPath: props.hdPath,
                     };
-                    localStorage.setItem(
-                        props.hdPath || DEFAULT_HDPATH,
-                        JSON.stringify(connected.value)
-                    );
-                    emit('change', {
-                        type: 'connectedWallet',
-                        result: true,
+                    writeWallet(connected.value, props.hdPath)
+                    emit('connect', {
                         value: connected.value,
                     });
                 }
@@ -69,11 +60,6 @@ async function connect() {
                 setTimeout(() => {
                     error.value = '';
                 }, 5000);
-                emit('change', {
-                    type: 'connectedWallet',
-                    result: false,
-                    value: {},
-                });
             });
     } catch (e) {
         error.value = e.message;
@@ -81,14 +67,11 @@ async function connect() {
     sending.value = false;
 }
 function disconnect() {
-    localStorage.removeItem(props.hdPath || DEFAULT_HDPATH);
+    removeWallet(props.hdPath)
+    emit('disconnect', { value: connected.value });
     connected.value = {} as ConnectedWallet;
-    emit('change', {
-        type: 'disconnectWallet',
-        result: true,
-        value: {},
-    });
 }
+
 let showCopyToast = ref(0)
 async function copyAdress(address: string){
   try {

@@ -16,3 +16,25 @@ export interface Coin {
 export interface Configuration {
 
 }
+
+export interface CoinMetadata {
+  description: string,
+  denom_units: {
+    denom: string,
+    exponent: number,
+    aliases: string[]
+  }[],
+  base: string,
+  display: string,
+  name: string,
+  symbol: string
+}
+
+export interface TxResponse {
+  height: string,
+  txhash: string,
+  codespace: string,
+  code: 0,
+  data: string,
+  raw_log: string,
+}

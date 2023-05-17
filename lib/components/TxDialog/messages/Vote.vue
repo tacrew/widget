@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { PropType, computed, ref } from 'vue';
+import { CoinMetadata } from '../../../utils/type';
 
 const props = defineProps({
     endpoint: { type: String, required: true },

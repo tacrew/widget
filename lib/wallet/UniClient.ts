@@ -38,6 +38,7 @@ import { Any } from "cosmjs-types/google/protobuf/any";
 import { AbstractWallet, WalletArgument, WalletName, createWallet } from "./Wallet";
 import { post } from "../utils/http";
 import Long from "long";
+import { TxResponse } from "../utils/type";
 
 
 export class UniClient {
@@ -164,7 +165,7 @@ export class UniClient {
     }
 
 
-  async broadcastTx(endpoint, bodyBytes: TxRaw) {
+  async broadcastTx(endpoint, bodyBytes: TxRaw) : Promise<{tx_response: TxResponse}> {
     // const txbytes = bodyBytes.authInfoBytes ? TxRaw.encode(bodyBytes).finish() : bodyBytes
     const txbytes = TxRaw.encode(bodyBytes).finish() 
     const txString = toBase64(txbytes)
@@ -172,14 +173,6 @@ export class UniClient {
       tx_bytes: txString,
       mode: 'BROADCAST_MODE_SYNC', // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
     }
-    return post(`${endpoint}/cosmos/tx/v1beta1/txs`, txRaw).then(res => {
-      if (res.code && res.code !== 0) {
-        throw new Error(res.message)
-      }
-      if (res.tx_response && res.tx_response.code !== 0) {
-        throw new Error(res.tx_response.raw_log)
-      }
-      return res
-    })
+    return post(`${endpoint}/cosmos/tx/v1beta1/txs`, txRaw)
   }
 }

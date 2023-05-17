@@ -1,25 +1,28 @@
 <script lang="ts" setup>
 import { ComputedRef, PropType, computed, ref } from 'vue';
 import { getStakingParam, getDenomTraces } from '../../../utils/http'
-import { Coin } from '../../../utils/type';
+import { Coin, CoinMetadata } from '../../../utils/type';
 import ChainRegistryClient from '@ping-pub/chain-registry-client';
 import { IBCPath } from '@ping-pub/chain-registry-client/dist/types'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
 dayjs.extend(utc)
 
 const props = defineProps({
     endpoint: {type: String, required: true },
     sender: {type: String, required: true},
     balances: Object as PropType<Coin[]>,
+    metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
 const params = JSON.parse(props.params|| "{}")
 const chainName = params.chain_name
 
 const amount = ref("")
+const amountDenom = ref("")
 const recipient = ref("")
-const denom = ref()
+const denom = ref("")
 const dest = ref("")
 const chains = ref([] as IBCPath[])
 const sourceChain = ref({} as { channel_id: string, port_id: string } | undefined)
@@ -38,15 +41,16 @@ getStakingParam(props.endpoint).then(x => {
 
 const msgs = computed(() => {
     const timeout = dayjs().add(1, 'hour')
+    const convert = new TokenUnitConverter(props.metadata)
     return [{
         typeUrl: '/ibc.applications.transfer.v1.MsgTransfer',
         value: {
             sourcePort: sourceChain.value?.port_id || "",
             sourceChannel: sourceChain.value?.channel_id || "",
-            token: {
+            token: convert.displayToBase(denom.value, {
                 amount: String(amount.value),
-                denom: denom.value
-            },
+                denom: amountDenom.value,
+            }),
             sender: props.sender,
             receiver: recipient.value,
             timeoutTimestamp: String(timeout.utc().valueOf() * 1000000),
@@ -92,20 +96,36 @@ function updateIBCToken() {
 }
 
 const available = computed(() => {
-    return props.balances?.find(x => x.denom === denom.value) || {amount: "0", denom: "-"}
+    const base  = (
+        props.balances?.find((x) => x.denom === denom.value) || {
+            amount: '0',
+            denom: '-',
+        }
+    )
+    const convert = new TokenUnitConverter(props.metadata)
+    return {
+        base,
+        display: convert.baseToDisplay(base)
+    };
+});
+
+const showBalances = computed(() => {
+    const convert = new TokenUnitConverter(props.metadata)
+    return props.balances?.map(b => ({
+        base: b,
+        display: convert.baseToDisplay(b)
+    })) || []
 })
 
-function formatDenom(v: string) {
-    if(v.startsWith('ibc/')) {
-        const trace = ibcDenomTraces.value[v]
-        if(trace) {
-            return trace.base_denom
-        }
-        return `${v.substring(0, 10)}...`
-    } 
-    return v
-}
-
+const units = computed(() => {
+    if(!props.metadata || !props.metadata[denom.value]) {
+        amountDenom.value = denom.value
+        return [{denom: denom.value, exponent: 0, aliases: []}]
+    }
+    const list = props.metadata[denom.value].denom_units.sort((a, b) => b.exponent - a.exponent)
+    if(list.length > 0) amountDenom.value = list[0].denom
+    return list
+})
 
 defineExpose({msgs})
 </script>
@@ -123,8 +143,8 @@ defineExpose({msgs})
             </label>
             <select v-model="denom" class="select select-bordered" @change="updateIBCToken">
                 <option value="">Select a token</option>
-                <option v-for="v in balances" :value="v.denom">
-                    {{ v.amount }} {{ formatDenom(v.denom) }}
+                <option v-for="{base, display} in showBalances" :value="base.denom">
+                    {{ display.amount }} {{ display.denom }}
                 </option>
             </select>
         </div>
@@ -149,9 +169,14 @@ defineExpose({msgs})
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Amount</span>
-                <span class="text-xs">{{ available?.amount }}{{ formatDenom(available?.denom) }}</span>
+                <span>{{ available.display.amount }}{{ available.display.denom }}</span>
             </label>
-            <input v-model="amount" type="number" :placeholder="`Available: ${available?.amount}${available?.denom}`" class="input input-bordered" />
+            <label class="input-group">
+                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`" class="input input-bordered w-full" />
+                <select v-model="amountDenom" class="select select-bordered">
+                    <option v-for="u in units">{{ u.denom }}</option>
+                </select>
+            </label>
         </div>
     </div>
 </template>

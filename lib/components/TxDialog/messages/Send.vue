@@ -6,24 +6,28 @@ import {
     getStakingParam,
 } from '../../../utils/http';
 import { decimal2percent } from '../../../utils/format';
-import { Coin } from '../../../utils/type';
+import { Coin, CoinMetadata } from '../../../utils/type';
+import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
 const props = defineProps({
     endpoint: { type: String, required: true },
     sender: { type: String, required: true },
     balances: Object as PropType<Coin[]>,
+    metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
 const params = JSON.parse(props.params || '{}');
 
 const amount = ref('');
 const recipient = ref('');
-const denom = ref();
+const denom = ref('');
+const amountDenom = ref('')
 
 getStakingParam(props.endpoint).then((x) => {
     denom.value = x.params.bond_denom;
 });
 
 const msgs = computed(() => {
+    const convert = new TokenUnitConverter(props.metadata)
     return [
         {
             typeUrl: '/cosmos.bank.v1beta1.MsgSend',
@@ -31,10 +35,10 @@ const msgs = computed(() => {
                 fromAddress: props.sender,
                 toAddress: recipient.value,
                 amount: [
-                    {
+                    convert.displayToBase(denom.value, {
                         amount: String(amount.value),
-                        denom: available.value.denom,
-                    },
+                        denom: amountDenom.value
+                    })
                 ],
             },
         },
@@ -42,13 +46,36 @@ const msgs = computed(() => {
 });
 
 const available = computed(() => {
-    return (
+    const base  = (
         props.balances?.find((x) => x.denom === denom.value) || {
             amount: '0',
             denom: '-',
         }
-    );
+    )
+    const convert = new TokenUnitConverter(props.metadata)
+    return {
+        base,
+        display: convert.baseToDisplay(base)
+    };
 });
+
+const showBalances = computed(() => {
+    const convert = new TokenUnitConverter(props.metadata)
+    return props.balances?.map(b => ({
+        base: b,
+        display: convert.baseToDisplay(b)
+    })) || []
+})
+
+const units = computed(() => {
+    if(!props.metadata || !props.metadata[denom.value]) {
+        amountDenom.value = denom.value
+        return [{denom: denom.value, exponent: 0, aliases: []}]
+    }
+    const list = props.metadata[denom.value].denom_units.sort((a, b) => b.exponent - a.exponent)
+    if(list.length > 0) amountDenom.value = list[0].denom
+    return list
+})
 
 defineExpose({ msgs });
 </script>
@@ -66,8 +93,8 @@ defineExpose({ msgs });
             </label>
             <select v-model="denom" class="select select-bordered">
                 <option value="">Select a token</option>
-                <option v-for="v in balances" :value="v.denom">
-                    {{ v.amount }} {{ v.denom }}
+                <option v-for="{base, display} in showBalances" :value="base.denom">
+                    {{ display.amount }} {{ display.denom }}
                 </option>
             </select>
         </div>
@@ -84,14 +111,14 @@ defineExpose({ msgs });
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Amount</span>
-                <span>{{ available?.amount }}{{ available?.denom }}</span>
+                <span>{{ available.display.amount }}{{ available.display.denom }}</span>
             </label>
-            <input
-                v-model="amount"
-                type="number"
-                :placeholder="`Available: ${available?.amount}${available?.denom}`"
-                class="input input-bordered"
-            />
+            <label class="input-group">
+                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`" class="input input-bordered w-full" />
+                <select v-model="amountDenom" class="select select-bordered">
+                    <option v-for="u in units">{{ u.denom }}</option>
+                </select>
+            </label>
         </div>
     </div>
 </template>

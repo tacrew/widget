@@ -2,15 +2,16 @@
 import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
 
-const sender = 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a';
-const endpoint = 'https://juno-api.polkachu.com';
-const chainId = 'juno-1';
+const sender = 'stars1m8mma95ta2zajqtmfp5c5y3wgeyqzcrc2k82es';
+const endpoint = 'https://rest.stargaze-apis.com';
+const chainId = 'stargaze-1';
 const hdPath = "m/44'/118/0'/0/0";
+const chain_name = 'stargaze'
 
 const params = JSON.stringify({
     proposal_id: '1',
-    validator_address: 'junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2',
-    chain_name: 'juno',
+    validator_address: 'starsvaloper1jxv0u20scum4trha72c7ltfgfqef6nscdghxyx',
+    chain_name,
 });
 
 const types = [
@@ -96,7 +97,7 @@ const walletStateChange = (res: any) => {
 
         <label for="PingTokenConvert" class="btn">Token Convert</label>
         <ping-token-convert
-            chain-name="juno"
+            :chain-name="chain_name"
             :endpoint="endpoint"
             :params="params"
         ></ping-token-convert>

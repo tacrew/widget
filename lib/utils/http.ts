@@ -1,10 +1,5 @@
 import fetch from 'cross-fetch'
-import { Pubkey, encodeSecp256k1Pubkey } from "@cosmjs/amino";
-import { AuthInfo, Fee, Tx, TxBody } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { Any } from "cosmjs-types/google/protobuf/any";
-import { encodePubkey } from "@cosmjs/proto-signing";
-import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { Coin } from './type'
+import { Coin, CoinMetadata, TxResponse } from './type'
 
 export async function get(url: string) {
     return (await fetch(url)).json()
@@ -37,8 +32,13 @@ export async function getAccount(endpoint: string, address: string) {
     return get(url)
 }
 
-export async function getBalance(endpoint: string, address: string) {
+export async function getBalance(endpoint: string, address: string): Promise<{balances: Coin[]}> {
     const url = `${endpoint}/cosmos/bank/v1beta1/balances/${address}`
+    return get(url)
+}
+
+export async function getBalanceMetadata(endpoint: string, denom: string): Promise<{metadata: CoinMetadata }> {
+    const url = `${endpoint}/cosmos/bank/v1beta1/denoms_metadata/${denom}`
     return get(url)
 }
 
@@ -79,6 +79,13 @@ export async function getDenomTraces(endpoint: string, hash: string) : Promise<{
     };
 }> {
     const url = `${endpoint}/ibc/apps/transfer/v1/denom_traces/${hash}`
+    return get(url)
+}
+// /cosmos/tx/v1beta1/txs/{hash}
+export async function getTxByHash(endpoint: string, hash: string) : Promise<{
+    tx_response: TxResponse;
+}> {
+    const url = `${endpoint}/cosmos/tx/v1beta1/txs/${hash}`
     return get(url)
 }
 // /cosmos/staking/v1beta1/params

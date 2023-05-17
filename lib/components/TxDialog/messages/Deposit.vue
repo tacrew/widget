@@ -1,41 +1,58 @@
 <script lang="ts" setup>
 import { PropType, computed, ref } from 'vue';
-import { Coin } from '../../../utils/type';
+import { Coin, CoinMetadata } from '../../../utils/type';
 import { getStakingParam } from '../../../utils/http';
+import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
 
 const props = defineProps({
     endpoint: {type: String, required: true },
     sender: {type: String, required: true},
     balances: Object as PropType<Coin[]>,
+    metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
 
 const params = JSON.parse(props.params || "{}")
 const denom = ref("")
 const amount = ref("")
+const amountDenom = ref("")
 
 getStakingParam(props.endpoint).then(x => {
     denom.value = x.params.bond_denom
 })
 
 const available = computed(() => {
-    return props.balances?.find(x => x.denom === denom.value) || {amount: "0", denom: "-"}
+    const convert = new TokenUnitConverter(props.metadata)
+    const base = props.balances?.find(x => x.denom === denom.value) || { amount: "0", denom: denom.value }
+    return {
+        base,
+        display: convert.baseToDisplay(base)
+    }
 })
 
 const msgs = computed(() => {
+    const convert = new TokenUnitConverter(props.metadata)
     return [{
         typeUrl: '/cosmos.gov.v1beta1.MsgDeposit',
         value: {
           depositor: props.sender,
           proposalId: params.proposal_id,
-          amount: [
-            {
-              amount: String(amount.value),
-              denom: denom.value,
-            },
-          ],
+          amount: [convert.displayToBase(denom.value, {
+            amount: String(amount.value),
+            denom: amountDenom.value
+          })],
         },
       }]
+})
+
+const units = computed(() => {
+    if(!props.metadata || !props.metadata[denom.value]) {
+        amountDenom.value = denom.value
+        return [{denom: denom.value, exponent: 0, aliases: []}]
+    }
+    const list = props.metadata[denom.value].denom_units.sort((a, b) => b.exponent - a.exponent)
+    if(list.length > 0) amountDenom.value = list[0].denom
+    return list
 })
 
 defineExpose({ msgs })
@@ -51,9 +68,14 @@ defineExpose({ msgs })
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Amount</span>
-                <span>{{ available?.amount }}{{ available?.denom }}</span>
+                <span>{{ available?.display.amount }}{{ available?.display.denom }}</span>
             </label>
-            <input v-model="amount" type="number" :placeholder="`Available: ${available?.amount}${available?.denom}`" class="input input-bordered" />
+            <label class="input-group">
+                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`" class="input input-bordered w-full" />
+                <select v-model="amountDenom" class="select select-bordered">
+                    <option v-for="u in units">{{ u.denom }}</option>
+                </select>
+            </label>
         </div>
     </div>
 </template>

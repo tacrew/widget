@@ -292,6 +292,7 @@ async function doSwap() {
 
     const stargateClient = await getSigningOsmosisClient({
         rpcEndpoint: OSMOSIS_RPC,
+        // @ts-ignore
         signer: window.getOfflineSigner(latest.block.header.chain_id)
     })
     const address = osmoAddress(sender.value.cosmosAddress)
@@ -452,6 +453,7 @@ async function doWithdraw() {
 
     const stargateClient = await getSigningOsmosisClient({
         rpcEndpoint: OSMOSIS_RPC,
+        // @ts-ignore
         signer: window.getOfflineSigner(latest.block.header.chain_id)
     })
     const address = osmoAddress(sender.value.cosmosAddress)
