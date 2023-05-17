@@ -411,7 +411,7 @@ async function doDeposit() {
         //   console.log("gasInfo:", gasInfo)
         const txRaw = await client.sign(tx);
         const response = await client.broadcastTx(props.endpoint, txRaw);
-        if(response.code === 0) {
+        if(response.tx_response?.code === 0) {
             setTimeout(async () => {
                 await getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
                 (res) => {
@@ -526,8 +526,8 @@ async function doWithdraw() {
             <label class="modal-box dark:bg-[#2a2a3a] relative rounded-lg" for="">
                 <div :class="view !== 'swap'?'hidden':''">
                     <h3 class="text-xl font-semibold">Token Convert</h3>
-                    <div v-if="!osmosisPath" class="text-error mt-3">
-                        <span>Not available for chain [{{ chainName }}]</span>
+                    <div v-if="!osmosisPath || chainName === 'osmosis'" class="text-error mt-3">
+                        <span>This feature is not available [{{ chainName }}]</span>
                     </div>
                     <div
                         class="flex items-center relative h-14 bg-gray-100 dark:bg-[#232333] rounded-tl-lg rounded-tr-lg mt-4"
