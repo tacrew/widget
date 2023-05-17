@@ -37,9 +37,12 @@ import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { Any } from "cosmjs-types/google/protobuf/any";
 import { AbstractWallet, WalletArgument, WalletName, createWallet } from "./Wallet";
 import { post } from "../utils/http";
-import Long from "long";
 import { TxResponse } from "../utils/type";
+import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys'
 
+function isEthermint(chainId: string) {
+  return chainId.search(/\w+_\d+-\d+/g) > -1
+}
 
 export class UniClient {
     registry: Registry
@@ -60,8 +63,12 @@ export class UniClient {
         if (!accountFromSigner) {
             throw new Error("Failed to retrieve account from signer");
         }
-        console.log("account:",  accouts )
-        const pubkey = encodePubkey(encodeSecp256k1Pubkey(accountFromSigner.pubkey));
+        const pubkey = isEthermint(transaction.chainId) ? Any.fromPartial({
+          typeUrl: '/ethermint.crypto.v1.ethsecp256k1.PubKey',
+          value: PubKey.encode({
+            key: accountFromSigner.pubkey,
+          }).finish(),
+        }) : encodePubkey(encodeSecp256k1Pubkey(accountFromSigner.pubkey));
         const txBodyEncodeObject: TxBodyEncodeObject = {
             typeUrl: "/cosmos.tx.v1beta1.TxBody",
             value: {
@@ -173,6 +180,14 @@ export class UniClient {
       tx_bytes: txString,
       mode: 'BROADCAST_MODE_SYNC', // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
     }
-    return post(`${endpoint}/cosmos/tx/v1beta1/txs`, txRaw)
+    return post(`${endpoint}/cosmos/tx/v1beta1/txs`, txRaw).then(res => {
+      if (res.code && res.code !== 0) {
+        throw new Error(res.message)
+      }
+      if (res.tx_response && res.tx_response.code !== 0) {
+        throw new Error(res.tx_response.raw_log)
+      }
+      return res
+    })
   }
 }
