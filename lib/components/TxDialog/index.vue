@@ -69,8 +69,8 @@ const memo = ref('Ping.pub');
 const chainId = ref('cosmoshub-4');
 
 async function initData() {
-    view.value = "input"
     if (open.value && props.endpoint && props.sender) {
+        view.value = "input"
         getBalance(props.endpoint, props.sender).then((x) => {
             balance.value = x.balances;
             x.balances.forEach(coin => {
@@ -93,7 +93,7 @@ async function initData() {
     }
 }
 async function sendTx() {
-    // console.log(msgs.value.msgs)
+
     if (!props.sender) throw new Error('sender should not be empty!');
     if (!props.endpoint) throw new Error('Endpoint is empty');
     sending.value = true; // disable sending btn
@@ -117,7 +117,7 @@ async function sendTx() {
             chainId: chainId.value,
         },
     };
-    console.log('tx:', tx);
+    // console.log('tx:', tx);
 
     try {
         const client = new UniClient(WalletName.Keplr, {
@@ -127,7 +127,6 @@ async function sendTx() {
         const txRaw = await client.sign(tx);
         const response = await client.broadcastTx(props.endpoint, txRaw);
         // show submitting view
-        console.log('broadcast:', response.tx_response.txhash);
         showREsult( response.tx_response.txhash )
         
         
@@ -145,7 +144,7 @@ function showTitle() {
 const delay = ref(0)
 const step = ref(0)
 const msg = ref("")
-const sleep = 3000
+const sleep = 6000
 
 function showREsult(hash: string) {
     view.value = "submitting"
@@ -167,7 +166,7 @@ function fetchTx(tx: string) {
             if (res.tx_response.code > 0) {
                 error.value = res.tx_response.raw_log
             } else {
-                msg.value = 'Congratulations! Transfer completed successfully.'
+                msg.value = `Congratulations! ${showTitle()} completed successfully.`
             }
         })
         .catch(() => {
