@@ -62,6 +62,9 @@ async function initData() {
         localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
     ) as ConnectedWallet;
     if (sender.value.cosmosAddress && open.value ) {
+        await client.fetchChainInfo(props.chainName).then(res => {
+            localChainInfo.value = res
+        })
         await getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
             (res) => {
                 osmoBalances.value = res.balances.filter(
@@ -73,6 +76,31 @@ async function initData() {
                 localBalances.value = res.balances;
             }
         );
+        
+        getStakingParam(props.endpoint).then((x) => {
+            defaultDenom.value = x.params.bond_denom;
+        });
+        getOsmosisPools(OSMOSIS_REST).then((res) => {
+            allPools.value = res.pools;
+        });
+
+        client.fetchIBCPaths().then((paths) => {
+            chains.value = paths.filter(
+                (x) => x.from === props.chainName || x.to === props.chainName
+            );
+            const path = chains.value.find(
+                (x) => x.from === 'osmosis' || x.to === 'osmosis'
+            );
+            if (path) {
+                osmosisPath.value = path;
+                client.fetchIBCPathInfo(path.path).then((info) => {
+                    osmosisPathInfo.value = info;
+                });
+            }
+            client.fetchAssetsList(props.chainName).then((al) => {
+                localCoinInfo.value = al.assets;
+            });
+        });
     }
 }
 
@@ -88,37 +116,6 @@ function localAddress(addr?: string) {
     const prefix = localChainInfo.value?.bech32_prefix || "cosmos"
     return toBech32(prefix, data);
 }
-
-onMounted(() => {
-    getStakingParam(props.endpoint).then((x) => {
-        defaultDenom.value = x.params.bond_denom;
-    });
-    getOsmosisPools(OSMOSIS_REST).then((res) => {
-        allPools.value = res.pools;
-    });
-
-    client.fetchChainInfo(props.chainName).then(res => {
-        localChainInfo.value = res
-    })
-
-    client.fetchIBCPaths().then((paths) => {
-        chains.value = paths.filter(
-            (x) => x.from === props.chainName || x.to === props.chainName
-        );
-        const path = chains.value.find(
-            (x) => x.from === 'osmosis' || x.to === 'osmosis'
-        );
-        if (path) {
-            osmosisPath.value = path;
-            client.fetchIBCPathInfo(path.path).then((info) => {
-                osmosisPathInfo.value = info;
-            });
-        }
-        client.fetchAssetsList(props.chainName).then((al) => {
-            localCoinInfo.value = al.assets;
-        });
-    });
-})
 
 function showBalance(denom?: string, decimal = 0) {
     const bal = osmoBalances.value.find((x) => x.denom === denom || '');
