@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { Icon } from '@iconify/vue';
 import { fromBech32, toBech32, toHex } from '@cosmjs/encoding';
 import { sha256 } from '@cosmjs/crypto';
@@ -17,9 +17,7 @@ import { osmosis, ibc, getSigningOsmosisClient } from 'osmojs';
 import { tokens, type TokenConfig } from './tokens';
 import { decimal2percent } from '../../utils/format';
 import { StdFee, coin } from '@cosmjs/stargate';
-import { longify } from '@cosmjs/stargate/build/queryclient';
 import Long from 'long';
-import dayjs from 'dayjs';
 import { UniClient } from '../../wallet/UniClient';
 
 const props = defineProps({
@@ -91,34 +89,36 @@ function localAddress(addr?: string) {
     return toBech32(prefix, data);
 }
 
-getStakingParam(props.endpoint).then((x) => {
-    defaultDenom.value = x.params.bond_denom;
-});
-getOsmosisPools(OSMOSIS_REST).then((res) => {
-    allPools.value = res.pools;
-});
-
-client.fetchChainInfo(props.chainName).then(res => {
-    localChainInfo.value = res
-})
-
-client.fetchIBCPaths().then((paths) => {
-    chains.value = paths.filter(
-        (x) => x.from === props.chainName || x.to === props.chainName
-    );
-    const path = chains.value.find(
-        (x) => x.from === 'osmosis' || x.to === 'osmosis'
-    );
-    if (path) {
-        osmosisPath.value = path;
-        client.fetchIBCPathInfo(path.path).then((info) => {
-            osmosisPathInfo.value = info;
-        });
-    }
-    client.fetchAssetsList(props.chainName).then((al) => {
-        localCoinInfo.value = al.assets;
+onMounted(() => {
+    getStakingParam(props.endpoint).then((x) => {
+        defaultDenom.value = x.params.bond_denom;
     });
-});
+    getOsmosisPools(OSMOSIS_REST).then((res) => {
+        allPools.value = res.pools;
+    });
+
+    client.fetchChainInfo(props.chainName).then(res => {
+        localChainInfo.value = res
+    })
+
+    client.fetchIBCPaths().then((paths) => {
+        chains.value = paths.filter(
+            (x) => x.from === props.chainName || x.to === props.chainName
+        );
+        const path = chains.value.find(
+            (x) => x.from === 'osmosis' || x.to === 'osmosis'
+        );
+        if (path) {
+            osmosisPath.value = path;
+            client.fetchIBCPathInfo(path.path).then((info) => {
+                osmosisPathInfo.value = info;
+            });
+        }
+        client.fetchAssetsList(props.chainName).then((al) => {
+            localCoinInfo.value = al.assets;
+        });
+    });
+})
 
 function showBalance(denom?: string, decimal = 0) {
     const bal = osmoBalances.value.find((x) => x.denom === denom || '');

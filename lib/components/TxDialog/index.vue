@@ -16,7 +16,6 @@ import Vote from './messages/Vote.vue';
 import Withdraw from './messages/Withdraw.vue';
 import WithdrawCommission from './messages/WithdrawCommission.vue';
 
-
 const props = defineProps({
     type: String,
     endpoint: { type: String, required: true },

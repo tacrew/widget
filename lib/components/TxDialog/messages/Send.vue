@@ -1,11 +1,8 @@
 <script lang="ts" setup>
-import { ComputedRef, PropType, computed, ref } from 'vue';
+import { ComputedRef, PropType, computed, onMounted, ref } from 'vue';
 import {
-    getActiveValidators,
-    getInactiveValidators,
     getStakingParam,
 } from '../../../utils/http';
-import { decimal2percent } from '../../../utils/format';
 import { Coin, CoinMetadata } from '../../../utils/type';
 import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
 const props = defineProps({
@@ -15,16 +12,17 @@ const props = defineProps({
     metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
-const params = JSON.parse(props.params || '{}');
 
 const amount = ref('');
 const recipient = ref('');
 const denom = ref('');
 const amountDenom = ref('')
 
-getStakingParam(props.endpoint).then((x) => {
-    denom.value = x.params.bond_denom;
-});
+onMounted(() => {
+    getStakingParam(props.endpoint).then((x) => {
+        denom.value = x.params.bond_denom;
+    });
+})
 
 const msgs = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)
