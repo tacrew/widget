@@ -247,7 +247,7 @@ function switchDirection() {
 
 const disabled = computed(() => {
     const amount = Number(amountIn.value || 0)
-    if(amount <= 0 ) return true
+    if(amount <= 0 && outAmount.value <= 0 ) return true
     const token = swapIn.value
     const b = osmoBalances.value.find((x) => x.denom === token?.ibcDenom || '');
     if(b && token) {
@@ -610,7 +610,7 @@ async function doWithdraw() {
                     <div
                         class="flex items-center h-14 rounded-tl-lg rounded-tr-lg bg-gray-100 dark:bg-[#232333]"
                     >
-                        <div class="dropdown">
+                        <div v-if="outTokens && outTokens.length > 0" class="dropdown">
                             <label
                                 tabindex="0"
                                 class="flex items-center h-12 px-4 cursor-pointer"
