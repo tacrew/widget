@@ -64,6 +64,9 @@ async function initData() {
     if (sender.value.cosmosAddress && open.value ) {
         await client.fetchChainInfo(props.chainName).then(res => {
             localChainInfo.value = res
+        }).catch(() => {
+            localChainInfo.value = {} as Chain
+            error.value = "Not found IBC Path"
         })
         await getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
             (res) => {
