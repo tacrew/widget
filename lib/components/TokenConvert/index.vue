@@ -562,6 +562,19 @@ async function connect() {
         <label for="PingTokenConvert" class="modal cursor-pointer">
             <label class="modal-box dark:bg-[#2a2a3a] relative rounded-lg" for="">
                 <div v-show="view === 'swap'">
+                    <div class="absolute right-4 top-4 dropdown dropdown-end dropdown-hover">
+                        <label tabindex="0" class="text-info">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </label>
+                        <div tabindex="0" class="card compact dropdown-content dark:bg-info-content bg-slate-300 shadow rounded-box w-64">
+                            <div class="card-body">
+                                <ul class="text-right">
+                                    <li>Liquidity is provided by Osmosis</li>
+                                    <li>Powered by Ping.pub</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
                     <h3 class="text-xl font-semibold">Token Convert</h3>
                     <div v-if="!osmosisPath || chainName === 'osmosis'" class="text-error mt-3">
                         <span>This feature is not available [{{ chainName }}]</span>
