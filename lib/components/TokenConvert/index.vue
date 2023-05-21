@@ -11,7 +11,7 @@ import {
     IBCPath,
 } from '@ping-pub/chain-registry-client/dist/types';
 import { getBalance, getStakingParam, getOsmosisPools, getLatestBlock, getAccount } from '../../utils/http';
-import { ConnectedWallet, WalletName } from '../../wallet/Wallet';
+import { Account, ConnectedWallet, WalletName, createWallet, writeWallet } from '../../wallet/Wallet';
 import { Coin } from '../../utils/type';
 import { osmosis, ibc, getSigningOsmosisClient } from 'osmojs';
 import { tokens, type TokenConfig } from './tokens';
@@ -29,7 +29,7 @@ const OSMOSIS_RPC = 'https://rpc.osmosis.zone';
 const OSMOSIS_REST = 'https://lcd.osmosis.zone';
 const DEFAULT_HDPATH = "m/44'/118/0'/0/0";
 
-const view = ref("swap") // [swap, deposit, withdraw]
+const view = ref("connect") // [connect, swap, deposit, withdraw]
 
 function switchView(v: string) {
     view.value = v
@@ -47,13 +47,13 @@ const defaultDenom = ref('');
 const sender = ref({} as ConnectedWallet);
 const localBalances = ref([] as Coin[]);
 const osmoBalances = ref([] as Coin[]);
+const localChainInfo = ref({} as Chain);
 const localCoinInfo = ref([] as Asset[]);
 const swapIn = ref({} as TokenConfig | undefined);
 const swapOut = ref({} as TokenConfig | undefined);
 const amountIn = ref("");
 const allPools = ref([] as any[]);
 const client = new ChainRegistryClient();
-const localChainInfo = ref({} as Chain);
 
 // swap logic
 
@@ -62,8 +62,12 @@ async function initData() {
         localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
     ) as ConnectedWallet;
     if (sender.value.cosmosAddress && open.value ) {
+        view.value = 'swap'
         await client.fetchChainInfo(props.chainName).then(res => {
             localChainInfo.value = res
+            if(Number(res.slip44) !== 118) {
+                error.value === `Coin type ${res.slip44} is not supported`
+            }
         }).catch(() => {
             localChainInfo.value = {} as Chain
             error.value = "Not found IBC Path"
@@ -510,6 +514,39 @@ async function doWithdraw() {
     sending.value = false
 }
 
+async function connect() {
+    sending.value = true;
+    let accounts = [] as Account[];
+    try {
+        const latest = await getLatestBlock(props.endpoint)
+        const wa = createWallet(WalletName.Keplr, {
+            chainId: latest.block.header.chain_id,
+            hdPath: props.hdPath || DEFAULT_HDPATH,
+        });
+        await wa
+            .getAccounts()
+            .then((x) => {
+                accounts = x;
+                if (accounts.length > 0) {
+                    const [first] = accounts;
+                    const connected = {
+                        wallet: WalletName.Keplr,
+                        cosmosAddress: first.address,
+                        hdPath: props.hdPath || DEFAULT_HDPATH,
+                    };
+                    writeWallet(connected, props.hdPath || DEFAULT_HDPATH)
+                }
+            })
+            .catch((e) => {
+                error.value = e;
+            });
+        initData()
+    } catch (e) {
+        error.value = e.message;
+    }
+    sending.value = false;
+}
+
 </script>
 <template>
     <div>
@@ -524,7 +561,7 @@ async function doWithdraw() {
 
         <label for="PingTokenConvert" class="modal cursor-pointer">
             <label class="modal-box dark:bg-[#2a2a3a] relative rounded-lg" for="">
-                <div :class="view !== 'swap'?'hidden':''">
+                <div v-show="view === 'swap'">
                     <h3 class="text-xl font-semibold">Token Convert</h3>
                     <div v-if="!osmosisPath || chainName === 'osmosis'" class="text-error mt-3">
                         <span>This feature is not available [{{ chainName }}]</span>
@@ -703,7 +740,7 @@ async function doWithdraw() {
                     </div>
                 </div>
                 <!-- deposit -->
-                <div :class="view !== 'deposit'?'hidden':''">
+                <div v-show="view === 'deposit'">
                     <h3 class="text-xl font-semibold flex"><Icon class="mt-1" icon="mdi:chevron-left" @click="switchView('swap')"></Icon> Deposit</h3>
 
                     <div class="form-control">
@@ -761,7 +798,7 @@ async function doWithdraw() {
                 </div>
 
                 <!-- withdraw -->
-                <div :class="view !== 'withdraw'?'hidden':''">
+                <div v-show="view === 'withdraw'">
                     <h3 class="text-xl font-semibold flex"><Icon class="mt-1" icon="mdi:chevron-left" @click="switchView('swap')"></Icon> Withdraw</h3>
                     <div class="form-control">
                         <label class="label">
@@ -813,6 +850,30 @@ async function doWithdraw() {
                             @click="doWithdraw()"
                         >
                             Withdraw
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Connect Wallet -->
+                <div v-if="view === 'connect'">
+                    <h3 class="text-xl font-semibold flex">Connect Wallet</h3>
+                    <div class="form-control mt-5">
+                        <select class="select">
+                            <option>Keplr</option>
+                        </select>
+                    </div>
+
+                    <div v-if="error" class="text-error mt-3">
+                        <span>{{ error }}.</span>
+                    </div>
+
+                    <div class="mt-5">
+                        <button
+                            class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
+                            :class="sending ? 'loading' : ''"
+                            @click="connect()"
+                        >
+                            Connect
                         </button>
                     </div>
                 </div>
