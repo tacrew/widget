@@ -58,6 +58,7 @@ const client = new ChainRegistryClient();
 // swap logic
 
 async function initData() {
+    
     sender.value = JSON.parse(
         localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
     ) as ConnectedWallet;
@@ -108,6 +109,8 @@ async function initData() {
                 localCoinInfo.value = al.assets;
             });
         });
+    } else {
+        view.value = 'connect'
     }
 }
 

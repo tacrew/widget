@@ -99,7 +99,7 @@ const walletStateChange = (res: any) => {
         <ping-token-convert
             :chain-name="chain_name"
             :endpoint="endpoint"
-            :params="params"
+            hd-path="m/44'/118/0'/0/0"
         ></ping-token-convert>
     </div>
 </template>
