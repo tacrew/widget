@@ -758,7 +758,7 @@ async function connect() {
 
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">Recipient</span>
+                            <span class="label-text">Your address on Osmosis</span>
                         </label>
                         <input :value="osmoAddress(sender.cosmosAddress)" readonly type="text" class="input input-bordered" />
                     </div>
@@ -815,9 +815,9 @@ async function connect() {
                     <h3 class="text-xl font-semibold flex"><Icon class="mt-1" icon="mdi:chevron-left" @click="switchView('swap')"></Icon> Withdraw</h3>
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">Recipient</span>
+                            <span class="label-text">Recipient on {{ localChainInfo.pretty_name }}</span>
                         </label>
-                        <input :value="sender.cosmosAddress" readonly type="text" class="input input-bordered" />
+                        <input :value="localAddress(sender.cosmosAddress)" readonly type="text" class="input input-bordered" />
                     </div>
                     <div
                         class="flex items-center relative h-14 bg-gray-100 dark:bg-[#232333] rounded-tl-lg rounded-tr-lg mt-4"
