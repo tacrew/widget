@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { PropType, computed, ref } from 'vue';
+import { PropType, computed, onMounted, ref } from 'vue';
 import { Coin, CoinMetadata } from '../../../utils/type';
 import { getStakingParam } from '../../../utils/http';
 import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
@@ -17,9 +17,12 @@ const denom = ref("")
 const amount = ref("")
 const amountDenom = ref("")
 
-getStakingParam(props.endpoint).then(x => {
-    denom.value = x.params.bond_denom
+onMounted(() => {
+    getStakingParam(props.endpoint).then(x => {
+        denom.value = x.params.bond_denom
+    })
 })
+
 
 const available = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)
