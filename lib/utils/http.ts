@@ -23,13 +23,20 @@ export async function post(url: string, data: any) {
 }
 
 function findField(obj: any, name: string) {
-    const list = Object.keys(obj)
+
+    if(!obj) return undefined
+
+    const list = Object.keys(obj).filter(x => x && !x.startsWith("@"))
     if(list.includes(name)) {
         return obj[name]
     }
-    for(const e of list.filter(x => !x.startsWith("@"))) {
-      const sub = findField(obj[e], name)
-      if(sub) return sub
+    for(let i = 0; i < list.length; i++) {
+        const field = obj[list[i]]
+        if(typeof field === 'string') continue
+        if(Array.isArray(field)) continue
+
+        const sub = findField(field, name)
+        if(sub) return sub
     }
     return undefined
 }
@@ -42,13 +49,18 @@ export async function getLatestBlock(endpoint: string) {
 
 export async function getAccount(endpoint: string, address: string) {
     const url = `${endpoint}/cosmos/auth/v1beta1/accounts/${address}`
-    const res = await get(url)
-    return {
-        account: {
-            account_number: findField(res, "account_number"),
-            sequence: findField(res, "sequence")
-        }
+    try{
+        const res = await get(url)
+        return {
+            account: {
+                account_number: findField(res, "account_number"),
+                sequence: findField(res, "sequence")
+            }
+        }      
+    }catch(err) {
+        throw new Error(err)
     }
+
 }
 
 export async function getBalance(endpoint: string, address: string): Promise<{balances: Coin[]}> {
