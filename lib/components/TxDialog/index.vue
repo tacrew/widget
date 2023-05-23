@@ -3,7 +3,7 @@ import { ref, computed, defineAsyncComponent } from 'vue';
 
 import { getAccount, getBalance, getBalanceMetadata, getLatestBlock, getStakingParam, getTxByHash } from '../../utils/http';
 import { Coin, CoinMetadata } from '../../utils/type';
-import { WalletName } from '../../../lib/wallet/Wallet';
+import { WalletName, readWallet } from '../../../lib/wallet/Wallet';
 import { UniClient } from '../../../lib/wallet/UniClient';
 
 import Delegate from './messages/Delegate.vue';
@@ -20,6 +20,7 @@ const props = defineProps({
     type: String,
     endpoint: { type: String, required: true },
     sender: { type: String, required: true },
+    hdPath: String,
     params: String,
 });
 
@@ -60,7 +61,7 @@ const open = ref(false);
 const error = ref('');
 
 // input field
-const msgBox = ref({ msgs: [] });
+const msgBox = ref({ msgs: [], isValid: {ok: false, error: ""} });
 const feeAmount = ref(Number(p.fees?.amount || 2000));
 const feeDenom = ref("")
 const gasInfo = ref(200000);
@@ -70,72 +71,78 @@ const chainId = ref('cosmoshub-4');
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = "input"
-        getBalance(props.endpoint, props.sender).then((x) => {
-            balance.value = x.balances;
-            x.balances.forEach(coin => {
-                // only load for native tokens
-                if (coin.denom.length < 12)
-                    getBalanceMetadata(props.endpoint, coin.denom).then(meta => {
-                        metadatas.value[coin.denom] = meta.metadata
-                    })
+        try{
+            getBalance(props.endpoint, props.sender).then((x) => {
+                balance.value = x.balances;
+                x.balances?.forEach(coin => {
+                    // only load for native tokens
+                    if (coin.denom.length < 12)
+                        getBalanceMetadata(props.endpoint, coin.denom).then(meta => {
+                            metadatas.value[coin.denom] = meta.metadata
+                        })
+                })
+            });
+            getLatestBlock(props.endpoint).then((x) => {
+                chainId.value = x.block.header.chain_id;
+            });
+            getStakingParam(props.endpoint).then(res => {
+                feeDenom.value = res.params.bond_denom
             })
-        });
-        getLatestBlock(props.endpoint).then((x) => {
-            chainId.value = x.block.header.chain_id;
-        });
-        getStakingParam(props.endpoint).then(res => {
-            feeDenom.value = res.params.bond_denom
-        })
+        }catch(err) {
+            error.value = err
+            console.error(err)
+        }
 
         // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
         sending.value = false;
     }
 }
 async function sendTx() {
-
-    if (!props.sender) throw new Error('sender should not be empty!');
-    if (!props.endpoint) throw new Error('Endpoint is empty');
-    sending.value = true; // disable sending btn
-
-    const acc = await getAccount(props.endpoint, props.sender);
-
-    const messages = msgBox.value.msgs;
-
-    const tx = {
-        chainId: chainId.value,
-        signerAddress: props.sender,
-        messages,
-        fee: {
-            gas: String(gasInfo.value),
-            amount: [{ amount: String(feeAmount.value), denom: feeDenom.value }],
-        },
-        memo: memo.value,
-        signerData: {
-            accountNumber: Number(acc.account.account_number),
-            sequence: Number(acc.account.sequence),
-            chainId: chainId.value,
-        },
-    };
-    // console.log('tx:', tx);
-
     try {
-        const client = new UniClient(WalletName.Keplr, {
+        if (!props.sender) throw new Error('Sender should not be empty!');
+        if (!props.endpoint) throw new Error('Endpoint is empty');
+        if (!msgBox.value.isValid.ok) throw new Error(msgBox.value.isValid.error)
+
+        sending.value = true; // disable sending btn
+
+        const acc = await getAccount(props.endpoint, props.sender);
+
+        const messages = msgBox.value.msgs;
+
+        const tx = {
             chainId: chainId.value,
-        });
+            signerAddress: props.sender,
+            messages,
+            fee: {
+                gas: String(gasInfo.value),
+                amount: [{ amount: String(feeAmount.value), denom: feeDenom.value }],
+            },
+            memo: memo.value,
+            signerData: {
+                accountNumber: Number(acc.account.account_number),
+                sequence: Number(acc.account.sequence),
+                chainId: chainId.value,
+            },
+        };
+        // console.log('tx:', tx);
 
-        const gas = await client.simulate(props.endpoint, messages, "", 1)
-        console.log(gas)
+        const current = readWallet(props.hdPath)
+        const wallet = current ? current.wallet : WalletName.Keplr
+        const client = new UniClient(wallet, { chainId: chainId.value , hdPath: props.hdPath });
 
-        // const txRaw = await client.sign(tx);
-        // const response = await client.broadcastTx(props.endpoint, txRaw);
-        // // show submitting view
-        // showREsult( response.tx_response.txhash )
+        // const gas = await client.simulate(props.endpoint, messages, "", 1)
+        // console.log(gas)
+
+        const txRaw = await client.sign(tx);
+        const response = await client.broadcastTx(props.endpoint, txRaw);
+        // show submitting view
+        showResult( response.tx_response.txhash )
         
         
     } catch (e) {
         sending.value = false;
         error.value = e;
-        setTimeout(() => { error.value = '' }, 5000);
+        setTimeout(()=> error.value = "", 10000)
     }
 }
 
@@ -148,7 +155,7 @@ const step = ref(0)
 const msg = ref("")
 const sleep = 6000
 
-function showREsult(hash: string) {
+function showResult(hash: string) {
     view.value = "submitting"
     delay.value = 1;
     step.value = 20
@@ -230,8 +237,8 @@ function fetchTx(tx: string) {
                             </div>
                         </div>
                     </form>
-
-                    <div v-if="error" class="alert alert-error shadow-lg">
+                    
+                    <div v-if="error" class="mt-5 alert alert-error shadow-lg">
                         <div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
                                 viewBox="0 0 24 24">

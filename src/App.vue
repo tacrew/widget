@@ -2,11 +2,11 @@
 import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
 
-const sender = 'stars1m8mma95ta2zajqtmfp5c5y3wgeyqzcrc2k82es';
-const endpoint = 'https://rest.stargaze-apis.com';
-const chainId = 'stargaze-1';
+const sender = 'cosmos1jxv0u20scum4trha72c7ltfgfqef6nscj25050';
+const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures'// 'https://rest.stargaze-apis.com';
+const chainId = 'cosmoshub-4';
 const hdPath = "m/44'/118/0'/0/0";
-const chain_name = 'stargaze'
+const chain_name = 'cosmoshub'
 
 const params = JSON.stringify({
     proposal_id: '1',
@@ -74,6 +74,7 @@ const walletStateChange = (res: any) => {
             :type="toOpen"
             :sender="sender"
             :endpoint="endpoint"
+            :hd-path="hdPath"
             :params="params"
         ></ping-tx-dialog>
 
@@ -84,6 +85,7 @@ const walletStateChange = (res: any) => {
             type="withdraw"
             :sender="sender"
             :endpoint="endpoint"
+            :hd-path="hdPath"
             :params="params"
         ></ping-tx-dialog>
 
@@ -92,6 +94,7 @@ const walletStateChange = (res: any) => {
             type="vote"
             :sender="sender"
             :endpoint="endpoint"
+            :hd-path="hdPath"
             :params="params"
         ></ping-tx-dialog>
 
