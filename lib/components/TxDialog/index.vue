@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent } from 'vue';
+import { ref, computed } from 'vue';
 
 import { getAccount, getBalance, getBalanceMetadata, getLatestBlock, getStakingParam, getTxByHash } from '../../utils/http';
 import { Coin, CoinMetadata } from '../../utils/type';
