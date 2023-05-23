@@ -46,8 +46,16 @@ const isValid = computed(() => {
         error = "Sender is empty"
     }
     if(!params.validator_address) {
-        ok = false
-        error = "Validator is empty"
+      ok = false
+      error = "Validator is empty"
+    }
+    if(!rewards.value || rewards.value.length < 0) {
+      ok = false
+      error = "No delegation found"
+    }
+    if (rewards.value.findIndex(x => x.validator_address === params.validator_address) === -1) {
+      ok = false
+      error = "You are not the validator!"
     }
     return { ok, error }
 })

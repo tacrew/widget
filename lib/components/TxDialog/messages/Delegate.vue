@@ -97,6 +97,10 @@ const isValid = computed(() => {
         ok = false
         error = "Amount should be great than 0"
     }
+    if(!amountDenom.value) {
+        ok = false
+        error = "Amount Denom is empty"
+    }
     return { ok, error }
 })
 

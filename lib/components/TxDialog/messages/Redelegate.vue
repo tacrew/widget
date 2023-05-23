@@ -39,8 +39,10 @@ onMounted(() => {
 
 
 const sourceValidator = computed(() => {
+    // @ts-ignore
     const v = activeValidators.value.find(v => v.operator_address === params.validator_address)
     if(v) {
+        // @ts-ignore
         return `${v.description.moniker} (${decimal2percent(v.commission.commission_rates.rate)}%)`
     }
     return params.validator_address

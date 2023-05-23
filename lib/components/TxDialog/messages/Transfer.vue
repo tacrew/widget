@@ -131,13 +131,13 @@ const units = computed(() => {
 const isValid = computed(() => {
     let ok = true
     let error = ""
-    if(!sourceChain.value) {
+    if(!sourceChain.value?.channel_id || !sourceChain.value.port_id) {
         ok = false
         error = "Destination chain is empty"
     }
     if(!recipient.value) {
         ok = false
-        error = "Validator is empty"
+        error = "Recipient is empty"
     }
     if(!(Number(amount.value) > 0)) {
         ok = false
