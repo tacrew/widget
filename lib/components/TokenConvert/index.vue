@@ -11,7 +11,7 @@ import {
     IBCPath,
 } from '@ping-pub/chain-registry-client/dist/types';
 import { getBalance, getStakingParam, getOsmosisPools, getLatestBlock, getAccount } from '../../utils/http';
-import { Account, ConnectedWallet, WalletName, createWallet, writeWallet } from '../../wallet/Wallet';
+import { Account, ConnectedWallet, WalletName, createWallet, readWallet, writeWallet } from '../../wallet/Wallet';
 import { Coin } from '../../utils/type';
 import { osmosis, ibc, getSigningOsmosisClient } from 'osmojs';
 import { tokens, type TokenConfig } from './tokens';
@@ -59,22 +59,21 @@ const client = new ChainRegistryClient();
 
 async function initData() {
     error.value = '' //reset error
-    sender.value = JSON.parse(
-        localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
-    ) as ConnectedWallet;
+    sender.value = readWallet(props.hdPath)
     if(!sender.value.cosmosAddress) {
        view.value = 'connect'
        return
     } 
     if (open.value ) {
         view.value = 'swap'
+        localChainInfo.value = {} as Chain
+        localCoinInfo.value = []
         await client.fetchChainInfo(props.chainName).then(res => {
             localChainInfo.value = res
             if(Number(res.slip44) !== 118) {
                 error.value === `Coin type ${res.slip44} is not supported`
             }
         }).catch(() => {
-            localChainInfo.value = {} as Chain
             error.value = "Not found IBC Path"
         })
         getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
