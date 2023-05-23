@@ -123,10 +123,13 @@ async function sendTx() {
             chainId: chainId.value,
         });
 
-        const txRaw = await client.sign(tx);
-        const response = await client.broadcastTx(props.endpoint, txRaw);
-        // show submitting view
-        showREsult( response.tx_response.txhash )
+        const gas = await client.simulate(props.endpoint, messages, "", 1)
+        console.log(gas)
+
+        // const txRaw = await client.sign(tx);
+        // const response = await client.broadcastTx(props.endpoint, txRaw);
+        // // show submitting view
+        // showREsult( response.tx_response.txhash )
         
         
     } catch (e) {
