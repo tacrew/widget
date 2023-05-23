@@ -1,46 +1,15 @@
-import { fromBase64, fromBech32, toHex, toBase64 } from "@cosmjs/encoding";
-import { SignerData, StdFee,  } from '@cosmjs/stargate'
-import { EncodeObject,   
-    encodePubkey,
-    GeneratedType,
-    isOfflineDirectSigner,
-    makeAuthInfoBytes,
-    makeSignDoc,
-    OfflineSigner,OfflineDirectSigner,
-    Registry,
-    TxBodyEncodeObject,} from '@cosmjs/proto-signing'
-import { sha256, stringToPath } from '@cosmjs/crypto'
-import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
-import {
-    MsgDelegateEncodeObject,
-    MsgSendEncodeObject,
-    MsgTransferEncodeObject,
-    MsgUndelegateEncodeObject,
-    MsgWithdrawDelegatorRewardEncodeObject,
-    defaultRegistryTypes
-  } from "@cosmjs/stargate";
-// ledger
-import {
-    GetTxRequest,
-    GetTxResponse,
-    ServiceClientImpl,
-    SimulateRequest,
-    SimulateResponse,
-  } from "cosmjs-types/cosmos/tx/v1beta1/service";
-import TransportWebBLE from '@ledgerhq/hw-transport-web-ble'
-import TransportWebUSB from '@ledgerhq/hw-transport-webusb'
-import CosmosApp from 'ledger-cosmos-js'
-import { LedgerSigner } from '@cosmjs/ledger-amino'
-import { ethToEvmos } from '@tharsis/address-converter'
-import { AuthInfo, Fee, Tx, TxBody, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
+import { toBase64 } from "@cosmjs/encoding";
+import { EncodeObject, encodePubkey, Registry } from '@cosmjs/proto-signing'
+import { encodeSecp256k1Pubkey } from "@cosmjs/amino";
+import { defaultRegistryTypes } from "@cosmjs/stargate";
+import { AuthInfo, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import { Any } from "cosmjs-types/google/protobuf/any";
 import { AbstractWallet, WalletArgument, WalletName, createWallet } from "./Wallet";
 import { post } from "../utils/http";
-import { TxResponse } from "../utils/type";
-import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys'
+import { Transaction, TxResponse } from "../utils/type";
+import { wasmTypes } from "@cosmjs/cosmwasm-stargate/build/modules";
 
-function isEthermint(chainId: string) {
+export function isEthermint(chainId: string) {
   return chainId.search(/\w+_\d+-\d+/g) > -1
 }
 
@@ -48,51 +17,22 @@ export class UniClient {
     registry: Registry
     wallet: AbstractWallet
     constructor(name: WalletName, arg: WalletArgument) {
-        this.registry = new Registry(defaultRegistryTypes)
-        this.wallet = createWallet(name, arg)
+        this.registry = new Registry([...defaultRegistryTypes, ...wasmTypes])
+        this.wallet = createWallet(name, arg, this.registry)
     }
 
     async getAccounts() {
         return this.wallet.getAccounts()
     }
 
-    async sign(transaction: { chainId: string; signerAddress: string; messages: readonly EncodeObject[]; fee: StdFee; memo: string; signerData: SignerData }): Promise<TxRaw> {
-        const accouts = await this.getAccounts()
-        const hex = toHex(fromBech32(transaction.signerAddress).data)
-        const accountFromSigner = accouts.find((account) => toHex(fromBech32(account.address).data) === hex);
-        if (!accountFromSigner) {
-            throw new Error("Failed to retrieve account from signer");
-        }
-        const pubkey = isEthermint(transaction.chainId) ? Any.fromPartial({
-          typeUrl: '/ethermint.crypto.v1.ethsecp256k1.PubKey',
-          value: PubKey.encode({
-            key: accountFromSigner.pubkey,
-          }).finish(),
-        }) : encodePubkey(encodeSecp256k1Pubkey(accountFromSigner.pubkey));
-        const txBodyEncodeObject: TxBodyEncodeObject = {
-            typeUrl: "/cosmos.tx.v1beta1.TxBody",
-            value: {
-                messages: transaction.messages,
-                memo: transaction.memo,
-            },
-        };
-        const txBodyBytes = this.registry.encode(txBodyEncodeObject);
-        const gasLimit = Number(transaction.fee.gas);
-        const authInfoBytes = makeAuthInfoBytes(
-            [{ pubkey, sequence: transaction.signerData.sequence }],
-            transaction.fee.amount,
-            gasLimit,
-            transaction.fee.granter,
-            transaction.fee.payer,
-        );
-        const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, transaction.chainId, transaction.signerData.accountNumber);
-        
-        const { signature, signed } = await this.wallet.sign(transaction.signerAddress, signDoc);
-        return TxRaw.fromPartial({
-            bodyBytes: signed.bodyBytes,
-            authInfoBytes: signed.authInfoBytes,
-            signatures: [fromBase64(signature.signature)],
-        });
+    async sign(transaction: Transaction): Promise<TxRaw> {
+        // const { signature, signed } = await this.wallet.sign(transaction);
+        // return TxRaw.fromPartial({
+        //     bodyBytes: signed.bodyBytes,
+        //     authInfoBytes: signed.authInfoBytes,
+        //     signatures: [fromBase64(signature.signature)],
+        // });
+        return this.wallet.sign(transaction)
     }
     
     async simulate (
@@ -106,13 +46,7 @@ export class UniClient {
 
         const anyMsgs = messages.map((m) => this.registry.encodeAsAny(m));
 
-        console.log("mesages:", messages)
         const tx = {
-          body: {
-            messages: messages.map(x => ({"@type":x.typeUrl, value: x.value})),
-            memo: memo,
-            timeoutHeight: 0
-          },
           authInfo: AuthInfo.fromPartial({
             fee: {},
             signerInfos: [
@@ -123,7 +57,11 @@ export class UniClient {
               },
             ],
           }),
-
+          body: {
+            messages: anyMsgs,
+            memo: memo,
+            timeoutHeight: 0
+          },
           signatures: [new Uint8Array()],
         };
         const request = {
