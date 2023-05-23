@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ComputedRef, PropType, computed, ref } from 'vue';
+import { ComputedRef, PropType, computed, onMounted, ref } from 'vue';
 import { getStakingParam, getDenomTraces } from '../../../utils/http'
 import { Coin, CoinMetadata } from '../../../utils/type';
 import ChainRegistryClient from '@ping-pub/chain-registry-client';
@@ -30,14 +30,16 @@ const ibcDenomTraces = ref({} as Record<string, {path: string, base_denom: strin
 
 
 const client = new ChainRegistryClient()
+onMounted(() => {
+    client.fetchIBCPaths().then(paths => {
+        chains.value = paths.filter(x => x.path.indexOf(chainName) > -1)
+    })
 
-client.fetchIBCPaths().then(paths => {
-    chains.value = paths.filter(x => x.path.indexOf(chainName) > -1)
+    getStakingParam(props.endpoint).then(x => {
+        denom.value = x.params.bond_denom
+    })    
 })
 
-getStakingParam(props.endpoint).then(x => {
-    denom.value = x.params.bond_denom
-})
 
 const msgs = computed(() => {
     const timeout = dayjs().add(1, 'hour')

@@ -1,9 +1,10 @@
 <script lang="ts" setup>
-import { ComputedRef, PropType, computed, ref } from 'vue';
+import { ComputedRef, PropType, computed, onMounted, ref } from 'vue';
 import { getActiveValidators, getInactiveValidators, getStakingParam } from '../../../utils/http'
 import { decimal2percent } from '../../../utils/format'
 import { Coin, CoinMetadata } from '../../../utils/type';
 import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
+
 const props = defineProps({
     endpoint: {type: String, required: true },
     sender: {type: String, required: true},
@@ -22,16 +23,18 @@ const unbondingTime = ref("")
 const amount = ref("")
 const amountDenom = ref("")
 
-getStakingParam(props.endpoint).then(x => {
-    stakingDenom.value = x.params.bond_denom
-    unbondingTime.value = x.params.unbonding_time
-})
+onMounted(() => {
+    getStakingParam(props.endpoint).then(x => {
+        stakingDenom.value = x.params.bond_denom
+        unbondingTime.value = x.params.unbonding_time
+    })
 
-getActiveValidators(props.endpoint).then(x => {
-    activeValidators.value = x.validators
-    if(!params.validator_address) {
-        validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
-    }
+    getActiveValidators(props.endpoint).then(x => {
+        activeValidators.value = x.validators
+        if(!params.validator_address) {
+            validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
+        }
+    })
 })
 
 const msgs = computed(() => {

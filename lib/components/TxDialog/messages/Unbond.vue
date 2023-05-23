@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { PropType, computed, ref } from 'vue';
+import { PropType, computed, onMounted, ref } from 'vue';
 import { getDelegations } from '../../../utils/http'
 import { Coin, CoinMetadata } from '../../../utils/type';
 import { TokenUnitConverter } from '../../../utils/TokenUnitConverter';
@@ -17,11 +17,14 @@ const amount = ref("")
 const amountDenom = ref("")
 const error = ref("")
 
-getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
-    delegation.value = x.delegation_response
-}).catch(err => {
-    error.value = err
+onMounted(() => {
+    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
+        delegation.value = x.delegation_response
+    }).catch(err => {
+        error.value = err
+    })   
 })
+
 
 const msgs = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)

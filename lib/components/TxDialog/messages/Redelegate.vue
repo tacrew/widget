@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ComputedRef, PropType, computed, ref } from 'vue';
+import { ComputedRef, PropType, computed, onMounted, ref } from 'vue';
 import { getActiveValidators, getDelegations, getInactiveValidators, getStakingParam } from '../../../utils/http'
 import { decimal2percent } from '../../../utils/format'
 import { Coin, CoinMetadata } from '../../../utils/type';
@@ -24,16 +24,19 @@ const amountDenom = ref("")
 const delegation = ref({} as Coin)
 const error = ref("")
 
-getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
-    delegation.value = x.delegation_response.balance
-}).catch(err => {
-    error.value = err
+onMounted(() => {
+    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
+        delegation.value = x.delegation_response.balance
+    }).catch(err => {
+        error.value = err
+    })
+
+    getActiveValidators(props.endpoint).then(x => {
+        activeValidators.value = x.validators
+        validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
+    })   
 })
 
-getActiveValidators(props.endpoint).then(x => {
-    activeValidators.value = x.validators
-    validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
-})
 
 const sourceValidator = computed(() => {
     const v = activeValidators.value.find(v => v.operator_address === params.validator_address)

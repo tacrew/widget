@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { getDelegateRewards } from '../../../utils/http'
 
 const props = defineProps({
@@ -10,9 +10,12 @@ const props = defineProps({
 
 const rewards = ref([] as {reward: {amount: string, denom: string}, validator_address:string}[]) 
 
-getDelegateRewards(props.endpoint, props.sender).then(x => {
-    rewards.value = x.rewards
+onMounted(() => {
+    getDelegateRewards(props.endpoint, props.sender).then(x => {
+        rewards.value = x.rewards
+    })
 })
+
 
 const msgs = computed(() => {
     return rewards.value.map(x => {

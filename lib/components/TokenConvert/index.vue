@@ -324,12 +324,10 @@ async function doSwap() {
     const gas = await stargateClient.simulate(address, [msg], "")
 
     const fee: StdFee = {
-        amount: [
-        {
+        amount: [{
             denom: 'uosmo',
             amount: '864'
-        }
-        ],
+        }],
         gas: (gas * 1.25).toFixed()
     };
     const response = await stargateClient.signAndBroadcast(address, [msg], fee, "Convert on ping.pub");
