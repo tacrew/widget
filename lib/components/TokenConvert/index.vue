@@ -37,7 +37,7 @@ function switchView(v: string) {
 
 // variables
 const direction = ref('buy');
-const sending = ref(false);
+const sending = ref(false); // show status on send tx
 const open = ref(false);
 const error = ref('');
 const chains = ref([] as IBCPath[]);
@@ -58,11 +58,15 @@ const client = new ChainRegistryClient();
 // swap logic
 
 async function initData() {
-    
+    error.value = '' //reset error
     sender.value = JSON.parse(
         localStorage.getItem(props.hdPath || DEFAULT_HDPATH) || '{}'
     ) as ConnectedWallet;
-    if (sender.value.cosmosAddress && open.value ) {
+    if(!sender.value.cosmosAddress) {
+       view.value = 'connect'
+       return
+    } 
+    if (open.value ) {
         view.value = 'swap'
         await client.fetchChainInfo(props.chainName).then(res => {
             localChainInfo.value = res
@@ -73,17 +77,21 @@ async function initData() {
             localChainInfo.value = {} as Chain
             error.value = "Not found IBC Path"
         })
-        await getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
+        getBalance(OSMOSIS_REST, osmoAddress(sender.value.cosmosAddress)).then(
             (res) => {
                 osmoBalances.value = res.balances.filter(
                     (x) => !x.denom.startsWith('gamm')
                 );
             })
-        await getBalance(props.endpoint, localAddress(sender.value.cosmosAddress)).then(
+        getBalance(props.endpoint, localAddress(sender.value.cosmosAddress)).then(
             (res) => {
                 localBalances.value = res.balances;
             }
         );
+
+        client.fetchAssetsList(props.chainName).then((al) => {
+            localCoinInfo.value = al.assets;
+        });
         
         getStakingParam(props.endpoint).then((x) => {
             defaultDenom.value = x.params.bond_denom;
@@ -105,12 +113,7 @@ async function initData() {
                     osmosisPathInfo.value = info;
                 });
             }
-            client.fetchAssetsList(props.chainName).then((al) => {
-                localCoinInfo.value = al.assets;
-            });
         });
-    } else {
-        view.value = 'connect'
     }
 }
 
@@ -174,19 +177,16 @@ const localTokenOnOsmosis = computed(() => {
             )
         )
     ).toUpperCase();
-    const localCoin = localCoinInfo.value?.find(
-        (x) => x.base === defaultDenom.value
-    );
-    return [
+    return localCoinInfo.value?.map((localCoin) => (
         {
             denom: defaultDenom.value,
-            symbol: localCoin?.symbol || '',
+            symbol: localCoin.symbol || '',
             ibcDenom: `ibc/${ibcDenom}`,
             sourceChannelId: channelId,
             decimals: findlocalCoinDecimal(defaultDenom.value),
             coinImageUrl: findTokenUrl(localCoin),
-        },
-    ];
+        })
+    );
 });
 
 const localSourceChannelID = computed(() => {
@@ -666,6 +666,7 @@ async function connect() {
                     <div
                         class="flex items-center h-14 rounded-tl-lg rounded-tr-lg bg-gray-100 dark:bg-[#232333]"
                     >
+                        <div v-if="outTokens.length === 0"><button class="btn btn-ghost loading">loading...</button> </div>
                         <div v-if="outTokens && outTokens.length > 0" class="dropdown">
                             <label
                                 tabindex="0"
@@ -761,7 +762,8 @@ async function connect() {
 
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text">Your address on Osmosis</span>
+                            <span class="label-text">Deposit address on Osmosis : </span>
+                            <span class="lable-text">{{ showBalance(swapIn?.ibcDenom, swapIn?.decimals) }}</span>
                         </label>
                         <input :value="osmoAddress(sender.cosmosAddress)" readonly type="text" class="input input-bordered" />
                     </div>
@@ -816,14 +818,17 @@ async function connect() {
                 <!-- withdraw -->
                 <div v-show="view === 'withdraw'">
                     <h3 class="text-xl font-semibold flex"><Icon class="mt-1" icon="mdi:chevron-left" @click="switchView('swap')"></Icon> Withdraw</h3>
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">Recipient on {{ localChainInfo.pretty_name }}</span>
-                        </label>
-                        <input :value="localAddress(sender.cosmosAddress)" readonly type="text" class="input input-bordered" />
+
+                    <div
+                        class="flex justify-between j items-center py-2 px-4 bg-gray-200 dark:bg-[#171721] rounded-tl-lg rounded-tr-lg mt-4"
+                    >
+                        <div class="text-sm">Withdrawable Balance:</div>
+                        <div class="text-base font-semibold">
+                            {{ showBalance(swapOut?.ibcDenom, swapOut?.decimals) }}
+                        </div>
                     </div>
                     <div
-                        class="flex items-center relative h-14 bg-gray-100 dark:bg-[#232333] rounded-tl-lg rounded-tr-lg mt-4"
+                        class="flex items-center relative h-14 bg-gray-100 dark:bg-[#232333] rounded-bl-lg rounded-br-lg "
                     >
                         <label
                             tabindex="0"
@@ -845,15 +850,13 @@ async function connect() {
                         />
                     </div>
 
-                    <div
-                        class="flex flex-row-reverse items-center py-2 px-4 bg-gray-200 dark:bg-[#171721] rounded-bl-lg rounded-br-lg"
-                    >
-                        <div class="text-base font-semibold">
-                            {{ showBalance(swapOut?.ibcDenom, swapOut?.decimals) }}
-                        </div>
-                        <div class="mr-3 text-sm">Balance:</div>
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">Recipient on {{ localChainInfo.pretty_name }}</span>
+                            <span class="lable-text">{{ showLocalBalance(swapOut?.denom, swapOut?.decimals) }}</span>
+                        </label>
+                        <input :value="localAddress(sender.cosmosAddress)" readonly type="text" class="input input-bordered" />
                     </div>
-
                     <div v-if="error" class="text-error mt-3">
                         <span>{{ error }}.</span>
                     </div>
