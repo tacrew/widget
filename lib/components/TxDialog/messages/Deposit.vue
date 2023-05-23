@@ -58,7 +58,21 @@ const units = computed(() => {
     return list
 })
 
-defineExpose({ msgs })
+const isValid = computed(() => {
+    let ok = true
+    let error = ""
+    if(!params.proposal_id) {
+        ok = false
+        error = "Proposal id is empty"
+    }
+    if(!(Number(amount.value) > 0)) {
+        ok = false
+        error = "Amount should be great than 0"
+    }
+    return { ok, error }
+})
+
+defineExpose({ msgs, isValid })
 </script>
 <template>
     <div>

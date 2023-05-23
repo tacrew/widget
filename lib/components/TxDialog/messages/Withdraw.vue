@@ -29,7 +29,20 @@ const msgs = computed(() => {
     })
 })
 
-defineExpose({msgs})
+const isValid = computed(() => {
+    let ok = true
+    let error = ""
+    if(!props.sender) {
+        ok = false
+        error = "Sender is empty"
+    }
+    if(rewards.value.length === 0 ) {
+        ok = false
+        error = "No delegation found"
+    }
+    return { ok, error }
+})
+defineExpose({msgs, isValid})
 </script>
 <template>
     <div>

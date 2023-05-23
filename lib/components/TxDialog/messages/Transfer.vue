@@ -28,7 +28,6 @@ const chains = ref([] as IBCPath[])
 const sourceChain = ref({} as { channel_id: string, port_id: string } | undefined)
 const ibcDenomTraces = ref({} as Record<string, {path: string, base_denom: string}>)
 
-
 const client = new ChainRegistryClient()
 onMounted(() => {
     client.fetchIBCPaths().then(paths => {
@@ -129,7 +128,25 @@ const units = computed(() => {
     return list
 })
 
-defineExpose({msgs})
+const isValid = computed(() => {
+    let ok = true
+    let error = ""
+    if(!sourceChain.value) {
+        ok = false
+        error = "Destination chain is empty"
+    }
+    if(!recipient.value) {
+        ok = false
+        error = "Validator is empty"
+    }
+    if(!(Number(amount.value) > 0)) {
+        ok = false
+        error = "Amount should be great than 0"
+    }
+    return { ok, error }
+})
+
+defineExpose({msgs, isValid})
 </script>
 <template>
     <div>

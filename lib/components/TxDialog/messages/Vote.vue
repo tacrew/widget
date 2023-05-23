@@ -21,8 +21,20 @@ const msgs = computed(() => {
         },
     }]
 })
-
-defineExpose({ msgs })
+const isValid = computed(() => {
+    let ok = true
+    let error = ""
+    if(!params.proposal_id) {
+        ok = false
+        error = "Proposal id is empty"
+    }
+    if(!option.value) {
+        ok = false
+        error = "Vote is empty"
+    }
+    return { ok, error }
+})
+defineExpose({ msgs, isValid })
 </script>
 <template>
     <div>

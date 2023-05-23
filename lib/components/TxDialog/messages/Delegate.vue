@@ -86,8 +86,22 @@ const units = computed(() => {
     return list
 })
 
+const isValid = computed(() => {
+    let ok = true
+    let error = ""
+    if(!validator.value) {
+        ok = false
+        error = "Validator is empty"
+    }
+    if(!(Number(amount.value) > 0)) {
+        ok = false
+        error = "Amount should be great than 0"
+    }
+    return { ok, error }
+})
 
-defineExpose({msgs})
+
+defineExpose({msgs, isValid})
 </script>
 <template>
     <div>

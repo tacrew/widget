@@ -75,7 +75,21 @@ const units = computed(() => {
     return list
 })
 
-defineExpose({ msgs });
+const isValid = computed(() => {
+    let ok = true
+    let error = ""
+    if(!recipient.value) {
+        ok = false
+        error = "Recipient is empty"
+    }
+    if(!(Number(amount.value) > 0)) {
+        ok = false
+        error = "Amount should be great than 0"
+    }
+    return { ok, error }
+})
+
+defineExpose({ msgs, isValid });
 </script>
 <template>
     <div class="dark:text-gray-400">
