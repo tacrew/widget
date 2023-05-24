@@ -256,7 +256,7 @@ function switchDirection() {
 
 const disabled = computed(() => {
     const amount = Number(amountIn.value || 0)
-    if(amount <= 0 && outAmount.value <= 0 ) return true
+    if(amount <= 0 || outAmount.value <= 0 ) return true
     const token = swapIn.value
     const b = osmoBalances.value.find((x) => x.denom === token?.ibcDenom || '');
     if(b && token) {
@@ -687,7 +687,7 @@ async function connect() {
                                         v-for="(item, index) in outTokens"
                                         :key="index"
                                         @click="swapOut = item"
-                                        class="flex items-center px-4 py-2 hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"
+                                        class="flex items-center px-4 py-2 max-h-36 overflow-y-auto hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"
                                     >
                                         <img
                                             class="w-7 h-7 rounded-full mr-2"
