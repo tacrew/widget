@@ -2,16 +2,18 @@
 import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
 
-const sender = 'cosmos1jxv0u20scum4trha72c7ltfgfqef6nscj25050';
-const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures'// 'https://rest.stargaze-apis.com';
-const chainId = 'cosmoshub-4';
+const sender = 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a';
+// const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures'// 'https://rest.stargaze-apis.com';
+const endpoint = 'https://api.uni.junonetwork.io'
+const chainId = 'uni-6';
 const hdPath = "m/44'/118/0'/0/0";
-const chain_name = 'cosmoshub'
+const chain_name = 'juno'
 
 const params = JSON.stringify({
     proposal_id: '1',
     validator_address: 'starsvaloper1jxv0u20scum4trha72c7ltfgfqef6nscdghxyx',
     chain_name,
+    contract: 'add'
 });
 
 const types = [
@@ -24,6 +26,9 @@ const types = [
     'deposit',
     'withdraw',
     'withdraw_commission',
+    'wasm_instantiate_contract',
+    'wasm_execute_contract',
+    'wasm_store_code'
 ];
 const toOpen = ref('send');
 
@@ -89,9 +94,9 @@ const walletStateChange = (res: any) => {
             :params="params"
         ></ping-tx-dialog>
 
-        <label for="vote" class="btn">Vote</label>
+        <label for="store_code" class="btn">Store Code</label>
         <ping-tx-dialog
-            type="vote"
+            type="store_code"
             :sender="sender"
             :endpoint="endpoint"
             :hd-path="hdPath"
