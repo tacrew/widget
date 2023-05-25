@@ -6,6 +6,7 @@ import { Coin, CoinMetadata } from '../../utils/type';
 import { WalletName, readWallet } from '../../../lib/wallet/Wallet';
 import { UniClient } from '../../../lib/wallet/UniClient';
 
+// cosmos sdk messages
 import Delegate from './messages/Delegate.vue';
 import Deposit from './messages/Deposit.vue';
 import Redelegate from './messages/Redelegate.vue';
@@ -15,6 +16,11 @@ import Unbond from './messages/Unbond.vue';
 import Vote from './messages/Vote.vue';
 import Withdraw from './messages/Withdraw.vue';
 import WithdrawCommission from './messages/WithdrawCommission.vue';
+
+// wasm msgs
+import StoreCode from './wasm/StoreCode.vue';
+import ExecuteContract from './wasm/ExecuteContract.vue';
+import InstantiateContract from './wasm/InstantiateContract.vue';
 
 const props = defineProps({
     type: String,
@@ -44,6 +50,12 @@ const msgType = computed(() => {
             return Vote;
         case 'deposit':
             return Deposit;
+        case 'wasm_store_code':
+            return StoreCode;
+        case 'wasm_execute_contract':
+            return ExecuteContract;
+        case 'wasm_instantiate_contract':
+            return InstantiateContract;
         default:
             return Send;
     }
@@ -147,7 +159,7 @@ async function sendTx() {
 }
 
 function showTitle() {
-    return (props.type || 'Sending Transaction').replace('_', ' ');
+    return (props.type || 'Sending Transaction').replace(/\_/g, ' ');
 }
 
 const delay = ref(0)
@@ -255,7 +267,7 @@ function fetchTx(tx: string) {
                                 class="checkbox checkbox-sm checkbox-primary mr-2" /><label :for="`${type}-advance`"
                                 class="cursor-pointer dark:text-gray-400">Advance</label>
                         </div>
-                        <label class="btn" :class="sending ? 'loading' : ''" @click="sendTx()">Send</label>
+                        <label class="btn" :class="sending ? '!loading' : ''" @click="sendTx()">Send</label>
                     </div>
                 </div>
 
