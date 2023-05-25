@@ -682,7 +682,7 @@ async function connect() {
                                 tabindex="0"
                                 class="compact dropdown-content shadow bg-base-100 w-64 rounded-lg"
                             >
-                                <div class="py-2">
+                                <div class="py-2 max-h-40 overflow-y-auto">
                                     <div
                                         v-for="(item, index) in outTokens"
                                         :key="index"
