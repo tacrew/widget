@@ -227,6 +227,16 @@ const outTokens = computed(() => {
     }
 });
 
+function selectInput(v) {
+    swapIn.value = v
+    amountIn.value = ""
+}
+
+function selectOutput(v) {
+    swapOut.value = v
+    amountIn.value = ""
+}
+
 const pool = computed(() => {
     // find the available pools and sort by liquidity depth
     const a = allPools.value
@@ -605,7 +615,7 @@ async function connect() {
                                         v-for="(item, index) in inTokens"
                                         :key="index"
                                         class="flex items-center px-4 py-2 hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"
-                                        @click="swapIn = item"
+                                        @click="selectInput(item)"
                                     >
                                         <img
                                             class="w-7 h-7 rounded-full mr-2"
@@ -686,7 +696,7 @@ async function connect() {
                                     <div
                                         v-for="(item, index) in outTokens"
                                         :key="index"
-                                        @click="swapOut = item"
+                                        @click="selectOutput(item)"
                                         class="flex items-center px-4 py-2 max-h-36 overflow-y-auto hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"
                                     >
                                         <img
