@@ -140,7 +140,7 @@ async function sendTx() {
 
         const current = readWallet(props.hdPath)
         const wallet = current ? current.wallet : WalletName.Keplr
-        const client = new UniClient(wallet, { chainId: chainId.value , hdPath: props.hdPath });
+        const client = new UniClient(wallet, { chainId: chainId.value , hdPath: current.hdPath });
 
         // const gas = await client.simulate(props.endpoint, messages, "", 1)
         // console.log(gas)

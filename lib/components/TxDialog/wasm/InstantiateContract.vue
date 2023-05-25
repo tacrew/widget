@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Coin } from '@cosmjs/amino';
 import { PropType, computed, onMounted, ref } from 'vue';
-import { fromBase64 } from '@cosmjs/encoding'
+import { fromBase64, toBase64 } from '@cosmjs/encoding'
 import { CoinMetadata } from '../../../utils/type';
 
 const props = defineProps({
@@ -31,7 +31,7 @@ const msgs = computed(() => {
             /** Label is optional metadata to be stored with a contract instance. */
             label: label.value,
             /** Msg json encoded message to be passed to the contract on instantiation */
-            msg: fromBase64(msg.value),
+            msg: msg.value,
             /** Funds coins that are transferred to the contract on instantiation */
             funds: funds.value,
         },
@@ -54,13 +54,14 @@ onMounted(() => {
 const isValid = computed(() => {
     let ok = true
     let error = ""
-    if( params.codeId > 0) {
+    if( Number(params.codeId) < 1) {
         ok = false
-        error = "Code Id is selected"
+        error = "Code Id is not selected"
     }
     return { ok, error }
 })
 defineExpose({ msgs, isValid })
+
 </script>
 <template>
     <div>
