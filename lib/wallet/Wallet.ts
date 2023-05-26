@@ -1,4 +1,4 @@
-import { fromBase64, fromBech32, toHex, toBase64 } from "@cosmjs/encoding";
+import { fromBase64, fromBech32, toBech32, toHex, toBase64 } from "@cosmjs/encoding";
 import { AminoTypes, createDefaultAminoConverters, } from '@cosmjs/stargate'
 import {
     encodePubkey,
@@ -314,11 +314,12 @@ export class LedgerWallet implements AbstractWallet {
     async signAmino(tx: Transaction): Promise<TxRaw> {
         const signer = await this.getSigner();
         // assert(!isOfflineDirectSigner(signer));
-        const signerAddress = tx.signerAddress
 
-        const accountFromSigner = (await signer.getAccounts()).find(
-            (account) => account.address === signerAddress,
-        );
+        const accounts = await this.getAccounts()
+        const {data} = fromBech32(tx.signerAddress)
+        const hex = toHex(data)
+        const signerAddress = toBech32("cosmos", data)
+        const accountFromSigner = accounts.find((account) => toHex(fromBech32(account.address).data) === hex);
         if (!accountFromSigner) {
             throw new Error("Failed to retrieve account from signer");
         }
