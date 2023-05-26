@@ -37,7 +37,7 @@ const msgs = computed(() => {
             sender: props.sender,
             contract: contract.value,
             /** Msg json encoded message to be passed to the contract on instantiation */
-            msg: fromBase64(msg.value),
+            msg: msg.value,
             /** Funds coins that are transferred to the contract on instantiation */
             funds: funds.value,
         },
