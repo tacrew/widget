@@ -74,17 +74,17 @@ const open = ref(false);
 const error = ref('');
 
 // input field
-const msgBox = ref({ msgs: [], isValid: {ok: false, error: ""}, initial: function () {} });
+const msgBox = ref({ msgs: [], isValid: { ok: false, error: "" }, initial: function () { } });
 const feeAmount = ref(Number(p.fees?.amount || 2000));
 const feeDenom = ref("")
 const gasInfo = ref(200000);
-const memo = ref(props.type === 'send'? '':'Ping.pub');
+const memo = ref(props.type === 'send' ? '' : 'Ping.pub');
 const chainId = ref('cosmoshub-4');
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = "input"
-        try{
+        try {
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;
                 x.balances?.forEach(coin => {
@@ -102,8 +102,8 @@ async function initData() {
                 feeDenom.value = res.params.bond_denom
             })
             // Every sub component should have a initial function
-            if(msgBox.value.initial) msgBox.value.initial()
-        }catch(err) {
+            if (msgBox.value.initial) msgBox.value.initial()
+        } catch (err) {
             error.value = err
             console.error(err)
         }
@@ -113,6 +113,7 @@ async function initData() {
     }
 }
 async function sendTx() {
+    if (sending.value) return;
     try {
         if (!props.sender) throw new Error('Sender should not be empty!');
         if (!props.endpoint) throw new Error('Endpoint is empty');
@@ -143,7 +144,7 @@ async function sendTx() {
 
         const current = readWallet(props.hdPath)
         const wallet = current ? current.wallet : WalletName.Keplr
-        const client = new UniClient(wallet, { chainId: chainId.value , hdPath: current.hdPath });
+        const client = new UniClient(wallet, { chainId: chainId.value, hdPath: current.hdPath });
 
         // const gas = await client.simulate(props.endpoint, messages, "", 1)
         // console.log(gas)
@@ -151,13 +152,13 @@ async function sendTx() {
         const txRaw = await client.sign(tx);
         const response = await client.broadcastTx(props.endpoint, txRaw);
         // show submitting view
-        showResult( response.tx_response.txhash )
+        showResult(response.tx_response.txhash)
 
         emit('submited', { hash: response.tx_response.txhash, eventType: props.type });
     } catch (e) {
         sending.value = false;
         error.value = e;
-        setTimeout(()=> error.value = "", 10000)
+        setTimeout(() => error.value = "", 10000)
     }
 }
 
@@ -226,8 +227,9 @@ function fetchTx(tx: string) {
                                 </label>
                                 <label class="input-group flex items-center">
                                     <input v-model="feeAmount" type="text" placeholder="0.001"
-                                        class="input input-bordered flex-1 w-0 dark:text-gray-300" />
-                                    <select v-model="feeDenom" class="select input input-bordered w-[200px]">
+                                        class="input border border-gray-300 dark:border-gray-600 flex-1 w-0 dark:text-gray-300" />
+                                    <select v-model="feeDenom"
+                                        class="select input border border-gray-300 dark:border-gray-600 w-[200px]">
                                         <option disabled selected>
                                             Select Fee Token
                                         </option>
@@ -242,18 +244,18 @@ function fetchTx(tx: string) {
                                     <span class="label-text">Gas</span>
                                 </label>
                                 <input v-model="gasInfo" type="number" placeholder="2000000"
-                                    class="input input-bordered dark:text-gray-300" />
+                                    class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300" />
                             </div>
                             <div class="form-control">
                                 <label class="label">
                                     <span class="label-text">Memo</span>
                                 </label>
                                 <input v-model="memo" type="text" placeholder="Memo"
-                                    class="input input-bordered dark:text-gray-300" />
+                                    class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300" />
                             </div>
                         </div>
                     </form>
-                    
+
                     <div v-if="error" class="mt-5 alert alert-error shadow-lg">
                         <div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
@@ -271,7 +273,7 @@ function fetchTx(tx: string) {
                                 class="checkbox checkbox-sm checkbox-primary mr-2" /><label :for="`${type}-advance`"
                                 class="cursor-pointer dark:text-gray-400">Advance</label>
                         </div>
-                        <label class="btn" :class="sending ? '!loading' : ''" @click="sendTx()">Send</label>
+                        <label class="btn" @click="sendTx()">Send</label>
                     </div>
                 </div>
 
