@@ -9,6 +9,7 @@ removeWallet,
 writeWallet,
 } from '../../../lib/wallet/Wallet';
 import { readWallet } from '../../../lib/wallet/Wallet';
+import { Icon } from '@iconify/vue';
 
 const props = defineProps({
     chainId: String,
@@ -22,7 +23,15 @@ const open = ref(false);
 const error = ref('');
 async function initData() {}
 const name = ref(WalletName.Keplr);
-const list = [WalletName.Keplr, WalletName.Ledger];
+const list = [{
+        wallet: WalletName.Keplr,
+        logo: "https://ping.pub/logos/keplr-logo.svg"
+    }, 
+    {
+        wallet: WalletName.Ledger,
+        logo: "https://ping.pub/logos/ledger.png"
+    }
+];
 const connected = ref(readWallet(props.hdPath) as ConnectedWallet);
 
 function selectWallet(wallet: WalletName) {
@@ -111,23 +120,19 @@ const tipMsg = computed(()=> {
                 class="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto"
             >
                 <div
-                    class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold"
+                    class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold flex justify-between"
                 >
-                    {{ connected.wallet }}
+                    <span class="text-lg"> {{ connected.wallet }} </span>
+                    <span class="ml-2 text-xs mt-2"> {{ connected.hdPath }} </span>
                 </div>
                 <div class="">
+                    <div class="divider mt-1 mb-1"></div>
                     <a
                         class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
                         style="overflow-wrap: anywhere"
                         @click="copyAdress(connected.cosmosAddress)"
                     >
                         {{ connected.cosmosAddress }}
-                    </a>
-                    <a
-                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
-                        style="overflow-wrap: anywhere"
-                    >
-                        {{ connected.hdPath }}
                     </a>
                     <!-- <div class="divider mt-1 mb-1"></div>
                     <RouterLink
@@ -140,11 +145,10 @@ const tipMsg = computed(()=> {
                         to="/wallet/portfolio"
                         >Portfolio</RouterLink
                     > -->
-                    <div class="divider mt-1 mb-1"></div>
                     <a
                         class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
                         @click="disconnect()"
-                        >Disconnected</a
+                        >Disconnect</a
                     >
                 </div>
             </div>
@@ -189,30 +193,32 @@ const tipMsg = computed(()=> {
                     <li
                         class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-base-content rounded-lg cursor-pointer"
                         v-for="(i, k) of list"
-                        @click="selectWallet(i)"
+                        @click="selectWallet(i.wallet)"
                     >
                         <img
-                            class="h-10 w-10 rounded-full bg-gray-50 mr-4"
-                            src="https://wallet.keplr.app/keplr-brand-assets/keplr-logo.svg"
+                            class="h-10 w-10 bg-gray-50 mr-4"
+                            :src="i.logo"
                             alt=""
                         />
                         <p
                             class="text-base font-semibold flex-1 dark:text-gray-300"
                         >
-                            {{ i }}
+                            {{ i.wallet }}
                         </p>
                         <div>
                             <div
-                                v-if="i === name"
-                                class="w-2 h-2 mr-4 rounded-full bg-success"
-                            ></div>
+                                v-if="i.wallet === name"
+                                class="mr-4 rounded-full bg-green-200"
+                            >
+                                <Icon icon="mdi:check" class=" font-bold text-green-600"/>
+                            </div>
                         </div>
                     </li>
                 </ul>
                 <div v-if="error" class="text-error mt-3">
                     <span>{{ error }}.</span>
                 </div>
-                <div class="mt-4">
+                <div class="mt-4 text-right">
                     <label
                         class="btn btn-primary ping-connect-confirm"
                         :class="sending ? 'loading' : ''"
@@ -226,7 +232,8 @@ const tipMsg = computed(()=> {
 </template>
 <script lang="ts">
 export default {
-    name: 'ConnectWallet',
+    name: "ConnectWallet",
+    components: { Icon }
 };
 </script>
 
