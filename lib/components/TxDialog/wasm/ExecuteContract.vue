@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { Coin } from '@cosmjs/amino';
 import { PropType, computed, onMounted, ref } from 'vue';
-import { fromBase64 } from '@cosmjs/encoding'
+import { toBase64 } from '@cosmjs/encoding'
 import { CoinMetadata } from '../../../utils/type';
 
 const props = defineProps({
@@ -34,7 +34,7 @@ const msgs = computed(() => {
             sender: props.sender,
             contract: contract.value,
             /** Msg json encoded message to be passed to the contract on instantiation */
-            msg: msg.value,
+            msg: toBase64(new TextEncoder().encode(msg.value)),
             /** Funds coins that are transferred to the contract on instantiation */
             funds: funds.value,
         },
