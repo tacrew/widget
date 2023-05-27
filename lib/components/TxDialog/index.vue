@@ -65,6 +65,7 @@ const advance = ref(false);
 const sending = ref(false);
 const balance = ref([] as Coin[]);
 const metadatas = ref({} as Record<string, CoinMetadata>)
+const emit = defineEmits(['submited', "confirmed"]);
 
 // functional variable
 const p = JSON.parse(props.params || '{}');
@@ -151,8 +152,8 @@ async function sendTx() {
         const response = await client.broadcastTx(props.endpoint, txRaw);
         // show submitting view
         showResult( response.tx_response.txhash )
-        
-        
+
+        emit('submited', { hash: response.tx_response.txhash });
     } catch (e) {
         sending.value = false;
         error.value = e;
@@ -190,6 +191,7 @@ function fetchTx(tx: string) {
                 error.value = res.tx_response.raw_log
             } else {
                 msg.value = `Congratulations! ${showTitle()} completed successfully.`
+                emit('confirmed', { hash: tx });
             }
         })
         .catch(() => {
