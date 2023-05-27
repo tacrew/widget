@@ -73,7 +73,7 @@ const open = ref(false);
 const error = ref('');
 
 // input field
-const msgBox = ref({ msgs: [], isValid: {ok: false, error: ""} });
+const msgBox = ref({ msgs: [], isValid: {ok: false, error: ""}, initial: function () {} });
 const feeAmount = ref(Number(p.fees?.amount || 2000));
 const feeDenom = ref("")
 const gasInfo = ref(200000);
@@ -83,9 +83,6 @@ const chainId = ref('cosmoshub-4');
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = "input"
-        // Every sub component should have a initial function
-        // @ts-ignore
-        msgBox.value.initial()
         try{
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;
@@ -103,6 +100,8 @@ async function initData() {
             getStakingParam(props.endpoint).then(res => {
                 feeDenom.value = res.params.bond_denom
             })
+            // Every sub component should have a initial function
+            if(msgBox.value.initial) msgBox.value.initial()
         }catch(err) {
             error.value = err
             console.error(err)
