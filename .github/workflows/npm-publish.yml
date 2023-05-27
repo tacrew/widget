@@ -26,9 +26,9 @@ jobs:
             - uses: actions/setup-node@v3
               with:
                   node-version: 16
-                  registry-url: '//registry.npmjs.org/'
-            - run: npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
-            - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.GITHUB_PERSONAL_TOKEN }}" >> ~/.npmrc
+                  registry-url: '//registry.npmjs.org'
+            - run: npm config set //registry.npmjs.org:_authToken=$NODE_AUTH_TOKEN
+            - run: npm config ls
             - run: npm run trypublish
               env:
                   NODE_AUTH_TOKEN: ${{secrets.npm_token}}
