@@ -4,31 +4,31 @@
 name: Node.js Package
 
 on:
-  push:
-    branches:
-      release
+    push:
+        branches: release
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - run: npm install
-      - run: npm run build
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 16
+            - run: npm install
+            - run: npm run build
 
-  publish-npm:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          registry-url: https://registry.npmjs.com/
-      - run: npm config set //registry.npmjs.com/:_authToken=$NODE_AUTH_TOKEN
-      - run: npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{secrets.npm_token}}
+    publish-npm:
+        needs: build
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v3
+            - uses: actions/setup-node@v3
+              with:
+                  node-version: 16
+                  registry-url: '//registry.npmjs.org/'
+            - run: npm config set //registry.npmjs.org/:_authToken=$NODE_AUTH_TOKEN
+            - run: echo "//registry.npmjs.org/:_authToken=${{ secrets.GITHUB_PERSONAL_TOKEN }}" >> ~/.npmrc
+            - run: npm run trypublish
+              env:
+                  NODE_AUTH_TOKEN: ${{secrets.npm_token}}
