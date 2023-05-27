@@ -77,7 +77,7 @@ const msgBox = ref({ msgs: [], isValid: {ok: false, error: ""} });
 const feeAmount = ref(Number(p.fees?.amount || 2000));
 const feeDenom = ref("")
 const gasInfo = ref(200000);
-const memo = ref('Ping.pub');
+const memo = ref(props.type === 'send'? '':'Ping.pub');
 const chainId = ref('cosmoshub-4');
 
 async function initData() {
