@@ -673,7 +673,10 @@ async function connect() {
                     <div
                         class="flex items-center h-14 rounded-tl-lg rounded-tr-lg bg-gray-100 dark:bg-[#232333]"
                     >
-                        <div v-if="outTokens.length === 0"><button class="btn btn-ghost loading">loading...</button> </div>
+                        <div v-if="outTokens.length === 0">
+                            <span v-if="error" class="text-red-500">No tradable tokens found.</span>
+                            <button v-else class="btn btn-ghost loading">loading...</button>
+                        </div>
                         <div v-if="outTokens && outTokens.length > 0" class="dropdown">
                             <label
                                 tabindex="0"
