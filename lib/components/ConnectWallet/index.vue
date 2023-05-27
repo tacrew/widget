@@ -29,7 +29,7 @@ const list = [{
     }, 
     {
         wallet: WalletName.Ledger,
-        logo: "https://ping.pub/logos/ledger.png"
+        logo: "https://ping.pub/logos/ledger.webp"
     }
 ];
 const connected = ref(readWallet(props.hdPath) as ConnectedWallet);
@@ -191,12 +191,12 @@ const tipMsg = computed(()=> {
                     class="bg-gray-100 dark:bg-gray-900 rounded-lg mt-4 px-3 py-3"
                 >
                     <li
-                        class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-base-content rounded-lg cursor-pointer"
+                        class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
                         v-for="(i, k) of list"
                         @click="selectWallet(i.wallet)"
                     >
                         <img
-                            class="h-10 w-10 bg-gray-50 mr-4"
+                            class="h-10 w-10 rounded-full bg-gray-50 mr-4"
                             :src="i.logo"
                             alt=""
                         />
