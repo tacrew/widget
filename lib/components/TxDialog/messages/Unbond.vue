@@ -17,15 +17,6 @@ const amount = ref("")
 const amountDenom = ref("")
 const error = ref("")
 
-onMounted(() => {
-    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
-        delegation.value = x.delegation_response
-    }).catch(err => {
-        error.value = err
-    })   
-})
-
-
 const msgs = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)
     return [{
@@ -70,7 +61,15 @@ const isValid = computed(() => {
     return { ok, error }
 })
 
-defineExpose({msgs, isValid})
+function initial() {
+    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
+        delegation.value = x.delegation_response
+    }).catch(err => {
+        error.value = err
+    })   
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

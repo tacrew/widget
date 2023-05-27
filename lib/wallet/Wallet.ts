@@ -182,7 +182,6 @@ export class LedgerWallet implements AbstractWallet {
         this.hdPath = arg.hdPath || DEFAULT_HDPATH
         this.registry = registry
         this.conf = arg
-        console.log(arg, registry)
     }
 
     async getSigner() {

@@ -34,7 +34,11 @@ const isValid = computed(() => {
     }
     return { ok, error }
 })
-defineExpose({ msgs, isValid })
+
+function initial() {
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

@@ -29,16 +29,6 @@ const sourceChain = ref({} as { channel_id: string, port_id: string } | undefine
 const ibcDenomTraces = ref({} as Record<string, {path: string, base_denom: string}>)
 
 const client = new ChainRegistryClient()
-onMounted(() => {
-    client.fetchIBCPaths().then(paths => {
-        chains.value = paths.filter(x => x.path.indexOf(chainName) > -1)
-    })
-
-    getStakingParam(props.endpoint).then(x => {
-        denom.value = x.params.bond_denom
-    })    
-})
-
 
 const msgs = computed(() => {
     const timeout = dayjs().add(1, 'hour')
@@ -146,7 +136,18 @@ const isValid = computed(() => {
     return { ok, error }
 })
 
-defineExpose({msgs, isValid})
+
+function initial() {
+    client.fetchIBCPaths().then(paths => {
+        chains.value = paths.filter(x => x.path.indexOf(chainName) > -1)
+    })
+
+    getStakingParam(props.endpoint).then(x => {
+        denom.value = x.params.bond_denom
+    })   
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

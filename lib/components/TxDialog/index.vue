@@ -83,6 +83,9 @@ const chainId = ref('cosmoshub-4');
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = "input"
+        // Every sub component should have a initial function
+        // @ts-ignore
+        msgBox.value.initial()
         try{
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;

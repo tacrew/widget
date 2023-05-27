@@ -17,13 +17,6 @@ const denom = ref("")
 const amount = ref("")
 const amountDenom = ref("")
 
-onMounted(() => {
-    getStakingParam(props.endpoint).then(x => {
-        denom.value = x.params.bond_denom
-    })
-})
-
-
 const available = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)
     const base = props.balances?.find(x => x.denom === denom.value) || { amount: "0", denom: denom.value }
@@ -72,7 +65,13 @@ const isValid = computed(() => {
     return { ok, error }
 })
 
-defineExpose({ msgs, isValid })
+function initial() {
+    getStakingParam(props.endpoint).then(x => {
+        denom.value = x.params.bond_denom
+    })
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

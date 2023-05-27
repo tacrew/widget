@@ -10,13 +10,6 @@ const props = defineProps({
 
 const rewards = ref([] as {reward: {amount: string, denom: string}, validator_address:string}[]) 
 
-onMounted(() => {
-    getDelegateRewards(props.endpoint, props.sender).then(x => {
-        rewards.value = x.rewards
-    })
-})
-
-
 const msgs = computed(() => {
     return rewards.value.map(x => {
         return {
@@ -42,7 +35,14 @@ const isValid = computed(() => {
     }
     return { ok, error }
 })
-defineExpose({msgs, isValid})
+
+function initial() {
+    getDelegateRewards(props.endpoint, props.sender).then(x => {
+        rewards.value = x.rewards
+    })
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

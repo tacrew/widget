@@ -14,7 +14,7 @@ const props = defineProps({
 });
 const params = JSON.parse(props.params|| "{}")
 
-const validator = ref(params.validator_address)
+const validator = ref("")
 
 const activeValidators = ref([])
 const inactiveValidators = ref([])
@@ -22,20 +22,6 @@ const stakingDenom = ref("")
 const unbondingTime = ref("")
 const amount = ref("")
 const amountDenom = ref("")
-
-onMounted(() => {
-    getStakingParam(props.endpoint).then(x => {
-        stakingDenom.value = x.params.bond_denom
-        unbondingTime.value = x.params.unbonding_time
-    })
-
-    getActiveValidators(props.endpoint).then(x => {
-        activeValidators.value = x.validators
-        if(!params.validator_address) {
-            validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
-        }
-    })
-})
 
 const msgs = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)
@@ -104,8 +90,23 @@ const isValid = computed(() => {
     return { ok, error }
 })
 
+function initial() {
+    activeValidators.value = []
+    validator.value = params.validator_address
+    getStakingParam(props.endpoint).then(x => {
+        stakingDenom.value = x.params.bond_denom
+        unbondingTime.value = x.params.unbonding_time
+    })
 
-defineExpose({msgs, isValid})
+    getActiveValidators(props.endpoint).then(x => {
+        activeValidators.value = x.validators
+        if(!params.validator_address) {
+            validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
+        }
+    })
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

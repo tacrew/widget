@@ -24,20 +24,6 @@ const amountDenom = ref("")
 const delegation = ref({} as Coin)
 const error = ref("")
 
-onMounted(() => {
-    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
-        delegation.value = x.delegation_response.balance
-    }).catch(err => {
-        error.value = err
-    })
-
-    getActiveValidators(props.endpoint).then(x => {
-        activeValidators.value = x.validators
-        validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
-    })   
-})
-
-
 const sourceValidator = computed(() => {
     // @ts-ignore
     const v = activeValidators.value.find(v => v.operator_address === params.validator_address)
@@ -110,7 +96,21 @@ const isValid = computed(() => {
     return { ok, error }
 })
 
-defineExpose({msgs, isValid})
+
+function initial() {
+    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
+        delegation.value = x.delegation_response.balance
+    }).catch(err => {
+        error.value = err
+    })
+
+    getActiveValidators(props.endpoint).then(x => {
+        activeValidators.value = x.validators
+        validator.value = x.validators.find(v => v.description.identity === '6783E9F948541962')?.operator_address
+    })   
+}
+
+defineExpose({msgs, isValid, initial})
 </script>
 <template>
     <div>

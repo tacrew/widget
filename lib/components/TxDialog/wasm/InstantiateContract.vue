@@ -43,13 +43,9 @@ function addFunds() {
     funds.value.push({ amount: "", denom })
 }
 function removeFunds() {
-    if(funds.value.length > 1)
+    if(funds.value.length > 0)
         funds.value.pop()
 }
-
-onMounted(() => {
-    addFunds() // add a default fund row
-})
 
 const isValid = computed(() => {
     let ok = true
@@ -60,7 +56,11 @@ const isValid = computed(() => {
     }
     return { ok, error }
 })
-defineExpose({ msgs, isValid })
+
+function initial() {
+}
+
+defineExpose({msgs, isValid, initial})
 
 </script>
 <template>
