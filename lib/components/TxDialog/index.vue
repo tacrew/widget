@@ -153,7 +153,7 @@ async function sendTx() {
         // show submitting view
         showResult( response.tx_response.txhash )
 
-        emit('submited', { hash: response.tx_response.txhash });
+        emit('submited', { hash: response.tx_response.txhash, eventType: props.type });
     } catch (e) {
         sending.value = false;
         error.value = e;
@@ -191,7 +191,7 @@ function fetchTx(tx: string) {
                 error.value = res.tx_response.raw_log
             } else {
                 msg.value = `Congratulations! ${showTitle()} completed successfully.`
-                emit('confirmed', { hash: tx });
+                emit('confirmed', { hash: tx, eventType: props.type });
             }
         })
         .catch(() => {
