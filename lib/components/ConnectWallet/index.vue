@@ -16,7 +16,7 @@ const props = defineProps({
     hdPath: String,
 });
 
-const emit = defineEmits(['connect', 'disconnect', 'update']);
+const emit = defineEmits(['connect', 'disconnect', 'update', 'keplr-config']);
 
 const sending = ref(false);
 const open = ref(false);
@@ -30,8 +30,8 @@ const list = [
     },
     {
         wallet: WalletName.Ledger,
-        logo: "https://ping.pub/logos/ledger.webp"
-    }
+        logo: 'https://ping.pub/logos/ledger.webp',
+    },
 ];
 const connected = ref(readWallet(props.hdPath) as ConnectedWallet);
 
@@ -80,6 +80,10 @@ function disconnect() {
     removeWallet(props.hdPath);
     emit('disconnect', { value: connected.value });
     connected.value = {} as ConnectedWallet;
+}
+
+function keplr() {
+    emit('keplr-config', {})
 }
 
 let showCopyToast = ref(0);
@@ -202,7 +206,7 @@ const tipMsg = computed(() => {
                         @click="selectWallet(i.wallet)"
                     >
                         <img
-                            class="h-10 w-10 rounded-full bg-gray-50 mr-4"
+                            class="h-10 w-10 bg-gray-50 rounded-full mr-4"
                             :src="i.logo"
                             alt=""
                         />
@@ -227,13 +231,16 @@ const tipMsg = computed(() => {
                 <div v-if="error" class="text-error mt-3">
                     <span>{{ error }}.</span>
                 </div>
-                <div class="mt-8 text-right">
+                <div class="mt-8 text-right flex">
+                    <label class="btn mr-1" @click="keplr">
+                        <Icon icon="mdi:cog-outline"/>
+                    </label>
                     <label
-                        class="btn btn-primary ping-connect-confirm w-full"
+                        class="btn btn-primary ping-connect-confirm grow"
                         @click="connect()"
                         :class="{ 'loading relative start-0': sending }"
-                        >Connect</label
-                    >
+                        >Connect
+                    </label>
                 </div>
             </label>
         </label>
