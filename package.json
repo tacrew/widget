@@ -5,7 +5,7 @@
     "type": "module",
     "main": "dist/ping-widget.js",
     "author": {
-        "name": "Alisa",
+        "name": "Alisa | Side Protocol",
         "email": "alisa@side.one"
     },
     "homepage": "https://github.com/alisaweb3/ping-widget",
@@ -28,7 +28,8 @@
     "scripts": {
         "dev": "vite",
         "build": "node --max_old_space_size=8192 ./node_modules/.bin/vite build",
-        "preview": "vite preview"
+        "preview": "vite preview",
+        "trypublish": "npm publish || true"
     },
     "dependencies": {
         "@cosmjs/amino": "^0.30.1",
