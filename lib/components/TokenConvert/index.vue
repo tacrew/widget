@@ -768,7 +768,7 @@ async function connect() {
                             <button
                                 v-else
                                 class="btn btn-ghost"
-                                :class="{ loading: sending }"
+                                :class="{ 'loading relative start-0': sending }"
                             >
                                 loading...
                             </button>
@@ -876,7 +876,7 @@ async function connect() {
                         <button
                             class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
                             :disabled="disabled"
-                            :class="{ loading: sending }"
+                            :class="{ 'loading relative start-0': sending }"
                             @click="doSwap"
                         >
                             Convert
@@ -955,7 +955,7 @@ async function connect() {
                         <button
                             class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
                             :disabled="disableDeposit"
-                            :class="{ loading: sending }"
+                            :class="{ 'loading relative start-0': sending }"
                             @click="doDeposit"
                         >
                             Deposit
@@ -1038,7 +1038,7 @@ async function connect() {
                         <button
                             class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
                             :disabled="disableWithdraw"
-                            :class="{ loading: sending }"
+                            :class="{ 'loading relative start-0': sending }"
                             @click="doWithdraw()"
                         >
                             Withdraw
@@ -1062,7 +1062,7 @@ async function connect() {
                     <div class="mt-5">
                         <button
                             class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
-                            :class="{ 'loading': sending }"
+                            :class="{ 'loading relative start-0': sending }"
                             @click="connect()"
                         >
                             Connect
