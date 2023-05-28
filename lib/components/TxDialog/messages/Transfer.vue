@@ -169,7 +169,7 @@ defineExpose({ msgs, isValid, initial });
             <input
                 :value="sender"
                 type="text"
-                class="text-gray-600 dark:text-white input border border-gray-300 dark:border-gray-600"
+                class="text-gray-600 dark:text-white input border !border-gray-300 dark:!border-gray-600"
             />
         </div>
         <div class="form-control">
