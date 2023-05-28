@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { ref,computed } from 'vue';
+import { ref, computed } from 'vue';
 import {
     WalletName,
     createWallet,
     Account,
     ConnectedWallet,
-removeWallet,
-writeWallet,
+    removeWallet,
+    writeWallet,
 } from '../../../lib/wallet/Wallet';
 import { readWallet } from '../../../lib/wallet/Wallet';
 import { Icon } from '@iconify/vue';
@@ -16,17 +16,18 @@ const props = defineProps({
     hdPath: String,
 });
 
-const emit = defineEmits(['connect', "disconnect", "update"]);
+const emit = defineEmits(['connect', 'disconnect', 'update']);
 
 const sending = ref(false);
 const open = ref(false);
 const error = ref('');
 async function initData() {}
 const name = ref(WalletName.Keplr);
-const list = [{
+const list = [
+    {
         wallet: WalletName.Keplr,
-        logo: "https://ping.pub/logos/keplr-logo.svg"
-    }, 
+        logo: 'https://ping.pub/logos/keplr-logo.svg',
+    },
     {
         wallet: WalletName.Ledger,
         logo: "https://ping.pub/logos/ledger.webp"
@@ -57,7 +58,7 @@ async function connect() {
                         cosmosAddress: first.address,
                         hdPath: props.hdPath,
                     };
-                    writeWallet(connected.value, props.hdPath)
+                    writeWallet(connected.value, props.hdPath);
                     emit('connect', {
                         value: connected.value,
                     });
@@ -76,30 +77,32 @@ async function connect() {
     sending.value = false;
 }
 function disconnect() {
-    removeWallet(props.hdPath)
+    removeWallet(props.hdPath);
     emit('disconnect', { value: connected.value });
     connected.value = {} as ConnectedWallet;
 }
 
-let showCopyToast = ref(0)
-async function copyAdress(address: string){
-  try {
-    await navigator.clipboard.writeText(address);
-    showCopyToast.value = 1
-    setTimeout(()=>{
-      showCopyToast.value = 0
-    },1000)
-    /* Resolved - 文本被成功复制到剪贴板 */
-  } catch (err) {
-    showCopyToast.value = 2
-    setTimeout(()=>{
-      showCopyToast.value = 0
-    },1000)
-  }
+let showCopyToast = ref(0);
+async function copyAdress(address: string) {
+    try {
+        await navigator.clipboard.writeText(address);
+        showCopyToast.value = 1;
+        setTimeout(() => {
+            showCopyToast.value = 0;
+        }, 1000);
+        /* Resolved - 文本被成功复制到剪贴板 */
+    } catch (err) {
+        showCopyToast.value = 2;
+        setTimeout(() => {
+            showCopyToast.value = 0;
+        }, 1000);
+    }
 }
-const tipMsg = computed(()=> {
-  return showCopyToast.value === 2 ? {class: 'error', msg: 'Copy Error!'}: {class: 'success', msg: 'Copy Success!'}
-})
+const tipMsg = computed(() => {
+    return showCopyToast.value === 2
+        ? { class: 'error', msg: 'Copy Error!' }
+        : { class: 'success', msg: 'Copy Success!' };
+});
 </script>
 <template>
     <div class="mb-4">
@@ -123,7 +126,9 @@ const tipMsg = computed(()=> {
                     class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold flex justify-between"
                 >
                     <span class="text-lg"> {{ connected.wallet }} </span>
-                    <span class="ml-2 text-xs mt-2"> {{ connected.hdPath }} </span>
+                    <span class="ml-2 text-xs mt-2">
+                        {{ connected.hdPath }}
+                    </span>
                 </div>
                 <div class="">
                     <div class="divider mt-1 mb-1"></div>
@@ -184,7 +189,7 @@ const tipMsg = computed(()=> {
         />
 
         <label for="PingConnectWallet" class="modal cursor-pointer z-[999999]">
-            <label class="modal-box relative rounded-lg" for="">
+            <label class="modal-box rounded-lg" for="">
                 <h3 class="text-xl font-semibold">Connect Wallet</h3>
                 <ul
                     role="list"
@@ -193,6 +198,7 @@ const tipMsg = computed(()=> {
                     <li
                         class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
                         v-for="(i, k) of list"
+                        :key="k"
                         @click="selectWallet(i.wallet)"
                     >
                         <img
@@ -210,7 +216,10 @@ const tipMsg = computed(()=> {
                                 v-if="i.wallet === name"
                                 class="mr-4 rounded-full bg-green-200"
                             >
-                                <Icon icon="mdi:check" class=" font-bold text-green-600"/>
+                                <Icon
+                                    icon="mdi:check"
+                                    class="font-bold text-green-600"
+                                />
                             </div>
                         </div>
                     </li>
@@ -218,11 +227,11 @@ const tipMsg = computed(()=> {
                 <div v-if="error" class="text-error mt-3">
                     <span>{{ error }}.</span>
                 </div>
-                <div class="mt-4 text-right">
+                <div class="mt-8 text-right">
                     <label
-                        class="btn btn-primary ping-connect-confirm"
-                        :class="sending ? 'loading' : ''"
+                        class="btn btn-primary ping-connect-confirm w-full"
                         @click="connect()"
+                        :class="{ 'loading relative start-0': sending }"
                         >Connect</label
                     >
                 </div>
@@ -232,8 +241,8 @@ const tipMsg = computed(()=> {
 </template>
 <script lang="ts">
 export default {
-    name: "ConnectWallet",
-    components: { Icon }
+    name: 'ConnectWallet',
+    components: { Icon },
 };
 </script>
 

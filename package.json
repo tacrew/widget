@@ -1,11 +1,11 @@
 {
     "name": "ping-widget",
     "private": false,
-    "version": "0.0.22",
+    "version": "0.0.29",
     "type": "module",
     "main": "dist/ping-widget.js",
     "author": {
-        "name": "Alisa | Side Protocol",
+        "name": "Alisa",
         "email": "alisa@side.one"
     },
     "homepage": "https://github.com/alisaweb3/ping-widget",
