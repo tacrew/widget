@@ -38,7 +38,6 @@ function selectWallet(wallet: WalletName) {
     name.value = wallet;
 }
 async function connect() {
-    if (sending.value) return;
     sending.value = true;
     error.value = '';
     let accounts = [] as Account[];
@@ -159,11 +158,11 @@ const tipMsg = computed(() => {
         <input v-model="open" type="checkbox" id="PingConnectWallet" class="modal-toggle" @change="initData()" />
 
         <label for="PingConnectWallet" class="modal cursor-pointer z-[999999]">
-            <label class="modal-box relative rounded-lg" for="">
+            <label class="modal-box rounded-lg" for="">
                 <h3 class="text-xl font-semibold">Connect Wallet</h3>
                 <ul role="list" class="bg-gray-100 dark:bg-gray-900 rounded-lg mt-4 px-3 py-3">
                     <li class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
-                        v-for="(i, k) of list" @click="selectWallet(i.wallet)">
+                        v-for="(i, k) of list" :key="k" @click="selectWallet(i.wallet)">
                         <img class="h-10 w-10 bg-gray-50 mr-4" :src="i.logo" alt="" />
                         <p class="text-base font-semibold flex-1 dark:text-gray-300">
                             {{ i.wallet }}
@@ -179,7 +178,7 @@ const tipMsg = computed(() => {
                     <span>{{ error }}.</span>
                 </div>
                 <div class="mt-8 text-right">
-                    <label class="btn btn-primary ping-connect-confirm w-full" @click="connect()">Connect</label>
+                    <label class="btn btn-primary ping-connect-confirm w-full" @click="connect()" :class="{ 'loading': sending}">Connect</label>
                 </div>
             </label>
         </label>
