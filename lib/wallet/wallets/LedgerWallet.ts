@@ -12,7 +12,7 @@ import { defaultMessageAdapter } from "../EthermintMessageAdapter";
 import { createTransactionWithMultipleMessages } from "@tharsis/proto";
 import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { stringToPath } from '@cosmjs/crypto'
+import { stringToPath } from '@cosmjs/amino/node_modules/@cosmjs/crypto'
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 
 function extractChainId(chainId: string) {
@@ -60,7 +60,7 @@ export class LedgerWallet implements AbstractWallet {
             default:
         }
         // const path = stringToPath(this.hdPath)
-        return new LedgerSigner(transport, { ledgerAppName })
+        return new LedgerSigner(transport, { ledgerAppName, hdPaths: [hdPath] })
     }
 
     async getAccounts(): Promise<Account[]> {
