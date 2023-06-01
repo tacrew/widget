@@ -84,6 +84,7 @@ function disconnect() {
 
 function keplr() {
     emit('keplr-config', {})
+    open.value = false
 }
 
 let showCopyToast = ref(0);
