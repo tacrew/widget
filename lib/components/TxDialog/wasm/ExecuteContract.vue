@@ -36,7 +36,7 @@ const msgs = computed(() => {
             /** Msg json encoded message to be passed to the contract on instantiation */
             msg: toBase64(new TextEncoder().encode(msg.value)),
             /** Funds coins that are transferred to the contract on instantiation */
-            funds: funds.value,
+            funds: JSON.stringify(funds.value),
         },
     }]
 })

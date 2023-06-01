@@ -115,10 +115,9 @@ async function initData() {
                 feeDenom.value = res.params.bond_denom;
             });
             // Every sub component should have a initial function
-            if (msgBox.value.initial) msgBox.value.initial();
+            if (msgBox.value && msgBox.value.initial) msgBox.value.initial();
         } catch (err) {
             error.value = err;
-            console.error(err);
         }
 
         // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);

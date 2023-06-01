@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
 
-const sender = 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a';
+const sender = 'juno1jxv0u20scum4trha72c7ltfgfqef6nscych5nn';
 // const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures'// 'https://rest.stargaze-apis.com';
 const endpoint = 'https://api.uni.junonetwork.io'
 const chainId = 'uni-6';
