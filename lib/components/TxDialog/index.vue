@@ -72,7 +72,7 @@ const advance = ref(false);
 const sending = ref(false);
 const balance = ref([] as Coin[]);
 const metadatas = ref({} as Record<string, CoinMetadata>);
-const emit = defineEmits(['submited', 'confirmed']);
+const emit = defineEmits(['submited', 'confirmed', 'view']);
 
 // functional variable
 const p = JSON.parse(props.params || '{}');
@@ -169,6 +169,7 @@ async function sendTx() {
         const txRaw = await client.sign(tx);
         const response = await client.broadcastTx(props.endpoint, txRaw);
         // show submitting view
+        hash.value = response.tx_response.txhash
         showResult(response.tx_response.txhash);
 
         emit('submited', {
@@ -182,6 +183,14 @@ async function sendTx() {
     }
 }
 
+function viewTransaction() {
+    emit('view', {
+        hash: hash.value,
+        eventType: props.type,
+    });
+    open.value = false
+}
+
 function showTitle() {
     return (props.type || 'Sending Transaction').replace(/\_/g, ' ');
 }
@@ -190,6 +199,7 @@ const delay = ref(0);
 const step = ref(0);
 const msg = ref('');
 const sleep = 6000;
+const hash = ref('')
 
 function showResult(hash: string) {
     view.value = 'submitting';
@@ -378,6 +388,9 @@ function fetchTx(tx: string) {
                             </div>
                         </div>
                     </div>
+                    <label class="mt-10 flex justify-center text-sm" @click="viewTransaction">
+                        <span>View Transaction</span>
+                    </label>
                 </div>
             </label>
         </label>
