@@ -98,7 +98,7 @@ defineExpose({msgs, isValid, initial})
                 </span>
             </label>
             <label v-for="(coin, i) in funds" class="input-group" :key="i">
-                <input v-model="coin.amount" type="number" placeholder="0" class="input border border-gray-300 dark:border-gray-600 w-full" />
+                <input v-model="coin.amount" type="text" placeholder="0" class="input border border-gray-300 dark:border-gray-600 w-full" />
                 <select v-model="coin.denom" class="select border border-gray-300 dark:border-gray-600">
                     <option v-for="b in balances" :value="b.denom">{{ b.denom.substring(0, 10) }}</option>
                 </select>
