@@ -16,6 +16,7 @@ import {
     getOsmosisPools,
     getLatestBlock,
     getAccount,
+getTxByHash,
 } from '../../utils/http';
 import {
     Account,
@@ -378,8 +379,8 @@ async function doSwap() {
         fee,
         'Convert on ping.pub'
     );
-    console.log(response.code);
     if (response.code === 0) {
+        await showResult(response.transactionHash)
         await getBalance(
             OSMOSIS_REST,
             osmoAddress(sender.value.cosmosAddress)
@@ -613,6 +614,46 @@ async function connect() {
         error.value = e.message;
     }
     sending.value = false;
+}
+
+// Excuting result 
+const delay = ref(0);
+const step = ref(0);
+const msg = ref('');
+const sleep = 6000;
+const emit = defineEmits(['completed']);
+
+function showResult(hash: string) {
+    view.value = 'submitting';
+    delay.value = 1;
+    step.value = 20;
+    error.value = '';
+    msg.value = 'Proccessing...';
+    setTimeout(() => {
+        fetchTx(hash);
+    }, sleep);
+}
+
+function fetchTx(tx: string) {
+    delay.value += 1;
+    step.value += 20;
+    getTxByHash(OSMOSIS_REST, tx)
+        .then((res) => {
+            step.value = 100;
+            if (res.tx_response.code > 0) {
+                error.value = res.tx_response.raw_log;
+            } else {
+                msg.value = `Congratulations! Swap completed successfully.`;
+                emit('completed', { hash: tx, });
+            }
+        })
+        .catch(() => {
+            if (delay.value < 5) {
+                setTimeout(() => fetchTx(tx), sleep);
+            } else {
+                error.value = 'Timeout';
+            }
+        });
 }
 </script>
 <template>
@@ -1067,6 +1108,44 @@ async function connect() {
                         >
                             Connect
                         </button>
+                    </div>
+                </div>
+
+                <div v-if="view === 'submitting'">
+                    <div class="my-10">
+                        <div v-if="error" class="my-5 text-center text-red-500">
+                            {{ error }}
+                        </div>
+                        <div
+                            v-else
+                            class="my-5 text-center text-lg text-green-500"
+                        >
+                            {{ msg }}
+                        </div>
+                        <div
+                            class="overflow-hidden h-5 mb-2 text-xs flex rounded bg-green-100"
+                        >
+                            <div
+                                :style="`width: ${step}%`"
+                                class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-400"
+                            ></div>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <span
+                                    class="text-xs font-semibold inline-block py-1 px-2 rounded text-gray-600 dark:text-white"
+                                >
+                                    Submitted
+                                </span>
+                            </div>
+                            <div class="text-right">
+                                <span
+                                    class="text-xs font-semibold inline-block text-gray-600 dark:text-white"
+                                >
+                                    {{ step }}%
+                                </span>
+                            </div>
+                        </div>                        
                     </div>
                 </div>
             </label>
