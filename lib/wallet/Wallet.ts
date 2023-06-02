@@ -3,6 +3,7 @@ import { defaultRegistryTypes } from "@cosmjs/stargate";
 import { Transaction } from "../utils/type";
 import { KeplerWallet } from './wallets/KeplerWallet';
 import { LedgerWallet } from './wallets/LedgerWallet';
+import { MetamaskWallet } from './wallets/MetamaskWallet';
 
 export enum WalletName {
     Keplr = "Keplr",
@@ -66,6 +67,8 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
             return new KeplerWallet(arg, reg)
         case WalletName.Ledger:
             return new LedgerWallet(arg, reg)
+        case WalletName.Metamask:
+            return new MetamaskWallet(arg, reg)
     }
     throw new Error("No wallet created")
 }
