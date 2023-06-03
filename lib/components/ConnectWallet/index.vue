@@ -32,6 +32,10 @@ const list = [
         wallet: WalletName.Ledger,
         logo: 'https://ping.pub/logos/ledger.webp',
     },
+    {
+        wallet: WalletName.Metamask,
+        logo: 'https://ping.pub/logos/Metamask.webp',
+    },
 ];
 const connected = ref(readWallet(props.hdPath) as ConnectedWallet);
 
