@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
-
 import {
     getAccount,
     getBalance,
@@ -75,7 +74,7 @@ const metadatas = ref({} as Record<string, CoinMetadata>);
 const emit = defineEmits(['submited', 'confirmed', 'view']);
 
 // functional variable
-const p = JSON.parse(props.params || '{}');
+const p = ref({} as { fees: Coin});
 const view = ref('input'); // input, submitting
 const open = ref(false);
 const error = ref('');
@@ -86,15 +85,17 @@ const msgBox = ref({
     isValid: { ok: false, error: '' },
     initial: function () {},
 });
-const feeAmount = ref(Number(p.fees?.amount || 2000));
+const feeAmount = ref(2000);
 const feeDenom = ref('');
 const gasInfo = ref(200000);
-const memo = ref(props.type === 'send' ? '' : 'Ping.pub');
+const memo = ref(props.type?.toLowerCase() === 'send' ? '' : 'Ping.pub');
 const chainId = ref('cosmoshub-4');
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = 'input';
+        p.value = JSON.parse(props.params || '{}')
+        feeAmount.value = Number(p.value?.fees?.amount || 2000)
         try {
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;

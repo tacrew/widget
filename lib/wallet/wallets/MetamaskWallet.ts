@@ -1,7 +1,6 @@
-import { AbstractWallet, Account, WalletArgument, WalletName } from '../Wallet';
-import { createTxRaw } from '@evmos/proto';
-import { fromBase64, fromBech32, toHex } from '@cosmjs/encoding';
-import { evmosToEth } from '@evmos/address-converter';
+import { AbstractWallet, Account, WalletArgument, WalletName, extractChainId } from '../Wallet';
+import { createAnyMessage, createSignerInfo, createTxRaw } from '@evmos/proto';
+import { fromBase64, fromBech32, toHex, fromHex, toBase64 } from '@cosmjs/encoding';
 import {
     Registry,
     encodePubkey,
@@ -9,18 +8,27 @@ import {
 } from '@cosmjs/proto-signing';
 import { Transaction } from '../../utils/type';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { Buffer } from 'buffer';
 import { hashMessage } from '@ethersproject/hash';
 import { computePublicKey, recoverPublicKey } from '@ethersproject/signing-key';
+import { ethToEthermint, ethermintToEth } from '../../utils/format';
+import { AminoTypes, createDefaultAminoConverters } from "@cosmjs/stargate"
+import { Chain, createTxRawEIP712, signatureToWeb3Extension } from "@tharsis/transactions";
+import { createEIP712, generateFee, generateMessageWithMultipleTransactions, generateTypes } from "@tharsis/eip712";
+import { createTransactionWithMultipleMessages } from "@tharsis/proto";
+import { defaultMessageAdapter } from '../EthermintMessageAdapter';
+import { PubKey } from '@evmos/proto/dist/proto/ethermint/crypto/keys';
 
 export class MetamaskWallet implements AbstractWallet {
     name: WalletName.Metamask;
     chainId: string;
     registry: Registry;
+    prefix: string;
+    aminoTypes = new AminoTypes(createDefaultAminoConverters())
 
     constructor(arg: WalletArgument, registry: Registry) {
         this.chainId = arg.chainId || 'cosmoshub';
         this.registry = registry;
+        this.prefix = arg.prefix || 'evmos'
     }
 
     async getAccounts(): Promise<Account[]> {
@@ -46,17 +54,25 @@ export class MetamaskWallet implements AbstractWallet {
             signature
         );
         const hexPk = computePublicKey(uncompressedPk, true);
-        const pk = Buffer.from(hexPk.replace('0x', ''), 'hex').toString(
-            'base64'
-        );
+        const pk = toBase64(fromHex(hexPk.replace('0x', '')));
 
-        console.log(pk,"pk___")
-
-        return accounts.map((address) => ({
-            address: address.toLowerCase(),
+        const connected = accounts.map((address) => ({
+            address: ethToEthermint(address, this.prefix),
             algo: 'secp256k1',
             pubkey: pk,
-        }));
+        }))
+
+        localStorage.setItem("metamask-connected", JSON.stringify(connected))
+
+        return connected;
+    }
+
+    async getConnectedAccounts()  {
+        const connected = localStorage.getItem("metamask-connected")
+        if(connected) {
+            return JSON.parse(connected) as Account[]
+        }
+        return this.getAccounts()
     }
 
     async supportCoinType(coinType?: string): Promise<boolean> {
@@ -64,35 +80,17 @@ export class MetamaskWallet implements AbstractWallet {
         return true;
     }
 
-    async sign(transaction: Transaction): Promise<TxRaw> {
+    async sign(transaction: Transaction): Promise<TxRaw | Uint8Array> {
         const { chainId, signerAddress, messages, fee, memo, signerData } =
             transaction;
 
-        // Obtaining the data required for MetaMask signature
-        // @ts-ignore
-        await window.ethereum.enable();
-        // TODO
-        // const senderHexAddress = evmosToEth(signerAddress);
-        const eip712Payload = JSON.stringify(messages[0]);
-
-        // Signing an EIP-712 payload using MetaMask.
-        // @ts-ignore
-        const signature = await window.ethereum.request({
-            method: 'eth_signTypedData_v4',
-            // TODO
-            // params: [senderHexAddress, eip712Payload],
-            params: [signerAddress, eip712Payload],
-        });
-
-        // Creating a TxRaw object after signing.
-        const signatureBytes = Buffer.from(signature.replace('0x', ''), 'hex');
-        const txBodyBytes = this.registry.encode({
-            typeUrl: '/cosmos.tx.v1beta1.TxBody',
-            value: { messages },
-        });
+        const chain: Chain = {
+            chainId: extractChainId(transaction.signerData.chainId),
+            cosmosChainId: transaction.chainId,
+        }
 
         // getAccounts
-        const accounts = await this.getAccounts(); 
+        const accounts = await this.getConnectedAccounts(); 
         const account = accounts.find(
             (acc) => acc.address.toLowerCase() === signerAddress.toLowerCase()
         );
@@ -100,17 +98,65 @@ export class MetamaskWallet implements AbstractWallet {
             throw new Error('Account not found');
         }
 
-        const pubkeyBytes = Buffer.from(
-            Buffer.from(account.pubkey).toString('base64'),
-            'base64'
-        );
-        const pubkey = {
-            type: 'tendermint/PubKeySecp256k1',
-            value: Array.from(pubkeyBytes),
-        };
+        console.log("account:", account)
 
+        const pubkeyBytes = String(account.pubkey)
+        console.log("toBase64(pubkeyBytes)", pubkeyBytes)
+
+        const sender = {
+            accountAddress: transaction.signerAddress,
+            sequence: transaction.signerData.sequence,
+            accountNumber: transaction.signerData.accountNumber,
+            pubkey: pubkeyBytes,
+        }
+
+        const fees = generateFee(transaction.fee.amount[0].amount, transaction.fee.amount[0].denom, transaction.fee.gas, transaction.signerAddress)
+
+        const msgs = transaction.messages.map(x => this.aminoTypes.toAmino(x))
+        const toSignTx = generateMessageWithMultipleTransactions(
+            sender.accountNumber.toString(),
+            sender.sequence.toString(),
+            transaction.signerData.chainId,
+            transaction.memo,
+            fees,
+            msgs,
+        )
+
+        const types = generateTypes(defaultMessageAdapter[transaction.messages[0].typeUrl].getTypes())
+        const eip712Payload = createEIP712(types, chain.chainId, toSignTx)
+
+        // Obtaining the data required for MetaMask signature
+        // @ts-ignore
+        // const acc = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        // console.log("accounts: ", acc)
+
+        const senderHexAddress = ethermintToEth(signerAddress);
+        // const eip712Payload = JSON.stringify(messages[0]);
+
+        console.log(eip712Payload, types, sender)
+
+        // Signing an EIP-712 payload using MetaMask.
+        // @ts-ignore
+        const signature = await window.ethereum.request({
+            method: 'eth_signTypedData_v4',
+            // TODO
+            params: [senderHexAddress, JSON.stringify(eip712Payload)],
+        });
+
+        // Creating a TxRaw object after signing.
+        const signatureBytes = fromHex(signature.replace('0x', ''));
+        const txBodyBytes = this.registry.encode({
+            typeUrl: '/cosmos.tx.v1beta1.TxBody',
+            value: { messages },
+        });
+
+        // NOTE: assume ethsecp256k1 by default because after mainnet is the only one that is going to be supported
+        const pubkey = createAnyMessage({
+            message: new PubKey({  key: fromBase64(pubkeyBytes) }),
+            path: 'ethermint.crypto.v1.ethsecp256k1.PubKey',
+        })
         const authInfoBytes = makeAuthInfoBytes(
-            [{ pubkey: encodePubkey(pubkey), sequence: signerData.sequence }],
+            [{ pubkey, sequence: signerData.sequence }],
             fee.amount,
             Number(fee.gas),
             undefined, // feeGranter
@@ -121,9 +167,9 @@ export class MetamaskWallet implements AbstractWallet {
         const signedTx: TxRaw = TxRaw.fromPartial({
             bodyBytes: txBodyBytes,
             authInfoBytes: authInfoBytes,
-            signatures: [fromBase64(signatureBytes.toString('base64'))],
+            signatures: [signatureBytes],
         });
 
-        return signedTx;
-    }
+        return signedTx;        // Create the txRaw
+    }   
 }

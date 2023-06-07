@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
+import { ethToEthermint, ethermintToEth } from '../lib/utils/format';
 
-const sender = 'juno1jxv0u20scum4trha72c7ltfgfqef6nscych5nn';
+// const sender = "evmos1ayp22xk4nwc9lhjh6tvdat2j2klnvvk29yx87m"
+const sender = 'evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z';
 // const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures'// 'https://rest.stargaze-apis.com';
-const endpoint = 'https://api.uni.junonetwork.io'
-const chainId = 'uni-6';
-const hdPath = "m/44'/118/0'/0/0";
-const chain_name = 'juno'
+// const endpoint = 'https://api.uni.junonetwork.io'
+const endpoint = 'https://rest.bd.evmos.org:1317'
+const chainId = 'evmos_9001-2';
+const hdPath = "m/44'/60/0'/0/0";
+const chain_name = 'evmos'
 
 const params = JSON.stringify({
     proposal_id: '1',
-    validator_address: 'starsvaloper1jxv0u20scum4trha72c7ltfgfqef6nscdghxyx',
+    validator_address: "evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
     chain_name,
-    contract: 'add'
+    contract: 'add',
+    fees: {amount: '6000000000000000', denom: ''}
 });
 
 const types = [
@@ -51,6 +55,11 @@ onMounted(() => {
 const walletStateChange = (res: any) => {
    console.log(res, 'resres');
 };
+
+console.log("0x88BFec573Dd3E4b7d2E6BfD4D0D6B11F843F8aa1")
+console.log(ethToEthermint("0x88BFec573Dd3E4b7d2E6BfD4D0D6B11F843F8aa1", "evmos"))
+console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
+
 </script>
 
 <template>
@@ -111,5 +120,6 @@ const walletStateChange = (res: any) => {
         ></ping-token-convert>
     </div>
 </template>
+
 
 <style scoped></style>

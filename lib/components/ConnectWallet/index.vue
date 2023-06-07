@@ -14,6 +14,7 @@ import { Icon } from '@iconify/vue';
 const props = defineProps({
     chainId: String,
     hdPath: String,
+    prefix: String, // address prefix
 });
 
 const emit = defineEmits(['connect', 'disconnect', 'update', 'keplr-config']);
@@ -21,7 +22,7 @@ const emit = defineEmits(['connect', 'disconnect', 'update', 'keplr-config']);
 const sending = ref(false);
 const open = ref(false);
 const error = ref('');
-async function initData() {}
+
 const name = ref(WalletName.Keplr);
 const list = [
     {
@@ -32,11 +33,21 @@ const list = [
         wallet: WalletName.Ledger,
         logo: 'https://ping.pub/logos/ledger.webp',
     },
-    {
-        wallet: WalletName.Metamask,
-        logo: 'https://ping.pub/logos/Metamask.webp',
-    },
 ];
+
+async function initData() { }
+
+const walletList = computed(() => {
+    const l = list
+    if (props.hdPath?.startsWith("m/44'/60")) {
+        l.push({
+                wallet: WalletName.Metamask,
+                logo: 'https://ping.pub/logos/metamask.webp',
+        })
+    }
+    return l
+})
+
 const connected = ref(readWallet(props.hdPath) as ConnectedWallet);
 
 function selectWallet(wallet: WalletName) {
@@ -50,6 +61,7 @@ async function connect() {
         const wa = createWallet(name.value, {
             chainId: props.chainId,
             hdPath: props.hdPath,
+            prefix: props.prefix,
         });
         await wa
             .getAccounts()
@@ -116,24 +128,14 @@ const tipMsg = computed(() => {
 <template>
     <div class="mb-4">
         <!-- modal btn -->
-        <div
-            v-if="connected.cosmosAddress"
-            class="dropdown dropdown-hover ping-connect-dropdown"
-        >
-            <label tabindex="0" class="btn btn-sm m-1 lowercase"
-                >{{ connected.wallet }}-{{
-                    connected.cosmosAddress?.substring(
-                        connected.cosmosAddress?.length - 4
-                    )
-                }}</label
-            >
-            <div
-                tabindex="0"
-                class="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto"
-            >
-                <div
-                    class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold flex justify-between"
-                >
+        <div v-if="connected.cosmosAddress" class="dropdown dropdown-hover ping-connect-dropdown">
+            <label tabindex="0" class="btn btn-sm m-1 lowercase">{{ connected.wallet }}-{{
+                connected.cosmosAddress?.substring(
+                    connected.cosmosAddress?.length - 4
+                )
+            }}</label>
+            <div tabindex="0" class="dropdown-content menu shadow p-2 bg-base-100 rounded w-64 overflow-auto">
+                <div class="px-2 mb-1 text-gray-500 dark:text-gray-400 font-semibold flex justify-between">
                     <span class="text-lg"> {{ connected.wallet }} </span>
                     <span class="ml-2 text-xs mt-2">
                         {{ connected.hdPath }}
@@ -141,11 +143,8 @@ const tipMsg = computed(() => {
                 </div>
                 <div class="">
                     <div class="divider mt-1 mb-1"></div>
-                    <a
-                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
-                        style="overflow-wrap: anywhere"
-                        @click="copyAdress(connected.cosmosAddress)"
-                    >
+                    <a class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        style="overflow-wrap: anywhere" @click="copyAdress(connected.cosmosAddress)">
                         {{ connected.cosmosAddress }}
                     </a>
                     <!-- <div class="divider mt-1 mb-1"></div>
@@ -159,11 +158,8 @@ const tipMsg = computed(() => {
                         to="/wallet/portfolio"
                         >Portfolio</RouterLink
                     > -->
-                    <a
-                        class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
-                        @click="disconnect()"
-                        >Disconnect</a
-                    >
+                    <a class="block py-2 px-2 hover:bg-gray-100 dark:hover:bg-[#353f5a] rounded cursor-pointer"
+                        @click="disconnect()">Disconnect</a>
                 </div>
             </div>
             <div class="toast" v-show="showCopyToast === 1">
@@ -181,54 +177,25 @@ const tipMsg = computed(() => {
                 </div>
             </div>
         </div>
-        <label
-            v-if="!connected.cosmosAddress"
-            for="PingConnectWallet"
-            class="btn btn-sm ping-connect-btn capitalize"
-            >Connect Wallet</label
-        >
+        <label v-if="!connected.cosmosAddress" for="PingConnectWallet"
+            class="btn btn-sm ping-connect-btn capitalize">Connect Wallet</label>
 
         <!-- modal content -->
-        <input
-            v-model="open"
-            type="checkbox"
-            id="PingConnectWallet"
-            class="modal-toggle"
-            @change="initData()"
-        />
+        <input v-model="open" type="checkbox" id="PingConnectWallet" class="modal-toggle" @change="initData()" />
 
         <label for="PingConnectWallet" class="modal cursor-pointer z-[999999]">
             <label class="modal-box rounded-lg" for="">
                 <h3 class="text-xl font-semibold">Connect Wallet</h3>
-                <ul
-                    role="list"
-                    class="bg-gray-100 dark:bg-gray-900 rounded-lg mt-4 px-3 py-3"
-                >
-                    <li
-                        class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
-                        v-for="(i, k) of list"
-                        :key="k"
-                        @click="selectWallet(i.wallet)"
-                    >
-                        <img
-                            class="h-10 w-10 bg-gray-50 rounded-full mr-4"
-                            :src="i.logo"
-                            alt=""
-                        />
-                        <p
-                            class="text-base font-semibold flex-1 dark:text-gray-300"
-                        >
+                <ul role="list" class="bg-gray-100 dark:bg-gray-900 rounded-lg mt-4 px-3 py-3">
+                    <li class="flex items-center px-2 py-3 hover:bg-gray-200 dark:hover:bg-gray-800 rounded-lg cursor-pointer"
+                        v-for="(i, k) of walletList" :key="k" @click="selectWallet(i.wallet)">
+                        <img class="h-10 w-10 bg-gray-50 rounded-full mr-4" :src="i.logo" alt="" />
+                        <p class="text-base font-semibold flex-1 dark:text-gray-300">
                             {{ i.wallet }}
                         </p>
                         <div>
-                            <div
-                                v-if="i.wallet === name"
-                                class="mr-4 rounded-full bg-green-200"
-                            >
-                                <Icon
-                                    icon="mdi:check"
-                                    class="font-bold text-green-600"
-                                />
+                            <div v-if="i.wallet === name" class="mr-4 rounded-full bg-green-200">
+                                <Icon icon="mdi:check" class="font-bold text-green-600" />
                             </div>
                         </div>
                     </li>
@@ -238,13 +205,10 @@ const tipMsg = computed(() => {
                 </div>
                 <div class="mt-8 text-right flex">
                     <label class="btn mr-1" @click="keplr">
-                        <Icon icon="mdi:cog-outline"/>
+                        <Icon icon="mdi:cog-outline" />
                     </label>
-                    <label
-                        class="btn btn-primary ping-connect-confirm grow"
-                        @click="connect()"
-                        :class="{ 'loading relative start-0': sending }"
-                        >Connect
+                    <label class="btn btn-primary ping-connect-confirm grow" @click="connect()"
+                        :class="{ 'loading relative start-0': sending }">Connect
                     </label>
                 </div>
             </label>

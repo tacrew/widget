@@ -1,6 +1,6 @@
 import { fromBase64, fromBech32, toHex, toBech32, toBase64 } from "@cosmjs/encoding";
 import { Registry, TxBodyEncodeObject, encodePubkey, makeAuthInfoBytes } from "@cosmjs/proto-signing"
-import { AbstractWallet, Account, DEFAULT_HDPATH, WalletArgument, WalletName } from "../Wallet"
+import { AbstractWallet, Account, DEFAULT_HDPATH, WalletArgument, WalletName, extractChainId } from "../Wallet"
 import { AminoTypes, createDefaultAminoConverters } from "@cosmjs/stargate"
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb"
 import TransportWebBLE from "@ledgerhq/hw-transport-web-ble"
@@ -12,17 +12,9 @@ import { defaultMessageAdapter } from "../EthermintMessageAdapter";
 import { createTransactionWithMultipleMessages } from "@tharsis/proto";
 import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { stringToPath } from '@cosmjs/amino/node_modules/@cosmjs/crypto'
+import { stringToPath } from '@cosmjs/crypto'
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-
-function extractChainId(chainId: string) {
-    const start = chainId.indexOf('_')
-    const end = chainId.indexOf('-')
-    if (end > start && start > 0) {
-      return Number(chainId.substring(start + 1, end))
-    }
-    return 0
-}
+import { ethermintToEth } from "../../utils/format";
 
 export class LedgerWallet implements AbstractWallet {
     name: WalletName.Ledger
@@ -85,9 +77,7 @@ export class LedgerWallet implements AbstractWallet {
         // }
         return this.signAmino(tx)
     }
-    goEthAddress(address) {
-        return `0x${toHex(fromBech32(address).data)}`
-    }
+
     // not finished, due to the outdated dependency.
     async sign712(tx: Transaction): Promise<Uint8Array> {
         const chain: Chain = {
@@ -96,7 +86,7 @@ export class LedgerWallet implements AbstractWallet {
         }
 
         const signer = await this.getSigner()
-        const ethAddr = this.goEthAddress(tx.signerAddress)
+        const ethAddr = ethermintToEth(tx.signerAddress)
 
         // this.signer.prefix = fromBech32(signerAddress).prefix
         const account = await signer.getAccounts()
@@ -161,7 +151,7 @@ export class LedgerWallet implements AbstractWallet {
         const prototx = createTxRawEIP712(evmos.legacyAmino.body, evmos.legacyAmino.authInfo, extension)
         return prototx.message.serializeBinary()
         /// end of EVMOS style */
-      }
+    }
       
 
     async signAmino(tx: Transaction): Promise<TxRaw> {

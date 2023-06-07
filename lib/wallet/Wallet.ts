@@ -33,6 +33,7 @@ export interface WalletArgument {
     address?: string,
     name?: string,
     transport?: string
+    prefix?: string,
 }
 
 export interface AbstractWallet {
@@ -60,6 +61,15 @@ export function removeWallet(hdPath?: string) {
     localStorage.removeItem(hdPath || DEFAULT_HDPATH);
 }
 
+export function extractChainId(chainId: string) {
+    const start = chainId.indexOf('_')
+    const end = chainId.indexOf('-')
+    if (end > start && start > 0) {
+      return Number(chainId.substring(start + 1, end))
+    }
+    return 0
+}
+
 export function createWallet(name: WalletName, arg: WalletArgument, registry?: Registry): AbstractWallet {
     const reg = registry || new Registry(defaultRegistryTypes)
     switch (name) {
@@ -70,5 +80,5 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
         case WalletName.Metamask:
             return new MetamaskWallet(arg, reg)
     }
-    throw new Error("No wallet created")
+    throw new Error("No wallet connected")
 }
