@@ -40,7 +40,7 @@
         "@ethersproject/hash": "5.7.0",
         "@ethersproject/signing-key": "5.7.0",
         "@evmos/proto": "^0.2.1",
-        "@evmos/transactions":"^0.3.2",
+        "@evmos/transactions": "^0.3.2",
         "@ledgerhq/hw-transport-web-ble": "^6.27.13",
         "@ledgerhq/hw-transport-webusb": "^6.27.14",
         "@metamask/eth-sig-util": "^5.1.0",
