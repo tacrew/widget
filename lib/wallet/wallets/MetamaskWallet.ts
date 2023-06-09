@@ -80,9 +80,10 @@ export class MetamaskWallet implements AbstractWallet {
     }
 
     async sign(transaction: Transaction): Promise<TxRaw | Uint8Array> {
-        const { chainId, signerAddress, messages, fee, memo, signerData } =
+        const { signerAddress, messages, fee, signerData } =
             transaction;
 
+        const senderHexAddress = ethermintToEth(signerAddress);
         const chain: Chain = {
             chainId: extractChainId(transaction.signerData.chainId),
             cosmosChainId: transaction.chainId,
@@ -90,9 +91,7 @@ export class MetamaskWallet implements AbstractWallet {
 
         // getAccounts
         const accounts = await this.getConnectedAccounts(); 
-        const account = accounts.find(
-            (acc) => acc.address.toLowerCase() === signerAddress.toLowerCase()
-        );
+        const account = accounts.find(acc => ethermintToEth(acc.address) === senderHexAddress );
         if (!account) {
             throw new Error('Account not found');
         }
@@ -129,7 +128,6 @@ export class MetamaskWallet implements AbstractWallet {
         // const acc = await window.ethereum.request({ method: 'eth_requestAccounts' });
         // console.log("accounts: ", acc)
 
-        const senderHexAddress = ethermintToEth(signerAddress);
         // const eip712Payload = JSON.stringify(messages[0]);
 
         // Signing an EIP-712 payload using MetaMask.
