@@ -11,7 +11,7 @@ const props = defineProps({
     metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
-const params = JSON.parse(props.params|| "{}")
+const params = computed(() => JSON.parse(props.params || "{}"))
 
 const validator = ref('')
 
@@ -31,7 +31,7 @@ const sourceValidator = computed(() => {
         // @ts-ignore
         return `${v.description.moniker} (${decimal2percent(v.commission.commission_rates.rate)}%)`
     }
-    return params.validator_address
+    return params.value.validator_address
 })
 
 const msgs = computed(() => {
@@ -40,7 +40,7 @@ const msgs = computed(() => {
         typeUrl: '/cosmos.staking.v1beta1.MsgBeginRedelegate',
         value: {
           delegatorAddress: props.sender,
-          validatorSrcAddress: params.validator_address,
+          validatorSrcAddress: params.value.validator_address,
           validatorDstAddress: validator.value,
           amount: convert.displayToBase(delegation.value.denom, {
             amount: String(amount.value),
@@ -98,7 +98,7 @@ const isValid = computed(() => {
 
 
 function initial() {
-    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
+    getDelegations(props.endpoint, params.value.validator_address, props.sender).then(x => {
         delegation.value = x.delegation_response.balance
     }).catch(err => {
         error.value = err

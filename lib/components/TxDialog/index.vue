@@ -88,13 +88,15 @@ const msgBox = ref({
 const feeAmount = ref(2000);
 const feeDenom = ref('');
 const gasInfo = ref(200000);
-const memo = ref(props.type?.toLowerCase() === 'send' ? '' : 'Ping.pub');
+const memo = ref('');
 const chainId = ref('cosmoshub-4');
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = 'input';
         p.value = JSON.parse(props.params || '{}')
+        memo.value = props.type?.toLowerCase() === 'send' ? '': 'ping.pub'
+        
         feeAmount.value = Number(p.value?.fees?.amount || 2000)
         try {
             getBalance(props.endpoint, props.sender).then((x) => {
@@ -264,7 +266,7 @@ function fetchTx(tx: string) {
                         :sender="sender"
                         :balances="balance"
                         :metadata="metadatas"
-                        :params="params"
+                        :params="props.params"
                     />
                     <form class="space-y-6" action="#" method="POST">
                         <div :class="advance ? '' : 'hidden'">

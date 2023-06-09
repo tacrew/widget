@@ -11,7 +11,8 @@ const props = defineProps({
     metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
-const params = JSON.parse(props.params || "{}")
+
+const params = computed(() => JSON.parse(props.params || "{}"))
 
 const admin = ref("")
 const label = ref("")
@@ -27,7 +28,7 @@ const msgs = computed(() => {
             /** Admin is an optional address that can execute migrations */
             admin: admin.value,
             /** CodeID is the reference to the stored WASM code */
-            codeId: params.codeId,
+            codeId: params.value.codeId,
             /** Label is optional metadata to be stored with a contract instance. */
             label: label.value,
             /** Msg json encoded message to be passed to the contract on instantiation */
@@ -50,7 +51,7 @@ function removeFunds() {
 const isValid = computed(() => {
     let ok = true
     let error = ""
-    if( Number(params.codeId) < 1) {
+    if( Number(params.value.codeId) < 1) {
         ok = false
         error = "Code Id is not selected"
     }

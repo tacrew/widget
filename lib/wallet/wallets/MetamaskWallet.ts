@@ -1,5 +1,4 @@
 import { AbstractWallet, Account, WalletArgument, WalletName, extractChainId } from '../Wallet';
-import { createAnyMessage, createSignerInfo, createTxRaw } from '@evmos/proto';
 import { fromBase64, fromBech32, toHex, fromHex, toBase64 } from '@cosmjs/encoding';
 import {
     Registry,
@@ -14,9 +13,9 @@ import { ethToEthermint, ethermintToEth } from '../../utils/format';
 import { AminoTypes, createDefaultAminoConverters } from "@cosmjs/stargate"
 import { Chain, createTxRawEIP712, signatureToWeb3Extension } from "@tharsis/transactions";
 import { createEIP712, generateFee, generateMessageWithMultipleTransactions, generateTypes } from "@tharsis/eip712";
-import { createTransactionWithMultipleMessages } from "@tharsis/proto";
 import { defaultMessageAdapter } from '../EthermintMessageAdapter';
-import { PubKey } from '@evmos/proto/dist/proto/ethermint/crypto/keys';
+import { Any } from "cosmjs-types/google/protobuf/any";
+import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys'
 
 export class MetamaskWallet implements AbstractWallet {
     name: WalletName.Metamask;
@@ -133,13 +132,10 @@ export class MetamaskWallet implements AbstractWallet {
         const senderHexAddress = ethermintToEth(signerAddress);
         // const eip712Payload = JSON.stringify(messages[0]);
 
-        console.log(eip712Payload, types, sender)
-
         // Signing an EIP-712 payload using MetaMask.
         // @ts-ignore
         const signature = await window.ethereum.request({
             method: 'eth_signTypedData_v4',
-            // TODO
             params: [senderHexAddress, JSON.stringify(eip712Payload)],
         });
 
@@ -151,9 +147,11 @@ export class MetamaskWallet implements AbstractWallet {
         });
 
         // NOTE: assume ethsecp256k1 by default because after mainnet is the only one that is going to be supported
-        const pubkey = createAnyMessage({
-            message: new PubKey({  key: fromBase64(pubkeyBytes) }),
-            path: 'ethermint.crypto.v1.ethsecp256k1.PubKey',
+        const pubkey = Any.fromPartial({
+            typeUrl: '/ethermint.crypto.v1.ethsecp256k1.PubKey',
+            value: PubKey.encode({
+                key: fromBase64(pubkeyBytes),
+            }).finish()
         })
         const authInfoBytes = makeAuthInfoBytes(
             [{ pubkey, sequence: signerData.sequence }],

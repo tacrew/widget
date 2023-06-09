@@ -11,9 +11,10 @@ const props = defineProps({
     metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
-const parsed = JSON.parse(props.params || "{}")
 
-const contract = ref(parsed.contract)
+const parsed = computed(() => JSON.parse(props.params || "{}"))
+
+const contract = ref(parsed.value.contract)
 const funds = ref([] as Coin[])
 const msg = ref("")
 

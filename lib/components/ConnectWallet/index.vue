@@ -42,7 +42,7 @@ const walletList = computed(() => {
     if (props.hdPath?.startsWith("m/44'/60")) {
         l.push({
                 wallet: WalletName.Metamask,
-                logo: 'https://ping.pub/logos/metamask.webp',
+                logo: 'https://ping.pub/logos/metamask.png',
         })
     }
     return l

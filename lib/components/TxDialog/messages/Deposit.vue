@@ -12,7 +12,7 @@ const props = defineProps({
     params: String,
 });
 
-const params = JSON.parse(props.params || "{}")
+const params = computed(() => JSON.parse(props.params || "{}"))
 const denom = ref("")
 const amount = ref("")
 const amountDenom = ref("")
@@ -32,7 +32,7 @@ const msgs = computed(() => {
         typeUrl: '/cosmos.gov.v1beta1.MsgDeposit',
         value: {
           depositor: props.sender,
-          proposalId: params.proposal_id,
+          proposalId: params.value.proposal_id,
           amount: [convert.displayToBase(denom.value, {
             amount: String(amount.value),
             denom: amountDenom.value
@@ -54,7 +54,7 @@ const units = computed(() => {
 const isValid = computed(() => {
     let ok = true
     let error = ""
-    if(!params.proposal_id) {
+    if(!params.value.proposal_id) {
         ok = false
         error = "Proposal id is empty"
     }

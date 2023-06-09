@@ -16,7 +16,7 @@ const props = defineProps({
     metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
-const params = JSON.parse(props.params || '{}');
+const params = computed(() => JSON.parse(props.params || '{}'));
 
 const validator = ref('');
 
@@ -104,7 +104,7 @@ const isValid = computed(() => {
 
 function initial() {
     activeValidators.value = [];
-    validator.value = params.validator_address;
+    validator.value = params.value.validator_address;
     getStakingParam(props.endpoint).then((x) => {
         stakingDenom.value = x.params.bond_denom;
         unbondingTime.value = x.params.unbonding_time;
@@ -112,7 +112,7 @@ function initial() {
 
     getActiveValidators(props.endpoint).then((x) => {
         activeValidators.value = x.validators;
-        if (!params.validator_address) {
+        if (!params.value.validator_address) {
             validator.value = x.validators.find(
                 (v) => v.description.identity === '6783E9F948541962'
             )?.operator_address;

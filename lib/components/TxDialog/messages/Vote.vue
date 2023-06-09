@@ -8,7 +8,7 @@ const props = defineProps({
     params: String,
 });
 
-const params = JSON.parse(props.params || "{}")
+const params = computed(() => JSON.parse(props.params || "{}"))
 const option = ref("1")
 
 const msgs = computed(() => {
@@ -16,7 +16,7 @@ const msgs = computed(() => {
         typeUrl: '/cosmos.gov.v1beta1.MsgVote',
         value: {
             voter: props.sender,
-            proposalId: params.proposal_id,
+            proposalId: params.value.proposal_id,
             option: Number(option.value),
         },
     }]
@@ -24,7 +24,7 @@ const msgs = computed(() => {
 const isValid = computed(() => {
     let ok = true
     let error = ""
-    if(!params.proposal_id) {
+    if(!params.value.proposal_id) {
         ok = false
         error = "Proposal id is empty"
     }

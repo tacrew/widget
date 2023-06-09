@@ -8,7 +8,7 @@ const props = defineProps({
   params: String,
 });
 
-const params = JSON.parse(props.params || "{}")
+const params = computed(() => JSON.parse(props.params || "{}"))
 const rewards = ref([] as { reward: { amount: string, denom: string }, validator_address: string }[])
 
 const msgs = computed(() => {
@@ -26,7 +26,7 @@ const msgs = computed(() => {
     {
       typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission',
       value: {
-        validatorAddress: params.validator_address,
+        validatorAddress: params.value.validator_address,
       },
     },
   ]
@@ -39,7 +39,7 @@ const isValid = computed(() => {
     ok = false
     error = "Sender is empty"
   }
-  if (!params.validator_address) {
+  if (!params.value.validator_address) {
     ok = false
     error = "Validator is empty"
   }
@@ -47,7 +47,7 @@ const isValid = computed(() => {
     ok = false
     error = "No delegation found"
   }
-  if (rewards.value.findIndex(x => x.validator_address === params.validator_address) === -1) {
+  if (rewards.value.findIndex(x => x.validator_address === params.value.validator_address) === -1) {
     ok = false
     error = "You are not the validator!"
   }

@@ -11,7 +11,7 @@ const props = defineProps({
     params: String,
 });
 
-const params = JSON.parse(props.params|| "{}")
+const params = computed(() => JSON.parse(props.params || "{}"))
 const delegation = ref({} as {balance: Coin, delegation: {delegator_address: string, shares: string, validator_address: string}})
 const amount = ref("")
 const amountDenom = ref("")
@@ -23,7 +23,7 @@ const msgs = computed(() => {
         typeUrl: '/cosmos.staking.v1beta1.MsgUndelegate',
         value: {
           delegatorAddress: props.sender,
-          validatorAddress: params.validator_address,
+          validatorAddress: params.value.validator_address,
           amount: convert.displayToBase(delegation.value.balance?.denom, {
             amount: String(amount.value),
             denom: amountDenom.value,
@@ -62,7 +62,7 @@ const isValid = computed(() => {
 })
 
 function initial() {
-    getDelegations(props.endpoint, params.validator_address, props.sender).then(x => {
+    getDelegations(props.endpoint, params.value.validator_address, props.sender).then(x => {
         delegation.value = x.delegation_response
     }).catch(err => {
         error.value = err

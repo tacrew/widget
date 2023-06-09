@@ -16,8 +16,8 @@ const props = defineProps({
     metadata: Object as PropType<Record<string, CoinMetadata>>,
     params: String,
 });
-const params = JSON.parse(props.params || '{}');
-const chainName = params.chain_name;
+const params = computed(() => JSON.parse(props.params || "{}"))
+const chainName = params.value.chain_name;
 
 const amount = ref('');
 const amountDenom = ref('');
