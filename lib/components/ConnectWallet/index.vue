@@ -14,7 +14,7 @@ import { Icon } from '@iconify/vue';
 const props = defineProps({
     chainId: String,
     hdPath: String,
-    prefix: String, // address prefix
+    addrPrefix: String, // address prefix
 });
 
 const emit = defineEmits(['connect', 'disconnect', 'update', 'keplr-config']);
@@ -61,7 +61,7 @@ async function connect() {
         const wa = createWallet(name.value, {
             chainId: props.chainId,
             hdPath: props.hdPath,
-            prefix: props.prefix,
+            prefix: props.addrPrefix,
         });
         await wa
             .getAccounts()
