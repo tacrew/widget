@@ -69,6 +69,15 @@ function initial() {
     })   
 }
 
+const available = computed(() => {
+    const convert = new TokenUnitConverter(props.metadata);
+    const base = delegation.value?.balance || {amount: "", denom: ""}
+    return {
+        base,
+        display: convert.baseToUnit(base, amountDenom.value),
+    };
+});
+
 defineExpose({msgs, isValid, initial})
 </script>
 <template>
@@ -84,7 +93,7 @@ defineExpose({msgs, isValid, initial})
                 <span class="label-text">Amount</span>
             </label>
             <label class="input-group">
-                <input v-model="amount" type="number" :placeholder="`Avaiable: ${delegation?.balance?.amount}${delegation?.balance?.denom}}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
+                <input v-model="amount" type="number" :placeholder="`Avaiable: ${available.display?.amount}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
                 <select v-model="amountDenom" class="select select-bordered">
                     <option v-for="u in units">{{ u.denom }}</option>
                 </select>

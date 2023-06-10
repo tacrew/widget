@@ -113,16 +113,14 @@ async function initData() {
                         );
                 });
             });
-            
+
             // load metadata from registry
             if(props.registryName) {
                 const client = new ChainRegistryClient()
                 client.fetchAssetsList(props.registryName).then(x => {
-                    console.log("assets:", x)
                     x.assets.forEach(a => {
                         metadatas.value[a.base] = a as CoinMetadata
                     })
-                    console.log( metadatas.value )
                 })
             }
             getLatestBlock(props.endpoint).then((x) => {

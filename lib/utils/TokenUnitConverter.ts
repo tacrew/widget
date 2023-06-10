@@ -20,6 +20,17 @@ export class TokenUnitConverter {
             denom: unit.denom.toUpperCase()
         }
     }
+    baseToUnit(token: Coin, unitName: string, decimal = 6) {
+        const meta = this.metadata[token.denom]
+        if(!meta) return token
+        const unit = meta.denom_units.find(unit => unit.denom === unitName)
+        if(!unit) return token
+        const amount = BigNumber(Number(token.amount)).div(BigNumber(10).pow(unit.exponent))  
+        return {
+            amount: parseFloat(amount.toFixed(decimal)).toString(),
+            denom: unit.denom
+        }
+    }
     displayToBase(baseDenom: string, display: Coin) {
         const meta = this.metadata[baseDenom]
         if(!meta) return display

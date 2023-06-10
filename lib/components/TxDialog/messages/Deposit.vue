@@ -22,7 +22,7 @@ const available = computed(() => {
     const base = props.balances?.find(x => x.denom === denom.value) || { amount: "0", denom: denom.value }
     return {
         base,
-        display: convert.baseToDisplay(base)
+        display: convert.baseToUnit(base, amountDenom.value)
     }
 })
 
@@ -87,7 +87,7 @@ defineExpose({msgs, isValid, initial})
                 <span>{{ available?.display.amount }}{{ available?.display.denom }}</span>
             </label>
             <label class="input-group">
-                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
+                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
                 <select v-model="amountDenom" class="select select-bordered">
                     <option v-for="u in units">{{ u.denom }}</option>
                 </select>

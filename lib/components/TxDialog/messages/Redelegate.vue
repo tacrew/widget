@@ -18,7 +18,6 @@ const validator = ref('')
 const activeValidators = ref([])
 const inactiveValidators = ref([])
 const stakingDenom = ref("")
-const unbondingTime = ref("")
 const amount = ref("")
 const amountDenom = ref("")
 const delegation = ref({} as Coin)
@@ -64,7 +63,7 @@ const available = computed(() => {
     const base = delegation.value || { amount: "0", denom: stakingDenom.value }
     return {
         base,
-        display: convert.baseToDisplay(base)
+        display: convert.baseToUnit(base, amountDenom.value)
     }
 })
 
@@ -103,6 +102,11 @@ function initial() {
     }).catch(err => {
         error.value = err
     })
+
+    getStakingParam(props.endpoint).then((x) => {
+        stakingDenom.value = x.params.bond_denom;
+        // unbondingTime.value = x.params.unbonding_time;
+    });
 
     getActiveValidators(props.endpoint).then(x => {
         activeValidators.value = x.validators

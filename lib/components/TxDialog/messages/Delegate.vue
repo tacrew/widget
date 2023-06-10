@@ -62,7 +62,7 @@ const available = computed(() => {
     ) || { amount: '0', denom: stakingDenom.value };
     return {
         base,
-        display: convert.baseToDisplay(base),
+        display: convert.baseToUnit(base, amountDenom.value),
     };
 });
 
@@ -154,16 +154,15 @@ defineExpose({ msgs, isValid, initial });
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Amount</span>
-                <span
-                    >{{ available?.display.amount
-                    }}{{ available?.display.denom }}</span
-                >
+                <span> 
+                    {{ available?.display.amount }} {{ available?.display.denom }}
+                </span>
             </label>
             <label class="input-group">
                 <input
                     v-model="amount"
                     type="number"
-                    :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`"
+                    :placeholder="`Available: ${available?.display.amount}`"
                     class="input border border-gray-300 dark:border-gray-600 w-full"
                 />
                 <select v-model="amountDenom" class="select select-bordered">
