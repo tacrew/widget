@@ -737,7 +737,7 @@ function fetchTx(tx: string) {
                                 showBalance(swapIn?.ibcDenom, swapIn?.decimals)
                             }}
                         </div>
-                        <Icon v-if="depositable" icon="mdi:plus-box-outline" class="ml-2" @click="switchView('deposit')" />
+                        <Icon v-if="depositable" icon="mdi:plus-box-outline" class="ml-2 cursor-pointer" @click="switchView('deposit')" />
                     </div>
 
                     <!-- switch btn -->
@@ -800,7 +800,7 @@ function fetchTx(tx: string) {
                                 )
                             }}
                         </div>
-                        <Icon v-if="withdrawable" icon="mdi:minus-box-outline" class="ml-2"
+                        <Icon v-if="withdrawable" icon="mdi:minus-box-outline" class="ml-2 cursor-pointer"
                             @click="switchView('withdraw')" />
                     </div>
 
