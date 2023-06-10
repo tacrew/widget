@@ -120,6 +120,7 @@ console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
         <ping-tx-dialog
             :type="toOpen"
             :sender="conf.sender"
+            :registry-name="conf.chainName"
             :endpoint="conf.endpoint"
             :hd-path="conf.hdPath"
             :params="conf.params"
@@ -141,6 +142,7 @@ console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
             type="store_code"
             :sender="conf.sender"
             :endpoint="conf.endpoint"
+            :registry-name="conf.chainName"
             :hd-path="conf.hdPath"
             :params="conf.params"
         ></ping-tx-dialog>

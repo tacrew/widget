@@ -27,12 +27,14 @@ import WithdrawCommission from './messages/WithdrawCommission.vue';
 import StoreCode from './wasm/StoreCode.vue';
 import ExecuteContract from './wasm/ExecuteContract.vue';
 import InstantiateContract from './wasm/InstantiateContract.vue';
+import ChainRegistryClient from '@ping-pub/chain-registry-client';
 
 const props = defineProps({
     type: String,
     endpoint: { type: String, required: true },
     sender: { type: String, required: true },
     hdPath: String,
+    registryName: String,
     params: String,
 });
 
@@ -102,8 +104,8 @@ async function initData() {
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;
                 x.balances?.forEach((coin) => {
-                    // only load for native tokens
-                    if (coin.denom.length < 12)
+                    // only load for native tokens 
+                    if (!props.registryName && coin.denom.length < 12 )
                         getBalanceMetadata(props.endpoint, coin.denom).then(
                             (meta) => {
                                 metadatas.value[coin.denom] = meta.metadata;
@@ -111,6 +113,18 @@ async function initData() {
                         );
                 });
             });
+            
+            // load metadata from registry
+            if(props.registryName) {
+                const client = new ChainRegistryClient()
+                client.fetchAssetsList(props.registryName).then(x => {
+                    console.log("assets:", x)
+                    x.assets.forEach(a => {
+                        metadatas.value[a.base] = a as CoinMetadata
+                    })
+                    console.log( metadatas.value )
+                })
+            }
             getLatestBlock(props.endpoint).then((x) => {
                 chainId.value = x.block.header.chain_id;
             });
