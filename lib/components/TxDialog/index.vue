@@ -157,7 +157,7 @@ async function sendTx() {
             signerAddress: props.sender,
             messages,
             fee: {
-                gas: String(gasInfo.value),
+                gas: "200000",
                 amount: [
                     { amount: String(feeAmount.value), denom: feeDenom.value },
                 ],
@@ -178,8 +178,10 @@ async function sendTx() {
             hdPath: current.hdPath,
         });
 
-        // const gas = await client.simulate(props.endpoint, messages, "", 1)
-        // console.log(gas)
+        const gas = await client.simulate(props.endpoint, tx)
+
+        // update tx gas
+        tx.fee.gas = (gas * 1.25).toFixed()
 
         const txRaw = await client.sign(tx);
         const response = await client.broadcastTx(props.endpoint, txRaw);
@@ -306,7 +308,7 @@ function fetchTx(tx: string) {
                                     </select>
                                 </label>
                             </div>
-                            <div class="form-control">
+                            <div class="form-control hidden">
                                 <label class="label">
                                     <span class="label-text">Gas</span>
                                 </label>
