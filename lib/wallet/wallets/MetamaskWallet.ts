@@ -79,14 +79,25 @@ export class MetamaskWallet implements AbstractWallet {
         return true;
     }
 
+    keyType(chainId: string) {
+        switch (true) {
+            case chainId.search(/\w+_\d+-\d+/g) > -1:   // ethermint like chain: evmos_9002-1
+                return "/ethermint.crypto.v1.ethsecp256k1.PubKey"
+            case chainId.startsWith("injective"):
+                return "/injective.crypto.v1beta1.ethsecp256k1.PubKey";
+            default:
+                return "/cosmos.crypto.secp256k1.PubKey"
+        }
+    }
+
     async sign(transaction: Transaction): Promise<TxRaw | Uint8Array> {
         const { signerAddress, messages, fee, signerData } =
             transaction;
 
         const senderHexAddress = ethermintToEth(signerAddress);
         const chain: Chain = {
-            chainId: extractChainId(transaction.signerData.chainId),
-            cosmosChainId: transaction.chainId,
+            chainId: extractChainId(signerData.chainId),
+            cosmosChainId: signerData.chainId,
         }
 
         // getAccounts
@@ -144,9 +155,11 @@ export class MetamaskWallet implements AbstractWallet {
             value: { messages },
         });
 
+        
+
         // NOTE: assume ethsecp256k1 by default because after mainnet is the only one that is going to be supported
         const pubkey = Any.fromPartial({
-            typeUrl: '/ethermint.crypto.v1.ethsecp256k1.PubKey',
+            typeUrl: this.keyType(signerData.chainId),
             value: PubKey.encode({
                 key: fromBase64(pubkeyBytes),
             }).finish()
