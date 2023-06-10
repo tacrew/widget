@@ -744,7 +744,7 @@ function fetchTx(tx: string) {
                     <div class="flex items-center justify-center -mt-3 -mb-3">
                         <div class="inline-block px-4 cursor-pointer" @click="switchDirection">
                             <Icon icon="mdi:arrow-down-circle" color="#676cf6"
-                                class="text-4xl dark:bg-gray-50 rounded-full" />
+                                class="text-4xl dark:bg-gray-50 rounded-full origin-center duration-300 transform hover:rotate-180" />
                         </div>
                     </div>
 
