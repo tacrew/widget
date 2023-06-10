@@ -82,6 +82,7 @@ async function initData() {
         view.value = 'swap';
         localChainInfo.value = {} as Chain;
         localCoinInfo.value = [];
+        recipient.value = localAddress(sender.value.cosmosAddress)
         await client
             .fetchChainInfo(props.chainName)
             .then((res) => {
@@ -502,6 +503,7 @@ async function doDeposit() {
 
 // withdraw logic
 const withdrawAmount = ref('');
+const recipient = ref(localAddress(sender.value.cosmosAddress))
 const disableWithdraw = computed(() => {
     const token = swapOut.value;
     if (token) {
@@ -540,7 +542,7 @@ async function doWithdraw() {
             amount: (amount * 10 ** swapOut.value.decimals).toFixed(),
             denom: swapOut.value.ibcDenom,
         },
-        receiver: localAddress(sender.value.cosmosAddress),
+        receiver: recipient.value,
         timeoutTimestamp: Long.fromString(`${timeout}000000`),
         timeoutHeight: {
             revisionHeight: Long.fromNumber(0),
@@ -872,8 +874,11 @@ function fetchTx(tx: string) {
                         <span>{{ error }}.</span>
                     </div>
 
-                    <div class="mt-5">
-                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
+                    <div class="mt-5 flex">
+                        <label class="btn mr-1" @click="switchView('swap')">
+                            <svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="XMLID_6_" d="M165,0C74.019,0,0,74.019,0,165s74.019,165,165,165s165-74.019,165-165S255.981,0,165,0z M205.606,234.394 c5.858,5.857,5.858,15.355,0,21.213C202.678,258.535,198.839,260,195,260s-7.678-1.464-10.606-4.394l-80-79.998 c-2.813-2.813-4.394-6.628-4.394-10.606c0-3.978,1.58-7.794,4.394-10.607l80-80.002c5.857-5.858,15.355-5.858,21.213,0 c5.858,5.857,5.858,15.355,0,21.213l-69.393,69.396L205.606,234.394z"></path> </g></svg>
+                        </label>
+                        <button class="btn btn-primary grow ping-connect-confirm capitalize text-base"
                             :disabled="disableDeposit" :class="{ 'loading relative start-0': sending }" @click="doDeposit">
                             Deposit
                         </button>
@@ -921,15 +926,17 @@ function fetchTx(tx: string) {
                                 )
                             }}</span>
                         </label>
-                        <input :value="localAddress(sender.cosmosAddress)" readonly type="text"
-                            class="input border border-gray-300 dark:border-gray-600" />
+                        <input v-model="recipient" type="text" class="input border border-gray-300 dark:border-gray-600" />
                     </div>
                     <div v-if="error" class="text-error mt-3">
                         <span>{{ error }}.</span>
                     </div>
 
-                    <div class="mt-5">
-                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
+                    <div class="mt-5 flex">
+                        <label class="btn mr-1" @click="switchView('swap')">
+                            <svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="XMLID_6_" d="M165,0C74.019,0,0,74.019,0,165s74.019,165,165,165s165-74.019,165-165S255.981,0,165,0z M205.606,234.394 c5.858,5.857,5.858,15.355,0,21.213C202.678,258.535,198.839,260,195,260s-7.678-1.464-10.606-4.394l-80-79.998 c-2.813-2.813-4.394-6.628-4.394-10.606c0-3.978,1.58-7.794,4.394-10.607l80-80.002c5.857-5.858,15.355-5.858,21.213,0 c5.858,5.857,5.858,15.355,0,21.213l-69.393,69.396L205.606,234.394z"></path> </g></svg>
+                        </label>
+                        <button class="btn btn-primary grow ping-connect-confirm capitalize text-base"
                             :disabled="disableWithdraw" :class="{ 'loading relative start-0': sending }"
                             @click="doWithdraw()">
                             Withdraw
