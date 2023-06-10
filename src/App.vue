@@ -3,22 +3,52 @@ import { onMounted, ref } from 'vue';
 import pingWidget from '../lib/main';
 import { ethToEthermint, ethermintToEth } from '../lib/utils/format';
 
-const sender = "evmos1ayp22xk4nwc9lhjh6tvdat2j2klnvvk29yx87m"
 // const sender = 'evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z';
 // const endpoint = 'https://api-cosmoshub-ia.cosmosia.notional.ventures'// 'https://rest.stargaze-apis.com';
 // const endpoint = 'https://api.uni.junonetwork.io'
-const endpoint = 'https://rest.bd.evmos.org:1317'
-const chainId = 'evmos_9001-2';
-const hdPath = "m/44'/60/0'/0/0";
-const chain_name = 'evmos'
 
-const params = ref(JSON.stringify({
-    proposal_id: '1',
-    validator_address: "evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
-    chain_name,
-    contract: 'add',
-    fees: {amount: '6000000000000000', denom: ''}
-}));
+interface Config {
+    sender: string,
+    endpoint: string;
+    chainId: string;
+    hdPath: string;
+    chainName: string
+    params: string
+}
+
+// @ts-ignore
+const EVMOS: Config = {
+    sender: 'evmos1ayp22xk4nwc9lhjh6tvdat2j2klnvvk29yx87m',
+    endpoint: 'https://rest.bd.evmos.org:1317',
+    chainId: 'evmos_9001-2',
+    hdPath: "m/44'/60/0'/0/0",
+    chainName: 'evmos',
+    params: JSON.stringify({
+        proposal_id: '1',
+        validator_address: "evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
+        chain_name: 'evmos',
+        contract: 'add',
+        fees: {amount: '6000000000000000', denom: ''}
+    })
+}
+
+// @ts-ignore
+const JUNO: Config = {
+    sender: 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a',
+    endpoint: 'https://juno-api.polkachu.com',
+    chainId: 'juno-1',
+    hdPath: "m/44'/118/0'/0/0",
+    chainName: 'juno',
+    params: JSON.stringify({
+        proposal_id: '1',
+        validator_address: "junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2",
+        chain_name: 'juno',
+        contract: 'add',
+        fees: {amount: '2000', denom: ''}
+    })
+}
+
+const conf = ref(JUNO)
 
 const types = [
     'send',
@@ -72,12 +102,12 @@ console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
 
         <div>&nbsp;</div>
         <ping-connect-wallet
-            :chain-id="chainId"
-            :hd-path="hdPath"
+            :chain-id="conf.chainId"
+            :hd-path="conf.hdPath"
             @change="walletStateChange"
         />
 
-        <textarea v-model="params" cols="80" rows="5"></textarea>
+        <textarea v-model="conf.params" cols="80" rows="5"></textarea>
         <div></div>
 
         <select v-model="toOpen">
@@ -89,10 +119,10 @@ console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
         <label :for="toOpen" class="btn">{{ toOpen }}</label>
         <ping-tx-dialog
             :type="toOpen"
-            :sender="sender"
-            :endpoint="endpoint"
-            :hd-path="hdPath"
-            :params="params"
+            :sender="conf.sender"
+            :endpoint="conf.endpoint"
+            :hd-path="conf.hdPath"
+            :params="conf.params"
         ></ping-tx-dialog>
 
         <br />
@@ -100,29 +130,28 @@ console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
         <label for="withdraw" class="btn">Withdraw</label>
         <ping-tx-dialog
             type="withdraw"
-            :sender="sender"
-            :endpoint="endpoint"
-            :hd-path="hdPath"
-            :params="params"
+            :sender="conf.sender"
+            :endpoint="conf.endpoint"
+            :hd-path="conf.hdPath"
+            :params="conf.params"
         ></ping-tx-dialog>
 
         <label for="store_code" class="btn">Store Code</label>
         <ping-tx-dialog
             type="store_code"
-            :sender="sender"
-            :endpoint="endpoint"
-            :hd-path="hdPath"
-            :params="params"
+            :sender="conf.sender"
+            :endpoint="conf.endpoint"
+            :hd-path="conf.hdPath"
+            :params="conf.params"
         ></ping-tx-dialog>
 
         <label for="PingTokenConvert" class="btn">Token Convert</label>
         <ping-token-convert
-            :chain-name="chain_name"
-            :endpoint="endpoint"
+            :chain-name="conf.chainName"
+            :endpoint="conf.endpoint"
             hd-path="m/44'/118/0'/0/0"
         ></ping-token-convert>
     </div>
 </template>
-
 
 <style scoped></style>
