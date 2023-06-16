@@ -436,8 +436,7 @@ async function doDeposit() {
 
     const chainId = latest.block.header.chain_id;
     const timeout = Date.now() + new Date().getTimezoneOffset() + 3600000;
-    const amount =
-        Number(depositAmount.value || 0) * 10 ** swapIn.value.decimals;
+    const amount =  Number(depositAmount.value || 0) * 10 ** swapIn.value.decimals;
     const tx = {
         chainId,
         signerAddress: address,
@@ -1005,5 +1004,3 @@ export default {
     name: 'TokenConvert',
 };
 </script>
-
-<style scoped></style>
