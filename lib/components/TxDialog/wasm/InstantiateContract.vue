@@ -82,13 +82,13 @@ defineExpose({msgs, isValid, initial})
             <label class="label">
                 <span class="label-text">Label</span>
             </label>
-            <input v-model="label" type="text" class="input border border-gray-300 dark:border-gray-600" />
+            <input v-model="label" type="text" class="text-gray-600 dark:text-white input border !border-gray-300 dark:!border-gray-600" />
         </div>
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Messages</span>
             </label>
-            <textarea v-model="msg" placeholder="{config: {}}" class="textarea textarea-bordered"></textarea>
+            <textarea v-model="msg" placeholder="{config: {}}" class="text-gray-600 dark:text-white textarea border !border-gray-300 dark:!border-gray-600"></textarea>
         </div>
         <div class="form-control">
             <label class="label">

@@ -76,7 +76,7 @@ const metadatas = ref({} as Record<string, CoinMetadata>);
 const emit = defineEmits(['submited', 'confirmed', 'view']);
 
 // functional variable
-const p = ref({} as { fees: Coin});
+const p = ref({} as { fees: Coin });
 const view = ref('input'); // input, submitting
 const open = ref(false);
 const error = ref('');
@@ -85,7 +85,7 @@ const error = ref('');
 const msgBox = ref({
     msgs: [],
     isValid: { ok: false, error: '' },
-    initial: function () {},
+    initial: function () { },
 });
 const feeAmount = ref(2000);
 const feeDenom = ref('');
@@ -97,15 +97,15 @@ async function initData() {
     if (open.value && props.endpoint && props.sender) {
         view.value = 'input';
         p.value = JSON.parse(props.params || '{}')
-        memo.value = props.type?.toLowerCase() === 'send' ? '': 'ping.pub'
-        
+        memo.value = props.type?.toLowerCase() === 'send' ? '' : 'ping.pub'
+
         feeAmount.value = Number(p.value?.fees?.amount || 2000)
         try {
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;
                 x.balances?.forEach((coin) => {
                     // only load for native tokens 
-                    if (!props.registryName && coin.denom.length < 12 )
+                    if (!props.registryName && coin.denom.length < 12)
                         getBalanceMetadata(props.endpoint, coin.denom).then(
                             (meta) => {
                                 metadatas.value[coin.denom] = meta.metadata;
@@ -115,7 +115,7 @@ async function initData() {
             });
 
             // load metadata from registry
-            if(props.registryName) {
+            if (props.registryName) {
                 const client = new ChainRegistryClient()
                 client.fetchAssetsList(props.registryName).then(x => {
                     x.assets.forEach(a => {
@@ -196,7 +196,6 @@ async function sendTx() {
     } catch (e) {
         sending.value = false;
         error.value = e;
-        setTimeout(() => (error.value = ''), 10000);
     }
 }
 
@@ -254,160 +253,114 @@ function fetchTx(tx: string) {
 <template>
     <div class="text-gray-600">
         <!-- Put this part before </body> tag -->
-        <input
-            v-model="open"
-            type="checkbox"
-            :id="type"
-            class="modal-toggle"
-            @change="initData()"
-        />
+        <input v-model="open" type="checkbox" :id="type" class="modal-toggle" @change="initData()" />
         <label :for="type" class="modal cursor-pointer">
-            <label class="modal-box relative p-5" for="">
-                <label
-                    :for="type"
-                    class="btn btn-sm btn-circle absolute right-4 top-4"
-                    >✕</label
-                >
+            <label class="modal-box relative p-5" :class="{ '!w-11/12 !max-w-5xl': String(type).startsWith('wasm') }" for="">
+                <label :for="type" class="btn btn-sm btn-circle absolute right-4 top-4">✕</label>
                 <h3 class="text-lg font-bold capitalize dark:text-gray-300">
                     {{ showTitle() }}
                 </h3>
 
-                <div v-if="view === 'input'">
-                    <component
-                        :is="msgType"
-                        ref="msgBox"
-                        :endpoint="endpoint"
-                        :sender="sender"
-                        :balances="balance"
-                        :metadata="metadatas"
-                        :params="props.params"
-                    />
-                    <form class="space-y-6" action="#" method="POST">
-                        <div :class="advance ? '' : 'hidden'">
-                            <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text">Fees</span>
-                                </label>
-                                <label class="input-group flex items-center">
-                                    <input
-                                        v-model="feeAmount"
-                                        type="text"
-                                        placeholder="0.001"
-                                        class="input border border-gray-300 dark:border-gray-600 flex-1 w-0 dark:text-gray-300"
-                                    />
-                                    <select
-                                        v-model="feeDenom"
-                                        class="select input border border-gray-300 dark:border-gray-600 w-[200px]"
-                                    >
-                                        <option disabled selected>
-                                            Select Fee Token
-                                        </option>
-                                        <option v-for="t in balance">
-                                            {{ t.denom }}
-                                        </option>
-                                    </select>
-                                </label>
-                            </div>
-                            <div class="form-control hidden">
-                                <label class="label">
-                                    <span class="label-text">Gas</span>
-                                </label>
-                                <input
-                                    v-model="gasInfo"
-                                    type="number"
-                                    placeholder="2000000"
-                                    class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300"
-                                />
-                            </div>
-                            <div class="form-control">
-                                <label class="label">
-                                    <span class="label-text">Memo</span>
-                                </label>
-                                <input
-                                    v-model="memo"
-                                    type="text"
-                                    placeholder="Memo"
-                                    class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300"
-                                />
-                            </div>
-                        </div>
-                    </form>
-
-                    <div v-if="error" class="mt-5 alert alert-error shadow-lg">
-                        <div>
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                class="stroke-current flex-shrink-0 h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
-                                    d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                            </svg>
-                            <span>{{ error }}.</span>
-                        </div>
-                    </div>
-
-                    <div class="modal-action flex justify-between items-center">
-                        <div class="flex items-center cursor-pointer">
-                            <input
-                                v-model="advance"
-                                type="checkbox"
-                                :id="`${type}-advance`"
-                                class="checkbox checkbox-sm checkbox-primary mr-2"
-                            /><label
-                                :for="`${type}-advance`"
-                                class="cursor-pointer dark:text-gray-400"
-                                >Advance</label
-                            >
-                        </div>
-                        <label class="btn" @click="sendTx()">Send</label>
-                    </div>
+                <div v-if="!sender" class="text-center h-16 items-center">
+                    No wallet connected!
                 </div>
 
-                <div v-if="view === 'submitting'">
-                    <div class="my-10">
-                        <div v-if="error" class="my-5 text-center text-red-500">
-                            {{ error }}
-                        </div>
-                        <div
-                            v-else
-                            class="my-5 text-center text-lg text-green-500"
-                        >
-                            {{ msg }}
-                        </div>
-                        <div
-                            class="overflow-hidden h-5 mb-2 text-xs flex rounded bg-green-100"
-                        >
-                            <div
-                                :style="`width: ${step}%`"
-                                class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-400"
-                            ></div>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <span
-                                    class="text-xs font-semibold inline-block py-1 px-2 rounded text-gray-600 dark:text-white"
-                                >
-                                    Submitted
-                                </span>
+                <div v-if="sender">
+                    <div v-if="view === 'input'">
+                        <component :is="msgType" ref="msgBox" :endpoint="endpoint" :sender="sender" :balances="balance"
+                            :metadata="metadatas" :params="props.params" />
+                        <form class="space-y-6" action="#" method="POST">
+                            <div :class="advance ? '' : 'hidden'">
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">Fees</span>
+                                    </label>
+                                    <label class="input-group flex items-center">
+                                        <input v-model="feeAmount" type="text" placeholder="0.001"
+                                            class="input border border-gray-300 dark:border-gray-600 flex-1 w-0 dark:text-gray-300" />
+                                        <select v-model="feeDenom"
+                                            class="select input border border-gray-300 dark:border-gray-600 w-[200px]">
+                                            <option disabled selected>
+                                                Select Fee Token
+                                            </option>
+                                            <option v-for="t in balance">
+                                                {{ t.denom }}
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <div class="form-control hidden">
+                                    <label class="label">
+                                        <span class="label-text">Gas</span>
+                                    </label>
+                                    <input v-model="gasInfo" type="number" placeholder="2000000"
+                                        class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">Memo</span>
+                                    </label>
+                                    <input v-model="memo" type="text" placeholder="Memo"
+                                        class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300" />
+                                </div>
                             </div>
-                            <div class="text-right">
-                                <span
-                                    class="text-xs font-semibold inline-block text-gray-600 dark:text-white"
-                                >
-                                    {{ step }}%
-                                </span>
+                        </form>
+
+                        <div v-show="error" class="mt-5 alert alert-error shadow-lg" @click="error = ''">
+                            <div class="flex">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6"
+                                    fill="none" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                <span>{{ error }}.</span>
                             </div>
+                        </div>
+
+                        <div class="modal-action flex justify-between items-center">
+                            <div class="flex items-center cursor-pointer">
+                                <input v-model="advance" type="checkbox" :id="`${type}-advance`"
+                                    class="checkbox checkbox-sm checkbox-primary mr-2" /><label :for="`${type}-advance`"
+                                    class="cursor-pointer dark:text-gray-400">Advance</label>
+                            </div>
+                            <button class="btn btn-primary" @click="sendTx()" :disabled="sending">
+                                <span v-if="sending" class="loading loading-spinner"></span>
+                                Send
+                            </button>
                         </div>
                     </div>
-                    <label class="mt-10 flex justify-center text-sm" @click="viewTransaction">
-                        <span>View Transaction</span>
-                    </label>
+
+                    <div v-if="view === 'submitting'">
+                        <div class="my-10">
+                            <div v-if="error" class="my-5 text-center text-red-500">
+                                {{ error }}
+                            </div>
+                            <div v-else class="my-5 text-center text-lg text-green-500">
+                                {{ msg }}
+                            </div>
+                            <div class="overflow-hidden h-5 mb-2 text-xs flex rounded bg-green-100">
+                                <div :style="`width: ${step}%`"
+                                    class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-400">
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <span
+                                        class="text-xs font-semibold inline-block py-1 px-2 rounded text-gray-600 dark:text-white">
+                                        Submitted
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold inline-block text-gray-600 dark:text-white">
+                                        {{ step }}%
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <label class="mt-10 flex justify-center text-sm" @click="viewTransaction">
+                            <span>View Transaction</span>
+                        </label>
+                    </div>
                 </div>
             </label>
         </label>

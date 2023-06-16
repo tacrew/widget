@@ -822,8 +822,8 @@ function fetchTx(tx: string) {
                     </div>
 
                     <div class="mt-5">
-                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
-                            :disabled="disabled" :class="{ 'loading relative start-0': sending }" @click="doSwap">
+                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base" :disabled="disabled" @click="doSwap">
+                            <span v-if="sending" class="loading loading-spinner"></span>
                             Convert
                         </button>
                     </div>

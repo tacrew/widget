@@ -78,7 +78,7 @@ defineExpose({msgs, isValid, initial})
             <label class="label">
                 <span class="label-text">Messages</span>
             </label>
-            <textarea v-model="msg" placeholder="{config: {}}" class="textarea textarea-bordered"></textarea>
+            <textarea v-model="msg" placeholder="{config: {}}" class="textarea text-gray-800 dark:text-white !border-gray-300 dark:!border-gray-600"></textarea>
         </div>
         <div class="form-control">
             <label class="label">

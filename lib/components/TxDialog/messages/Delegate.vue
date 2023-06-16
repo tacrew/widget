@@ -158,14 +158,14 @@ defineExpose({ msgs, isValid, initial });
                     {{ available?.display.amount }} {{ available?.display.denom }}
                 </span>
             </label>
-            <label class="input-group">
+            <label class="join">
                 <input
                     v-model="amount"
                     type="number"
                     :placeholder="`Available: ${available?.display.amount}`"
-                    class="input border border-gray-300 dark:border-gray-600 w-full"
+                    class="input border border-gray-300 dark:border-gray-600 w-full join-item"
                 />
-                <select v-model="amountDenom" class="select select-bordered">
+                <select v-model="amountDenom" class="select select-bordered join-item">
                     <option v-for="u in units">{{ u.denom }}</option>
                 </select>
             </label>

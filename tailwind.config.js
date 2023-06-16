@@ -14,7 +14,7 @@ export default {
         themes: [
             {
                 light: {
-                    ...require('daisyui/src/colors/themes')[
+                    ...require('daisyui/src/theming/themes')[
                         '[data-theme=light]'
                     ],
                     primary: '#666cff',
@@ -22,7 +22,7 @@ export default {
             },
             {
                 dark: {
-                    ...require('daisyui/src/colors/themes')[
+                    ...require('daisyui/src/theming/themes')[
                         '[data-theme=dark]'
                     ],
                     primary: '#666cff',

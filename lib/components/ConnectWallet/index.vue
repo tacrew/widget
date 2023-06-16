@@ -207,8 +207,9 @@ const tipMsg = computed(() => {
                     <label class="btn mr-1" @click="keplr">
                         <Icon icon="mdi:cog-outline" />
                     </label>
-                    <label class="btn btn-primary ping-connect-confirm grow" @click="connect()"
-                        :class="{ 'loading relative start-0': sending }">Connect
+                    <label class="btn btn-primary ping-connect-confirm grow" @click="connect()">
+                        <span v-if="sending" class="loading loading-spinner"></span>
+                        Connect
                     </label>
                 </div>
             </label>
