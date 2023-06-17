@@ -436,7 +436,7 @@ async function doDeposit() {
 
     const chainId = latest.block.header.chain_id;
     const timeout = Date.now() + new Date().getTimezoneOffset() + 3600000;
-    const amount =  Number(depositAmount.value || 0) * 10 ** swapIn.value.decimals;
+    const amount = Number(depositAmount.value || 0) * 10 ** swapIn.value.decimals;
     const tx = {
         chainId,
         signerAddress: address,
@@ -518,73 +518,78 @@ const disableWithdraw = computed(() => {
 });
 async function doWithdraw() {
     sending.value = true;
-    const latest = await getLatestBlock(OSMOSIS_REST);
+    try {
+        const latest = await getLatestBlock(OSMOSIS_REST);
 
-    const stargateClient = await getSigningOsmosisClient({
-        rpcEndpoint: OSMOSIS_RPC,
-        // @ts-ignore
-        signer: window.getOfflineSigner(latest.block.header.chain_id),
-    });
-    const address = osmoAddress(sender.value.cosmosAddress);
+        const stargateClient = await getSigningOsmosisClient({
+            rpcEndpoint: OSMOSIS_RPC,
+            // @ts-ignore
+            signer: window.getOfflineSigner(latest.block.header.chain_id),
+        });
+        const address = osmoAddress(sender.value.cosmosAddress);
 
-    if (!swapIn.value || !swapOut.value || !address) return;
+        if (!swapIn.value || !swapOut.value || !address) return;
 
-    const timeout = Date.now() + new Date().getTimezoneOffset() + 3600000;
-    const amount = Number(withdrawAmount.value || 0);
-    const { transfer } =
-        ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
-    const msg = transfer({
-        sender: address,
-        sourceChannel: swapOut.value.sourceChannelId || '',
-        sourcePort: 'transfer',
-        token: {
-            amount: (amount * 10 ** swapOut.value.decimals).toFixed(),
-            denom: swapOut.value.ibcDenom,
-        },
-        receiver: recipient.value,
-        timeoutTimestamp: Long.fromString(`${timeout}000000`),
-        timeoutHeight: {
-            revisionHeight: Long.fromNumber(0),
-            revisionNumber: Long.fromNumber(0),
-        },
-        memo: '',
-    });
-
-    const gas = await stargateClient.simulate(address, [msg], '');
-
-    const fee: StdFee = {
-        amount: [
-            {
-                denom: 'uosmo',
-                amount: '1864',
+        const timeout = Date.now() + new Date().getTimezoneOffset() + 3600000;
+        const amount = Number(withdrawAmount.value || 0);
+        const { transfer } =
+            ibc.applications.transfer.v1.MessageComposer.withTypeUrl;
+        const msg = transfer({
+            sender: address,
+            sourceChannel: swapOut.value.sourceChannelId || '',
+            sourcePort: 'transfer',
+            token: {
+                amount: (amount * 10 ** swapOut.value.decimals).toFixed(),
+                denom: swapOut.value.ibcDenom,
             },
-        ],
-        gas: (gas * 1.25).toFixed(),
-    };
-    const response = await stargateClient.signAndBroadcast(
-        address,
-        [msg],
-        fee,
-        'Convert on ping.pub'
-    );
-    if (response.code === 0) {
-        await getBalance(
-            OSMOSIS_REST,
-            osmoAddress(sender.value.cosmosAddress)
-        ).then((res) => {
-            osmoBalances.value = res.balances.filter(
-                (x) => !x.denom.startsWith('gamm')
-            );
+            receiver: recipient.value,
+            timeoutTimestamp: Long.fromString(`${timeout}000000`),
+            timeoutHeight: {
+                revisionHeight: Long.fromNumber(0),
+                revisionNumber: Long.fromNumber(0),
+            },
+            memo: '',
         });
-        await getBalance(
-            props.endpoint,
-            localAddress(sender.value.cosmosAddress)
-        ).then((res) => {
-            localBalances.value = res.balances;
-        });
-    } else {
-        if (response.rawLog) error.value = response.rawLog;
+
+        const gas = await stargateClient.simulate(address, [msg], '');
+
+        const fee: StdFee = {
+            amount: [
+                {
+                    denom: 'uosmo',
+                    amount: '1864',
+                },
+            ],
+            gas: (gas * 1.25).toFixed(),
+        };
+        const response = await stargateClient.signAndBroadcast(
+            address,
+            [msg],
+            fee,
+            'Convert on ping.pub'
+        );
+        if (response.code === 0) {
+            await getBalance(
+                OSMOSIS_REST,
+                osmoAddress(sender.value.cosmosAddress)
+            ).then((res) => {
+                osmoBalances.value = res.balances.filter(
+                    (x) => !x.denom.startsWith('gamm')
+                );
+            });
+            await getBalance(
+                props.endpoint,
+                localAddress(sender.value.cosmosAddress)
+            ).then((res) => {
+                localBalances.value = res.balances;
+            });
+        } else {
+            if (response.rawLog) error.value = response.rawLog;
+        }
+    } catch (err) {
+        error.value = err
     }
+
     sending.value = false;
 }
 
@@ -736,7 +741,8 @@ function fetchTx(tx: string) {
                                 showBalance(swapIn?.ibcDenom, swapIn?.decimals)
                             }}
                         </div>
-                        <Icon v-if="depositable" icon="mdi:plus-box-outline" class="ml-2 cursor-pointer" @click="switchView('deposit')" />
+                        <Icon v-if="depositable" icon="mdi:plus-box-outline" class="ml-2 cursor-pointer"
+                            @click="switchView('deposit')" />
                     </div>
 
                     <!-- switch btn -->
@@ -821,7 +827,8 @@ function fetchTx(tx: string) {
                     </div>
 
                     <div class="mt-5">
-                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base" :disabled="disabled" @click="doSwap">
+                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
+                            :disabled="disabled" @click="doSwap">
                             <span v-if="sending" class="loading loading-spinner"></span>
                             Convert
                         </button>
@@ -875,10 +882,21 @@ function fetchTx(tx: string) {
 
                     <div class="mt-5 flex">
                         <label class="btn mr-1" @click="switchView('swap')">
-                            <svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="XMLID_6_" d="M165,0C74.019,0,0,74.019,0,165s74.019,165,165,165s165-74.019,165-165S255.981,0,165,0z M205.606,234.394 c5.858,5.857,5.858,15.355,0,21.213C202.678,258.535,198.839,260,195,260s-7.678-1.464-10.606-4.394l-80-79.998 c-2.813-2.813-4.394-6.628-4.394-10.606c0-3.978,1.58-7.794,4.394-10.607l80-80.002c5.857-5.858,15.355-5.858,21.213,0 c5.858,5.857,5.858,15.355,0,21.213l-69.393,69.396L205.606,234.394z"></path> </g></svg>
+                            <svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Layer_1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                viewBox="0 0 330 330" xml:space="preserve">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path id="XMLID_6_"
+                                        d="M165,0C74.019,0,0,74.019,0,165s74.019,165,165,165s165-74.019,165-165S255.981,0,165,0z M205.606,234.394 c5.858,5.857,5.858,15.355,0,21.213C202.678,258.535,198.839,260,195,260s-7.678-1.464-10.606-4.394l-80-79.998 c-2.813-2.813-4.394-6.628-4.394-10.606c0-3.978,1.58-7.794,4.394-10.607l80-80.002c5.857-5.858,15.355-5.858,21.213,0 c5.858,5.857,5.858,15.355,0,21.213l-69.393,69.396L205.606,234.394z">
+                                    </path>
+                                </g>
+                            </svg>
                         </label>
                         <button class="btn btn-primary grow ping-connect-confirm capitalize text-base"
-                            :disabled="disableDeposit" :class="{ 'loading relative start-0': sending }" @click="doDeposit">
+                            :disabled="disableDeposit" @click="doDeposit">
+                            <span v-if="sending" class="loading loading-spinner"></span>
                             Deposit
                         </button>
                     </div>
@@ -933,11 +951,21 @@ function fetchTx(tx: string) {
 
                     <div class="mt-5 flex">
                         <label class="btn mr-1" @click="switchView('swap')">
-                            <svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 330 330" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path id="XMLID_6_" d="M165,0C74.019,0,0,74.019,0,165s74.019,165,165,165s165-74.019,165-165S255.981,0,165,0z M205.606,234.394 c5.858,5.857,5.858,15.355,0,21.213C202.678,258.535,198.839,260,195,260s-7.678-1.464-10.606-4.394l-80-79.998 c-2.813-2.813-4.394-6.628-4.394-10.606c0-3.978,1.58-7.794,4.394-10.607l80-80.002c5.857-5.858,15.355-5.858,21.213,0 c5.858,5.857,5.858,15.355,0,21.213l-69.393,69.396L205.606,234.394z"></path> </g></svg>
+                            <svg fill="#ffffff" height="20px" width="20px" version="1.1" id="Layer_1"
+                                xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                viewBox="0 0 330 330" xml:space="preserve">
+                                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                    <path id="XMLID_6_"
+                                        d="M165,0C74.019,0,0,74.019,0,165s74.019,165,165,165s165-74.019,165-165S255.981,0,165,0z M205.606,234.394 c5.858,5.857,5.858,15.355,0,21.213C202.678,258.535,198.839,260,195,260s-7.678-1.464-10.606-4.394l-80-79.998 c-2.813-2.813-4.394-6.628-4.394-10.606c0-3.978,1.58-7.794,4.394-10.607l80-80.002c5.857-5.858,15.355-5.858,21.213,0 c5.858,5.857,5.858,15.355,0,21.213l-69.393,69.396L205.606,234.394z">
+                                    </path>
+                                </g>
+                            </svg>
                         </label>
                         <button class="btn btn-primary grow ping-connect-confirm capitalize text-base"
-                            :disabled="disableWithdraw" :class="{ 'loading relative start-0': sending }"
-                            @click="doWithdraw()">
+                            :disabled="disableWithdraw" @click="doWithdraw()">
+                            <span v-if="sending" class="loading loading-spinner"></span>
                             Withdraw
                         </button>
                     </div>
@@ -957,8 +985,8 @@ function fetchTx(tx: string) {
                     </div>
 
                     <div class="mt-5">
-                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base"
-                            :class="{ 'loading relative start-0': sending }" @click="connect()">
+                        <button class="btn btn-primary w-full ping-connect-confirm capitalize text-base" @click="connect()">
+                            <span v-if="sending" class="loading loading-spinner"></span>
                             Connect
                         </button>
                     </div>
@@ -982,23 +1010,22 @@ function fetchTx(tx: string) {
                                 <span
                                     class="text-xs font-semibold inline-block py-1 px-2 rounded text-gray-600 dark:text-white">
                                     Submitted
-                                </span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-xs font-semibold inline-block text-gray-600 dark:text-white">
-                                    {{ step }}%
-                                </span>
-                            </div>
+                            </span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-xs font-semibold inline-block text-gray-600 dark:text-white">
+                                {{ step }}%
+                            </span>
                         </div>
                     </div>
-                    <div class="mb-0 text-center">
-                        <label class="btn btn-link" @click="view = 'swap'">Continue</label>
-                    </div>
                 </div>
-            </label>
+                <div class="mb-0 text-center">
+                    <label class="btn btn-link" @click="view = 'swap'">Continue</label>
+                </div>
+            </div>
         </label>
-    </div>
-</template>
+    </label>
+</div></template>
 <script lang="ts">
 export default {
     name: 'TokenConvert',

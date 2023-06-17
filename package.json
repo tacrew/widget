@@ -1,17 +1,17 @@
 {
     "name": "ping-widget",
     "private": false,
-    "version": "0.1.0",
+    "version": "0.1.1",
     "type": "module",
     "main": "dist/ping-widget.js",
     "author": {
         "name": "Alisa | Side Protocol",
         "email": "alisa@side.one"
     },
-    "homepage": "https://github.com/alisaweb3/ping-widget",
+    "homepage": "https://github.com/ping-pub/ping-widget",
     "repository": {
         "type": "git",
-        "url": "https://github.com/alisaweb3/ping-widget"
+        "url": "https://github.com/ping-pub/ping-widget"
     },
     "license": "MIT",
     "description": "Ping widget",
