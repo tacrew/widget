@@ -709,7 +709,7 @@ function fetchTx(tx: string) {
                                 </div>
                                 <Icon icon="mdi:chevron-down" class="text-lg" />
                             </label>
-                            <div tabindex="0" class="dropdown-content shadow bg-base-100 rounded-lg w-64">
+                            <div tabindex="0" class="dropdown-content shadow bg-base-100 rounded-lg w-64 z-40">
                                 <div class="py-2">
                                     <div v-for="(item, index) in inTokens" :key="index"
                                         class="flex items-center px-4 py-2 hover:bg-gray-200 dark:hover:bg-[#232333] cursor-pointer"

@@ -83,9 +83,6 @@ async function connect() {
             })
             .catch((e) => {
                 error.value = e;
-                setTimeout(() => {
-                    error.value = '';
-                }, 5000);
             });
     } catch (e) {
         error.value = e.message;
@@ -200,8 +197,11 @@ const tipMsg = computed(() => {
                         </div>
                     </li>
                 </ul>
-                <div v-if="error" class="text-error mt-3">
+                <div v-show="error" class="text-error mt-3">
                     <span>{{ error }}.</span>
+                    <div v-show="String(error).search('no chain info') > -1">
+                        <a :href="`https://ping.pub/wallet/keplr?chain=${chainId}`" class="btn btn-link">Suggest a chain to Keplr</a>
+                    </div>
                 </div>
                 <div class="mt-8 text-right flex">
                     <label class="btn mr-1" @click="keplr">
