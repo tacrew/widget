@@ -13,7 +13,8 @@ export class KeplerWallet implements AbstractWallet {
     registry: Registry
     conf: WalletArgument
     constructor(arg: WalletArgument, registry: Registry) {
-        this.chainId = arg.chainId || "cosmoshub"
+        // this.chainId = arg.chainId || "cosmoshub"
+        this.chainId = arg.hdPath && arg.hdPath?.indexOf("118") < 0 ? arg.hdPath : 'cosmoshub'
         // @ts-ignore
         if (!window.getOfflineSigner || !window.keplr) {
             throw new Error('Please install keplr extension')

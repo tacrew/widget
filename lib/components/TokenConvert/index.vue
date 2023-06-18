@@ -684,7 +684,7 @@ function fetchTx(tx: string) {
                             </svg>
                         </label>
                         <div tabindex="0"
-                            class="card compact dropdown-content dark:bg-info-content bg-slate-300 shadow rounded-box w-64">
+                            class="card compact dropdown-content dark:bg-info-content bg-slate-300 shadow rounded-box w-64 z-40">
                             <div class="card-body">
                                 <ul class="text-right">
                                     <li>Liquidity is provided by Osmosis</li>
