@@ -121,6 +121,8 @@ async function initData() {
                     x.assets.forEach(a => {
                         metadatas.value[a.base] = a as CoinMetadata
                     })
+                }).catch(() => {
+                    console.log(`Chain: ${props.registryName } was not found on Cosmos Registry`)
                 })
             }
             getLatestBlock(props.endpoint).then((x) => {
@@ -273,7 +275,7 @@ function fetchTx(tx: string) {
                 <div v-if="!sender" class="text-center h-16 items-center">
                     No wallet connected!
                 </div>
-
+                
                 <div v-if="sender">
                     <div v-if="view === 'input'">
                         <component :is="msgType" ref="msgBox" :endpoint="endpoint" :sender="sender" :balances="balance"
