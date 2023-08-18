@@ -178,10 +178,19 @@ async function sendTx() {
             hdPath: current.hdPath,
         });
 
-        const gas = await client.simulate(props.endpoint, tx)
-
-        // update tx gas
-        tx.fee.gas = (gas * 1.25).toFixed()
+        if(advance.value) {
+            await client.simulate(props.endpoint, tx).then(gas => {
+                // update tx gas
+                tx.fee.gas = (gas * 1.25).toFixed()
+            }).catch((err) => {
+                sending.value = false;
+                error.value = "Failed to simulate tx gas: " + err;
+                advance.value = true;
+                return
+            })
+        } else {
+            tx.fee.gas = gasInfo.value.toString()
+        }
 
         const txRaw = await client.sign(tx);
         const response = await client.broadcastTx(props.endpoint, txRaw);
@@ -289,7 +298,7 @@ function fetchTx(tx: string) {
                                         </select>
                                     </label>
                                 </div>
-                                <div class="form-control hidden">
+                                <div class="form-control">
                                     <label class="label">
                                         <span class="label-text">Gas</span>
                                     </label>
