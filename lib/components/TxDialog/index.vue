@@ -106,12 +106,12 @@ async function initData() {
                 balance.value = x.balances;
                 x.balances?.forEach((coin) => {
                     // only load for native tokens 
-                    if (!props.registryName && coin.denom.length < 12)
+                    if (coin.denom.length < 12)
                         getBalanceMetadata(props.endpoint, coin.denom).then(
                             (meta) => {
                                 metadatas.value[coin.denom] = meta.metadata;
                             }
-                        );
+                        ).catch(()=>{});
                 });
             });
 
