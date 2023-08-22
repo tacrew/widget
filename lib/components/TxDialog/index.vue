@@ -95,6 +95,7 @@ const chainId = ref('cosmoshub-4');
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
+        metadatas.value = {}
         view.value = 'input';
         p.value = JSON.parse(props.params || '{}')
         memo.value = props.type?.toLowerCase() === 'send' ? '' : 'ping.pub'
@@ -115,7 +116,7 @@ async function initData() {
             });
 
             // load metadata from registry
-            if (props.registryName) {
+            if (props.registryName && Object.keys(metadatas.value).length === 0) {
                 const client = new ChainRegistryClient()
                 client.fetchAssetsList(props.registryName).then(x => {
                     x.assets.forEach(a => {
@@ -180,7 +181,7 @@ async function sendTx() {
             hdPath: current.hdPath,
         });
 
-        if(advance.value) {
+        if(!advance.value) {
             await client.simulate(props.endpoint, tx).then(gas => {
                 // update tx gas
                 tx.fee.gas = (gas * 1.25).toFixed()
@@ -275,7 +276,7 @@ function fetchTx(tx: string) {
                 <div v-if="!sender" class="text-center h-16 items-center">
                     No wallet connected!
                 </div>
-                
+
                 <div v-if="sender">
                     <div v-if="view === 'input'">
                         <component :is="msgType" ref="msgBox" :endpoint="endpoint" :sender="sender" :balances="balance"
