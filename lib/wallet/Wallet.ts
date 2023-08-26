@@ -48,6 +48,17 @@ export interface AbstractWallet {
 
 export const DEFAULT_HDPATH = "m/44'/118/0'/0/0";
 
+export function keyType(chainId: string) {
+    switch (true) {
+        case chainId.search(/\w+_\d+-\d+/g) > -1:   // ethermint like chain: evmos_9002-1
+            return "/ethermint.crypto.v1.ethsecp256k1.PubKey"
+        case chainId.startsWith("injective"):
+            return "/injective.crypto.v1beta1.ethsecp256k1.PubKey";
+        default:
+            return "/cosmos.crypto.secp256k1.PubKey"
+    }
+}
+
 export function readWallet(hdPath?: string) {
     return JSON.parse(
         localStorage.getItem(hdPath || DEFAULT_HDPATH) || '{}'
