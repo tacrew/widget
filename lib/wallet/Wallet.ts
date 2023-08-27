@@ -4,12 +4,14 @@ import { Transaction } from "../utils/type";
 import { KeplerWallet } from './wallets/KeplerWallet';
 import { LedgerWallet } from './wallets/LedgerWallet';
 import { MetamaskWallet } from './wallets/MetamaskWallet';
+import { MetamaskSnapWallet } from './wallets/MetamaskSnapWallet';
 
 export enum WalletName {
     Keplr = "Keplr",
     Ledger = "LedgerUSB",
     LedgerBLE = "LedgerBLE",
     Metamask = "Metemask",
+    MetamaskSnap = "MetemaskSnap",
     // None Signning
     Address = "Address",
     NameService = "Nameservice",
@@ -86,6 +88,8 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
     switch (name) {
         case WalletName.Keplr:
             return new KeplerWallet(arg, reg)
+        case WalletName.MetamaskSnap:
+            return new MetamaskSnapWallet(arg, reg)
         case WalletName.Ledger:
             return new LedgerWallet(arg, reg)
         case WalletName.Metamask:

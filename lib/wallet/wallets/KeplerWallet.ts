@@ -39,6 +39,10 @@ export class KeplerWallet implements AbstractWallet {
         return this.conf.hdPath && this.conf.hdPath.startsWith("m/44'/60")
     }
     async sign(transaction: Transaction): Promise<TxRaw> {
+        // sign wasm tx with signDirect
+        if(transaction.messages.findIndex(x => x.typeUrl.startsWith("/cosmwasm.wasm")) > -1) {
+            return this.signDirect(transaction)
+        }
         return this.signAmino(transaction)
     }
     // @deprecated use signAmino instead
@@ -50,12 +54,12 @@ export class KeplerWallet implements AbstractWallet {
         if (!accountFromSigner) {
             throw new Error("Failed to retrieve account from signer");
         }
-        const pubkey = this.isEthermint() ? Any.fromPartial({
-            typeUrl: '/ethermint.crypto.v1.ethsecp256k1.PubKey',
+        const pubkey = Any.fromPartial({
+            typeUrl: keyType(transaction.chainId),
             value: PubKey.encode({
                 key: accountFromSigner.pubkey,
-            }).finish(),
-        }) : encodePubkey(encodeSecp256k1Pubkey(accountFromSigner.pubkey));
+            }).finish()
+        })
         const txBodyEncodeObject: TxBodyEncodeObject = {
             typeUrl: "/cosmos.tx.v1beta1.TxBody",
             value: {
@@ -63,7 +67,6 @@ export class KeplerWallet implements AbstractWallet {
                 memo: transaction.memo,
             },
         };
-        console.log(txBodyEncodeObject, transaction.messages)
         const txBodyBytes = this.registry.encode(txBodyEncodeObject);
         const gasLimit = Number(transaction.fee.gas);
         const authInfoBytes = makeAuthInfoBytes(
