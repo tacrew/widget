@@ -43,7 +43,7 @@ const JUNO: Config = {
         proposal_id: '1',
         validator_address: "junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2",
         chain_name: 'juno',
-        contract: 'add',
+        contract: 'junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2',
         fees: {amount: '2000', denom: ''}
     })
 }
@@ -62,7 +62,10 @@ const types = [
     'withdraw_commission',
     'wasm_instantiate_contract',
     'wasm_execute_contract',
-    'wasm_store_code'
+    'wasm_store_code',
+    'wasm_migrate_contract',
+    'wasm_update_admin',
+    'wasm_clear_admin',
 ];
 const toOpen = ref('send');
 

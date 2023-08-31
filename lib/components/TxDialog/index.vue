@@ -28,6 +28,9 @@ import StoreCode from './wasm/StoreCode.vue';
 import ExecuteContract from './wasm/ExecuteContract.vue';
 import InstantiateContract from './wasm/InstantiateContract.vue';
 import ChainRegistryClient from '@ping-pub/chain-registry-client';
+import MigrateContract from './wasm/MigrateContract.vue';
+import UpdateAdmin from './wasm/UpdateAdmin.vue';
+import ClearAdmin from './wasm/ClearAdmin.vue';
 
 const props = defineProps({
     type: String,
@@ -64,6 +67,12 @@ const msgType = computed(() => {
             return ExecuteContract;
         case 'wasm_instantiate_contract':
             return InstantiateContract;
+        case 'wasm_migrate_contract':
+            return MigrateContract;
+        case 'wasm_update_admin':
+            return UpdateAdmin;
+        case 'wasm_clear_admin':
+            return ClearAdmin;
         default:
             return Send;
     }
