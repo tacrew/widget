@@ -125,6 +125,9 @@ const tipMsg = computed(() => {
         ? { class: 'error', msg: 'Copy Error!' }
         : { class: 'success', msg: 'Copy Success!' };
 });
+const customKeplr = computed(() => {
+    return `${location.protocol}://${location.hostname}/wallet/keplr?chain=${props.chainId}`
+})
 </script>
 <template>
     <div class="mb-4">
@@ -204,7 +207,7 @@ const tipMsg = computed(() => {
                 <div v-show="error" class="text-error mt-3">
                     <span>{{ error }}.</span>
                     <div v-show="String(error).search('no chain info') > -1">
-                        <a :href="`${window.location.protocol}://${window.location.hostname}/wallet/keplr?chain=${chainId}`" class="btn btn-link">Suggest a chain to Keplr</a>
+                        <a :href="customKeplr" class="btn btn-link">Suggest a chain to Keplr</a>
                     </div>
                 </div>
                 <div class="mt-8 text-right flex">
