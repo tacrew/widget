@@ -15,13 +15,14 @@ import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { stringToPath } from '@cosmjs/crypto'
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { ethermintToEth } from "../../utils/format";
+import { createWasmAminoConverters } from "@cosmjs/cosmwasm-stargate";
 
 export class LedgerWallet implements AbstractWallet {
     name: WalletName.Ledger
     transport: string
     hdPath: string
     registry: Registry
-    aminoTypes = new AminoTypes(createDefaultAminoConverters())
+    aminoTypes = new AminoTypes({...createDefaultAminoConverters(), ...createWasmAminoConverters()})
     conf: WalletArgument
     constructor(arg: WalletArgument, registry: Registry) {
         this.transport = arg.transport || 'usb'

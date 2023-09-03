@@ -8,13 +8,14 @@ import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys'
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { AminoTypes, createDefaultAminoConverters } from "@cosmjs/stargate";
 import { encodeSecp256k1Pubkey, makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
+import { createWasmAminoConverters } from "@cosmjs/cosmwasm-stargate";
 
 export class KeplerWallet implements AbstractWallet {
     name: WalletName.Keplr
     chainId: string
     registry: Registry
     conf: WalletArgument
-    aminoTypes = new AminoTypes(createDefaultAminoConverters())
+    aminoTypes = new AminoTypes( {...createDefaultAminoConverters(), ...createWasmAminoConverters()})
     constructor(arg: WalletArgument, registry: Registry) {
         this.chainId = arg.chainId || "cosmoshub"
         // @ts-ignore
@@ -40,9 +41,9 @@ export class KeplerWallet implements AbstractWallet {
     }
     async sign(transaction: Transaction): Promise<TxRaw> {
         // sign wasm tx with signDirect
-        if(transaction.messages.findIndex(x => x.typeUrl.startsWith("/cosmwasm.wasm")) > -1) {
-            return this.signDirect(transaction)
-        }
+        // if(transaction.messages.findIndex(x => x.typeUrl.startsWith("/cosmwasm.wasm")) > -1) {
+        //     return this.signDirect(transaction)
+        // }
         return this.signAmino(transaction)
     }
     // @deprecated use signAmino instead
