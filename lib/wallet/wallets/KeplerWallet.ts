@@ -80,7 +80,7 @@ export class KeplerWallet implements AbstractWallet {
         const signDoc = makeSignDoc(txBodyBytes, authInfoBytes, transaction.chainId, transaction.signerData.accountNumber);
 
         // @ts-ignore
-        const offlineSigner = window.getOfflineSigner(this.chainId)
+        const offlineSigner = window.leap.getOfflineSignerAuto(chainId);
         const { signature, signed } = await offlineSigner.signDirect(transaction.signerAddress, signDoc);;
         return TxRaw.fromPartial({
             bodyBytes: signed.bodyBytes,

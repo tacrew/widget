@@ -37,6 +37,10 @@ const list = [
         wallet: WalletName.MetamaskSnap,
         logo: 'https://ping.pub/logos/metamask.png',
     },
+    {
+        wallet: WalletName.Leap,
+        logo: 'https://assets.leapwallet.io/logos/leap-cosmos-logo.svg',
+    },
 ];
 
 async function initData() { }

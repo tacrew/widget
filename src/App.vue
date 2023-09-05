@@ -34,7 +34,7 @@ const EVMOS: Config = {
 
 // @ts-ignore
 const JUNO: Config = {
-    sender: 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a',
+    sender: 'juno1jxv0u20scum4trha72c7ltfgfqef6nscych5nn',
     endpoint: 'https://juno-api.polkachu.com',
     chainId: 'juno-1',
     hdPath: "m/44'/118/0'/0/0",
@@ -47,6 +47,21 @@ const JUNO: Config = {
         fees: {amount: '2000', denom: ''}
     })
 }
+
+// @ts-ignore
+const NEUTRON: Config = {
+    sender: 'neutron1m8mma95ta2zajqtmfp5c5y3wgeyqzcrc64e4gx',
+    endpoint: 'https://neutron-api.polkachu.com',
+    chainId: 'neutron-1',
+    hdPath: "m/44'/118/0'/0/0",
+    chainName: 'neutron',
+    params: JSON.stringify({
+        chain_name: 'neutron',
+        contract: 'neutron198sxsrjvt2v2lln2ajn82ks76k97mj72mtgl7309jehd0vy8rezs7e6c56',
+        fees: {amount: '2000', denom: ''}
+    })
+}
+
 
 const conf = ref(JUNO)
 

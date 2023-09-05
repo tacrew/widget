@@ -26,26 +26,36 @@ export class MetamaskSnapWallet implements AbstractWallet {
     }
 
     async getAccounts(): Promise<Account[]> {
-        // @ts-ignore
-        if (!window.ethereum || !window.ethereum.request) {
-            throw new Error('Please install Metamask extension');
-        }
+    
+        let account;
+        try {
+            // @ts-ignore
+            await window.ethereum.request({
+              method: 'wallet_requestSnaps',
+              params: {
+                'npm:@leapwallet/metamask-cosmos-snap': {},
+              },
+            });
 
-        // @ts-ignore
-        const accountData = await window.ethereum.request({
-            method: 'wallet_invokeSnap',
-            params: {
-                snapId: "npm:@leapwallet-metamask-snap",
-                request: {
+            // @ts-ignore
+            account = await window.ethereum.request({
+                method: 'wallet_invokeSnap',
+                params: {
+                  snapId: "npm:@leapwallet/metamask-cosmos-snap",
+                  request: {
                     method: 'getKey',
                     params: {
-                        chainId: this.chainId,
+                      chainId: this.chainId,
                     },
+                  },
                 },
-            },
-        });
+              });
 
-        return accountData;
+          } catch (error) {
+            throw new Error('Please install Metamask extension');
+          }
+
+        return [account];
     }
 
     async getConnectedAccounts() {
@@ -68,6 +78,7 @@ export class MetamaskSnapWallet implements AbstractWallet {
         if (!accountFromSigner) {
             throw new Error("Failed to retrieve account from signer");
         }
+
         const pubkey = Any.fromPartial({
             typeUrl: keyType(transaction.chainId),
             value: PubKey.encode({
@@ -81,7 +92,6 @@ export class MetamaskSnapWallet implements AbstractWallet {
                 memo: transaction.memo,
             },
         };
-        console.log(txBodyEncodeObject, transaction.messages)
         const txBodyBytes = this.registry.encode(txBodyEncodeObject);
         const gasLimit = Number(transaction.fee.gas);
         const authInfoBytes = makeAuthInfoBytes(
@@ -100,18 +110,21 @@ export class MetamaskSnapWallet implements AbstractWallet {
         const { signature, signed } = await window.ethereum.request({
             method: 'wallet_invokeSnap',
             params: {
-                snapId: "npm:@leapwallet-metamask-snap",
-                request: {
-                    method: 'signDirect',
-                    params: {
-                        chainId: transaction.chainId,
-                        signerAddress: transaction.signerAddress,
-                        signDoc,
-                    },
+              snapId: "npm:@leapwallet/metamask-cosmos-snap",
+              request: {
+                method: 'signDirect',
+                params: {
+                  chainId: this.chainId,
+                  signerAddress: transaction.signerAddress,
+                  signDoc,
                 },
+              },
             },
-        });
+          });
 
+          console.log(signature, 'signature', signed)
+
+        //   throw new Error('debuging')
         return TxRaw.fromPartial({
             bodyBytes: signed.bodyBytes,
             authInfoBytes: signed.authInfoBytes,

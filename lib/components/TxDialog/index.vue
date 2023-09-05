@@ -164,6 +164,8 @@ async function sendTx() {
 
         const messages = msgBox.value.msgs;
 
+        console.log(messages, 'messages')
+
         const tx = {
             chainId: chainId.value,
             signerAddress: props.sender,
