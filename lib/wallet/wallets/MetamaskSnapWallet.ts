@@ -124,7 +124,7 @@ export class MetamaskSnapWallet implements AbstractWallet {
         };
         const txBodyBytes = this.registry.encode(txBodyEncodeObject);
         const gasLimit = Number(transaction.fee.gas);
-        console.log('logging pub key', pubkey, accountFromSigner);
+
         const authInfoBytes = makeAuthInfoBytes(
             [{ pubkey, sequence: transaction.signerData.sequence }],
             transaction.fee.amount,
@@ -137,12 +137,6 @@ export class MetamaskSnapWallet implements AbstractWallet {
             authInfoBytes,
             transaction.chainId,
             transaction.signerData.accountNumber
-        );
-        console.log(
-            'logging tx body bytes',
-            txBodyBytes,
-            authInfoBytes,
-            signDoc
         );
 
         // // @ts-ignore
