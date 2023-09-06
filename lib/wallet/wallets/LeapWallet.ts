@@ -108,7 +108,7 @@ export class LeapWallet implements AbstractWallet {
         
         // @ts-ignore
         // const offlineSigner = window.getOfflineSigner(this.chainId)
-        const { signature, signed } = this.signer.signAmino(tx.signerAddress, signDoc);
+        const { signature, signed } = await this.signer.signAmino(tx.signerAddress, signDoc);
 
         console.log(signature, 'signature', signed)
 
