@@ -43,7 +43,7 @@ export class MetamaskSnapWallet implements AbstractWallet {
     async getAccounts(): Promise<Account[]> {
         const snapInstalled = await getSnap();
         if (!snapInstalled) {
-            connectSnap(); // Initiates installation if not already present
+            await connectSnap(); // Initiates installation if not already present
         }
         const key = await getKey(this.chainId)
         return [key]
