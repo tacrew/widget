@@ -11,8 +11,8 @@ export enum WalletName {
     Keplr = "Keplr",
     Ledger = "LedgerUSB",
     LedgerBLE = "LedgerBLE",
-    Metamask = "Metemask",
-    MetamaskSnap = "MetemaskSnap",
+    Metamask = "Metamask",
+    MetamaskSnap = "MetamaskSnap",
     Leap = "Leap",
     // None Signning
     Address = "Address",
