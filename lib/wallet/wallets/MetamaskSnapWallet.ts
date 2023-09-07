@@ -24,21 +24,8 @@ import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { AminoTypes, createDefaultAminoConverters } from '@cosmjs/stargate';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
-import Long from 'long';
 
-const snapId = 'local:http://localhost:8000';
-export const connectSnap = async (
-    _snapId: string = snapId,
-    params: Record<'version' | string, unknown> = {}
-) => {
-    //@ts-ignore
-    await window.ethereum.request({
-        method: 'wallet_requestSnaps',
-        params: {
-            [_snapId]: params,
-        },
-    });
-};
+import { connectSnap, getKey, getSnap, CosmjsOfflineSigner } from '@leapwallet/cosmos-snap-provider';
 
 export class MetamaskSnapWallet implements AbstractWallet {
     name: WalletName.MetamaskSnap;
@@ -54,44 +41,40 @@ export class MetamaskSnapWallet implements AbstractWallet {
     }
 
     async getAccounts(): Promise<Account[]> {
-        await connectSnap();
-
-        let account;
-        try {
-            // @ts-ignore
-            await window.ethereum.request({
-                method: 'wallet_requestSnaps',
-                params: {
-                    'npm:@leapwallet/metamask-cosmos-snap': {},
-                },
-            });
-
-            // @ts-ignore
-            account = await window.ethereum.request({
-                method: 'wallet_invokeSnap',
-                params: {
-                    snapId,
-                    request: {
-                        method: 'getKey',
-                        params: {
-                            chainId: this.chainId,
-                        },
-                    },
-                },
-            });
-        } catch (error) {
-            throw new Error('Please install Metamask extension');
+        const snapInstalled = await getSnap();
+        if (!snapInstalled) {
+            connectSnap(); // Initiates installation if not already present
         }
+        const key = await getKey(this.chainId)
+        return [key]
+        // let account;
+        // try {
+        //     // @ts-ignore
+        //     await window.ethereum.request({
+        //         method: 'wallet_requestSnaps',
+        //         params: {
+        //             'npm:@leapwallet/metamask-cosmos-snap': {},
+        //         },
+        //     });
 
-        return [account];
-    }
+        //     // @ts-ignore
+        //     account = await window.ethereum.request({
+        //         method: 'wallet_invokeSnap',
+        //         params: {
+        //             snapId,
+        //             request: {
+        //                 method: 'getKey',
+        //                 params: {
+        //                     chainId: this.chainId,
+        //                 },
+        //             },
+        //         },
+        //     });
+        // } catch (error) {
+        //     throw new Error('Please install Metamask extension');
+        // }
 
-    async getConnectedAccounts() {
-        const connected = localStorage.getItem('metamask-connected');
-        if (connected) {
-            return JSON.parse(connected) as Account[];
-        }
-        return this.getAccounts();
+        // return [account];
     }
 
     async supportCoinType(coinType?: string): Promise<boolean> {
@@ -139,53 +122,56 @@ export class MetamaskSnapWallet implements AbstractWallet {
             transaction.signerData.accountNumber
         );
 
+        const offlineSigner = new CosmjsOfflineSigner(this.chainId);
+        const { signature, signed } = await offlineSigner.signDirect(transaction.signerAddress, signDoc);
+
         // // @ts-ignore
         // const offlineSigner = window.getOfflineSigner(this.chainId)
         // const { signature, signed } = await offlineSigner.signDirect(transaction.signerAddress, signDoc);;
         // @ts-ignore
-        const signedData = await window.ethereum.request({
-            method: 'wallet_invokeSnap',
-            params: {
-                snapId: snapId,
-                request: {
-                    method: 'signDirect',
-                    params: {
-                        chainId: this.chainId,
-                        signerAddress: transaction.signerAddress,
-                        signDoc,
-                    },
-                },
-            },
-        });
+        // const signedData = await window.ethereum.request({
+        //     method: 'wallet_invokeSnap',
+        //     params: {
+        //         snapId: snapId,
+        //         request: {
+        //             method: 'signDirect',
+        //             params: {
+        //                 chainId: this.chainId,
+        //                 signerAddress: transaction.signerAddress,
+        //                 signDoc,
+        //             },
+        //         },
+        //     },
+        // });
 
-        const { accountNumber } = signDoc;
+        // const { accountNumber } = signDoc;
 
-        const modifiedAccountNumber = new Long(
-            accountNumber?.low || 0,
-            accountNumber?.high,
-            accountNumber?.unsigned
-        );
+        // const modifiedAccountNumber = new Long(
+        //     accountNumber?.low || 0,
+        //     accountNumber?.high,
+        //     accountNumber?.unsigned
+        // );
 
-        const formattedSignedData = {
-            signature: signedData.signature,
-            signed: {
-                ...signedData.signed,
-                accountNumber: `${modifiedAccountNumber.toString()}`,
-                authInfoBytes: new Uint8Array(
-                    Object.values(signedData.signed.authInfoBytes)
-                ),
+        // const formattedSignedData = {
+        //     signature //: signedData.signature,
+        //     signed: {
+        //         ...signedData.signed,
+        //         accountNumber: `${modifiedAccountNumber.toString()}`,
+        //         authInfoBytes: new Uint8Array(
+        //             Object.values(signedData.signed.authInfoBytes)
+        //         ),
 
-                bodyBytes: new Uint8Array(
-                    Object.values(signedData.signed.bodyBytes)
-                ),
-            },
-        };
+        //         bodyBytes: new Uint8Array(
+        //             Object.values(signedData.signed.bodyBytes)
+        //         ),
+        //     },
+        // };
 
         //   throw new Error('debuging')
         return TxRaw.fromPartial({
-            bodyBytes: formattedSignedData.signed.bodyBytes,
-            authInfoBytes: formattedSignedData.signed.authInfoBytes,
-            signatures: [fromBase64(signedData.signature.signature)],
+            bodyBytes: signed.bodyBytes,
+            authInfoBytes: signed.authInfoBytes,
+            signatures: [fromBase64(signature.signature)],
         });
     }
 }

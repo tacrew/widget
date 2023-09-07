@@ -35,7 +35,7 @@ const list = [
     },
     {
         wallet: WalletName.MetamaskSnap,
-        logo: 'https://ping.pub/logos/metamask.png',
+        logo: 'https://ping.pub/logos/metamask-snap.png',
     },
     {
         wallet: WalletName.Leap,
