@@ -46,14 +46,12 @@ export class MetamaskSnapWallet implements AbstractWallet {
             return false
         });
         if (!snapInstalled) {
-            await connectSnap().catch(()=> {
-                throw new Error('connect error')
-            })
+            await connectSnap()
+            throw new Error('Connect Metamask Snap and try again!')
+        }else {
+            const key = await getKey(this.chainId)
+            return [key]
         }
-        const key = await getKey(this.chainId).catch(() => {
-            throw new Error('Plesae approve in Metamask Snap and retry')
-        });
-        return [key]
     }
 
     async supportCoinType(coinType?: string): Promise<boolean> {

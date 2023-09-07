@@ -25,6 +25,7 @@ export class KeplerWallet implements AbstractWallet {
         this.registry = registry
         this.conf = arg
     }
+    
     async getAccounts(): Promise<Account[]> {
         // const chainId = 'cosmoshub'
         // @ts-ignore
