@@ -34,7 +34,7 @@ const EVMOS: Config = {
 
 // @ts-ignore
 const JUNO: Config = {
-    sender: 'juno1jxv0u20scum4trha72c7ltfgfqef6nscych5nn',
+    sender: 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a',
     endpoint: 'https://juno-api.polkachu.com',
     chainId: 'juno-1',
     hdPath: "m/44'/118/0'/0/0",
