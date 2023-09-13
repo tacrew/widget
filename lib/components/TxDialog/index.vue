@@ -4,6 +4,7 @@ import {
     getAccount,
     getBalance,
     getBalanceMetadata,
+    getIBCDenomMetadata,
     getLatestBlock,
     getStakingParam,
     getTxByHash,
@@ -118,9 +119,16 @@ async function initData() {
                     if (coin.denom.length < 12)
                         getBalanceMetadata(props.endpoint, coin.denom).then(
                             (meta) => {
-                                metadatas.value[coin.denom] = meta.metadata;
+                                if(meta.metadata) metadatas.value[coin.denom] = meta.metadata;
                             }
                         ).catch(()=>{});
+                    if(coin.denom.startsWith('ibc/')) {
+                        getIBCDenomMetadata(coin.denom).then(
+                            (meta) => {
+                                if(meta) metadatas.value[coin.denom] = meta;
+                            }
+                        ).catch(()=>{});
+                    }
                 });
             });
 

@@ -73,6 +73,11 @@ export async function getBalanceMetadata(endpoint: string, denom: string): Promi
     return get(url)
 }
 
+export async function getIBCDenomMetadata(denom: string): Promise<CoinMetadata> {
+    const url = `https://metadata.ping.pub/metadata/${denom.replace("ibc/", "")}`
+    return get(url)
+}
+
 export async function getCoinMetadata(endpoint: string, denom: string) {
     const url = `${endpoint}/cosmos/bank/v1beta1/denoms_metadata/${denom}`
     return get(url)
