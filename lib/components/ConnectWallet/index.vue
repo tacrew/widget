@@ -34,26 +34,20 @@ const list = [
         logo: 'https://ping.pub/logos/ledger.webp',
     },
     {
-        wallet: WalletName.MetamaskSnap,
-        logo: 'https://ping.pub/logos/metamask-snap.png',
-    },
-    {
         wallet: WalletName.Leap,
         logo: 'https://assets.leapwallet.io/logos/leap-cosmos-logo.svg',
     },
+    {
+        wallet: WalletName.Metamask,
+        logo: 'https://ping.pub/logos/metamask.png',
+    }
 ];
 
 async function initData() { }
 
 const walletList = computed(() => {
-    const l = list
-    if (props.hdPath?.startsWith("m/44'/60")) {
-        l.push({
-                wallet: WalletName.Metamask,
-                logo: 'https://ping.pub/logos/metamask.png',
-        })
-    }
-    return l
+    // const l = list
+    return list
 })
 
 const connected = ref(readWallet(props.hdPath) as ConnectedWallet);

@@ -90,14 +90,16 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
     switch (name) {
         case WalletName.Keplr:
             return new KeplerWallet(arg, reg)
-        case WalletName.MetamaskSnap:
-            return new MetamaskSnapWallet(arg, reg)
         case WalletName.Ledger:
             return new LedgerWallet(arg, reg)
         case WalletName.Leap:
             return new LeapWallet(arg, reg)
+        case WalletName.MetamaskSnap:
+            return new MetamaskSnapWallet(arg, reg)
         case WalletName.Metamask:
-            return new MetamaskWallet(arg, reg)
+            return arg.hdPath && 
+            (arg.hdPath.startsWith('m/44/60') || arg.hdPath.startsWith("m/44'/60")) 
+            ? new MetamaskWallet(arg, reg) : new MetamaskSnapWallet(arg, reg)
     }
     throw new Error("No wallet connected")
 }
