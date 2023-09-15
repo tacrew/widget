@@ -42,20 +42,16 @@ export class MetamaskSnapWallet implements AbstractWallet {
 
     async getAccounts(): Promise<Account[]> {
         const snapInstalled = await getSnap().catch(() => {
-            console.log('snap not installed');
-            return false
+            throw new Error('Metamask snap not installed');
         });
         if (!snapInstalled) {
             await connectSnap()
-            throw new Error('Connect Metamask Snap and try again!')
-        }else {
-            const key = await getKey(this.chainId)
-            return [key]
         }
+        const key = await getKey(this.chainId)
+        return [key]
     }
 
     async supportCoinType(coinType?: string): Promise<boolean> {
-        // Here, you can check if Metamask supports a specific type of cryptocurrency.
         return true;
     }
 
