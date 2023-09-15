@@ -3,15 +3,12 @@ import {
     Account,
     WalletArgument,
     WalletName,
-    extractChainId,
     keyType,
 } from '../Wallet';
 import {
     fromBase64,
     fromBech32,
     toHex,
-    fromHex,
-    toBase64,
 } from '@cosmjs/encoding';
 import {
     Registry,
@@ -21,23 +18,24 @@ import {
 } from '@cosmjs/proto-signing';
 import { Transaction } from '../../utils/type';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { AminoTypes, createDefaultAminoConverters } from '@cosmjs/stargate';
+// import { AminoTypes, createDefaultAminoConverters } from '@cosmjs/stargate';
 import { Any } from 'cosmjs-types/google/protobuf/any';
 import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
 
 import { connectSnap, getKey, getSnap, CosmjsOfflineSigner } from '@leapwallet/cosmos-snap-provider';
+// import { createWasmAminoConverters } from "@cosmjs/cosmwasm-stargate";
 
 export class MetamaskSnapWallet implements AbstractWallet {
     name: WalletName.MetamaskSnap;
     chainId: string;
     registry: Registry;
-    prefix: string;
-    aminoTypes = new AminoTypes(createDefaultAminoConverters());
+    prefix: string;    
+    // aminoTypes = new AminoTypes( {...createDefaultAminoConverters(), ...createWasmAminoConverters()});
 
     constructor(arg: WalletArgument, registry: Registry) {
         this.chainId = arg.chainId || 'cosmoshub';
         this.registry = registry;
-        this.prefix = arg.prefix || 'evmos';
+        this.prefix = arg.prefix || 'cosmos';
     }
 
     async getAccounts(): Promise<Account[]> {
