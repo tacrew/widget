@@ -15,7 +15,7 @@ const msg = ref("")
 
 const msgs = computed(() => {
     return [{
-        typeUrl: '/cosmwasm.wasm.v1.MsgInstantiateContract',
+        typeUrl: '/cosmwasm.wasm.v1.MsgMigrateContract',
         value: {
             /** Sender is the that actor that signed the messages */
             sender: props.sender,
