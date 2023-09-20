@@ -11,7 +11,7 @@ const props = defineProps({
 const params = computed(() => JSON.parse(props.params || "{}"))
 
 const codeId = ref("")
-const msg = ref("")
+const msg = ref("{}")
 
 const msgs = computed(() => {
     return [{

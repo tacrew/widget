@@ -205,10 +205,9 @@ async function sendTx() {
                 // update tx gas
                 tx.fee.gas = (gas * 1.25).toFixed()
             }).catch((err) => {
-                sending.value = false;
-                error.value = "Failed to simulate tx gas: " + err;
+                // sending.value = false;
+                // error.value = "Failed to simulate tx gas: " + err;
                 advance.value = true;
-                return
             })
         } else {
             tx.fee.gas = gasInfo.value.toString()
