@@ -169,10 +169,7 @@ async function sendTx() {
         sending.value = true; // disable sending btn
 
         const acc = await getAccount(props.endpoint, props.sender);
-
         const messages = msgBox.value.msgs;
-
-        console.log(messages, 'messages')
 
         const tx = {
             chainId: chainId.value,
@@ -191,7 +188,7 @@ async function sendTx() {
                 chainId: chainId.value,
             },
         };
-        // console.log('tx:', tx);
+        console.log('tx:', tx);
 
         const current = readWallet(props.hdPath);
         const wallet = current ? current.wallet : WalletName.Keplr;
