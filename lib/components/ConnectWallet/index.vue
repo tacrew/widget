@@ -124,7 +124,7 @@ const tipMsg = computed(() => {
         : { class: 'success', msg: 'Copy Success!' };
 });
 const customKeplr = computed(() => {
-    return `${location.protocol}://${location.hostname}/wallet/keplr?chain=${props.chainId}`
+    return `${location.protocol}//${location.host}/wallet/keplr?chain=${props.chainId}`
 })
 </script>
 <template>
