@@ -62,6 +62,20 @@ const NEUTRON: Config = {
     })
 }
 
+// @ts-ignore
+const Archway: Config = {
+    sender: 'archway1jtdje5vq42sknl22r4wu9sahryu5wcrd3yd7z8',
+    endpoint: 'https://api.constantine.archway.tech',
+    chainId: 'constantine-3',
+    hdPath: "m/44'/118/0'/0/0",
+    chainName: 'archway',
+    params: JSON.stringify({
+        chain_name: 'archway',
+        contract: 'archway1tc7k4683zqn8krm3vq7ed5jd4l23c2h9kyswc75zpc8aeln6smqsz79j44',
+        fees: {amount: '2000', denom: ''}
+    })
+}
+
 
 const conf = ref(JUNO)
 
