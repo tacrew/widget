@@ -147,7 +147,7 @@ async function initData() {
                 chainId.value = x.block.header.chain_id;
             });
             getStakingParam(props.endpoint).then((res) => {
-                feeDenom.value = res.params.bond_denom;
+                feeDenom.value = res.params?.bond_denom;
             });
             // Every sub component should have a initial function
             if (msgBox.value && msgBox.value.initial) msgBox.value.initial();
@@ -163,6 +163,7 @@ async function sendTx() {
     try {
         if (!props.sender) throw new Error('Sender should not be empty!');
         if (!props.endpoint) throw new Error('Endpoint is empty');
+        if (!feeDenom.value) throw new Error('Fee Denom is empty');
         if (!msgBox.value.isValid.ok)
             throw new Error(msgBox.value.isValid.error);
 
@@ -188,7 +189,7 @@ async function sendTx() {
                 chainId: chainId.value,
             },
         };
-        console.log('tx:', tx);
+        // console.log('tx:', tx);
 
         const current = readWallet(props.hdPath);
         const wallet = current ? current.wallet : WalletName.Keplr;
