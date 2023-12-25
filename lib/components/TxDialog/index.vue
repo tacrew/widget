@@ -147,12 +147,13 @@ async function initData() {
                 chainId.value = x.block.header.chain_id;
             });
             getStakingParam(props.endpoint).then((res) => {
-                feeDenom.value = res.params?.bond_denom;
+                feeDenom.value = res?.params?.bond_denom;
+                // props.params.denom = res?.params?.bond_denom;
             });
             // Every sub component should have a initial function
             if (msgBox.value && msgBox.value.initial) msgBox.value.initial();
         } catch (err) {
-            error.value = err;
+            error.value = new String(err);
         }
 
         // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
@@ -202,7 +203,7 @@ async function sendTx() {
             await client.simulate(props.endpoint, tx).then(gas => {
                 // update tx gas
                 tx.fee.gas = (gas * 1.25).toFixed()
-            }).catch((err) => {
+            }).catch(() => {
                 // sending.value = false;
                 // error.value = "Failed to simulate tx gas: " + err;
                 advance.value = true;
@@ -223,7 +224,7 @@ async function sendTx() {
         });
     } catch (e) {
         sending.value = false;
-        error.value = e;
+        error.value = new String(e);
     }
 }
 
