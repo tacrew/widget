@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ComputedRef, PropType, computed, onMounted, ref } from 'vue';
+import { PropType, computed, onMounted, ref } from 'vue';
 import {
     getStakingParam,
 } from '../../../utils/http';
@@ -85,9 +85,10 @@ const isValid = computed(() => {
 
 
 function initial() {
-    getStakingParam(props.endpoint).then((x) => {
-        denom.value = x.params.bond_denom;
-    });
+    denom.value = props.params?.fees?.denom || '';
+    // getStakingParam(props.endpoint).then((x) => {
+    //     denom.value = x.params?.bond_denom;
+    // });
 }
 
 function formatDenom(v: any) {
