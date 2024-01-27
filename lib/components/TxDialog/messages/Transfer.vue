@@ -182,7 +182,7 @@ defineExpose({ msgs, isValid, initial });
             </label>
             <select
                 v-model="denom"
-                class="select select-bordered"
+                class="select select-bordered dark:text-white"
                 @change="updateIBCToken"
             >
                 <option value="">Select a token</option>
@@ -205,7 +205,7 @@ defineExpose({ msgs, isValid, initial });
             </label>
             <select
                 v-model="dest"
-                class="select select-bordered capitalize"
+                class="select select-bordered capitalize dark:text-white"
                 @change="selectDest"
                 :disabled="destDisabled"
             >
@@ -222,7 +222,7 @@ defineExpose({ msgs, isValid, initial });
             <input
                 v-model="recipient"
                 type="text"
-                class="input border border-gray-300 dark:border-gray-600"
+                class="input border border-gray-300 dark:border-gray-600 dark:text-white"
             />
         </div>
         <div class="form-control">
@@ -237,9 +237,9 @@ defineExpose({ msgs, isValid, initial });
                     v-model="amount"
                     type="number"
                     :placeholder="`Available: ${available?.display.amount}`"
-                    class="input border border-gray-300 dark:border-gray-600 w-full"
+                    class="input border border-gray-300 dark:border-gray-600 w-full dark:text-white"
                 />
-                <select v-model="amountDenom" class="select select-bordered">
+                <select v-model="amountDenom" class="select select-bordered dark:text-white">
                     <option v-for="u in units" :value="u.denom">{{ formatDenom(u.denom) }}</option>
                 </select>
             </label>
