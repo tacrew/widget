@@ -16,7 +16,7 @@ const parsed = computed(() => JSON.parse(props.params || "{}"))
 
 const contract = ref(parsed.value.contract)
 const funds = ref([] as Coin[])
-const msg = ref("")
+const msg = ref(JSON.stringify(parsed.value.execution) || "")
 
 function addFunds() {
     const denom = props.balances?.at(0)?.denom || ""
