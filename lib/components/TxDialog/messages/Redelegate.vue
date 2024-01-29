@@ -128,13 +128,13 @@ defineExpose({msgs, isValid, initial})
             <label class="label">
                 <span class="label-text">Source Validator</span>
             </label>
-            <input :value="sourceValidator" type="text" class="input border border-gray-300 dark:border-gray-600" readonly/>
+            <input :value="sourceValidator" type="text" class="input border border-gray-300 dark:border-gray-600 dark:text-white" readonly/>
         </div>
         <div class="form-control">
             <label class="label">
                 <span class="label-text">Destination Validator</span>
             </label>
-            <select v-model="validator" class="select select-bordered">
+            <select v-model="validator" class="select select-bordered dark:text-white">
                 <option value="">Select a validator</option>
                 <option v-for="v in list" :value="v.operator_address">
                     {{ v.description.moniker }} ({{ decimal2percent(v.commission.commission_rates.rate) }}%)
@@ -148,8 +148,8 @@ defineExpose({msgs, isValid, initial})
                 <span>{{ available?.display.amount }}{{ available?.display.denom }}</span>
             </label>
             <label class="input-group">
-                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
-                <select v-model="amountDenom" class="select select-bordered">
+                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}${available?.display.denom}`" class="input border border-gray-300 dark:border-gray-600 w-full dark:text-white" />
+                <select v-model="amountDenom" class="select select-bordered dark:text-white">
                     <option v-for="u in units">{{ u.denom }}</option>
                 </select>
             </label>

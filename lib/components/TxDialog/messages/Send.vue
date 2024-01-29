@@ -109,7 +109,7 @@ defineExpose({msgs, isValid, initial})
             <label class="label">
                 <span class="label-text">Balances</span>
             </label>
-            <select v-model="denom" class="select select-bordered">
+            <select v-model="denom" class="select select-bordered dark:text-white">
                 <option value="">Select a token</option>
                 <option v-for="{base, display} in showBalances" :value="base.denom">
                     {{ display.amount }} {{ display.denom }}
@@ -123,7 +123,7 @@ defineExpose({msgs, isValid, initial})
             <input
                 v-model="recipient"
                 type="text"
-                class="input border border-gray-300 dark:border-gray-600"
+                class="input border border-gray-300 dark:border-gray-600 dark:text-white"
             />
         </div>
         <div class="form-control">
@@ -132,8 +132,8 @@ defineExpose({msgs, isValid, initial})
                 <span>{{ available.display.amount }} {{ formatDenom(available.display.denom) }}</span>
             </label>
             <label class="input-group">
-                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
-                <select v-model="amountDenom" class="select select-bordered">
+                <input v-model="amount" type="number" :placeholder="`Available: ${available?.display.amount}`" class="input border border-gray-300 dark:border-gray-600 w-full dark:text-white" />
+                <select v-model="amountDenom" class="select select-bordered dark:text-white">
                     <option v-for="u in units" :value="u.denom">{{ formatDenom(u.denom) }}</option>
                 </select>
             </label>

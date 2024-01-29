@@ -141,7 +141,7 @@ defineExpose({ msgs, isValid, initial });
                     >Show Inactive</a
                 >
             </label>
-            <select v-model="validator" class="select select-bordered">
+            <select v-model="validator" class="select select-bordered dark:text-white">
                 <option value="">Select a validator</option>
                 <option v-for="v in list" :value="v.operator_address">
                     {{ v.description.moniker }} ({{
@@ -163,9 +163,9 @@ defineExpose({ msgs, isValid, initial });
                     v-model="amount"
                     type="number"
                     :placeholder="`Available: ${available?.display.amount}`"
-                    class="input border border-gray-300 dark:border-gray-600 w-full join-item"
+                    class="input border border-gray-300 dark:border-gray-600 w-full join-item dark:text-white"
                 />
-                <select v-model="amountDenom" class="select select-bordered join-item">
+                <select v-model="amountDenom" class="select select-bordered join-item dark:text-white">
                     <option v-for="u in units">{{ u.denom }}</option>
                 </select>
             </label>

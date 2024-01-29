@@ -93,8 +93,8 @@ defineExpose({msgs, isValid, initial})
                 <span class="label-text">Amount</span>
             </label>
             <label class="input-group">
-                <input v-model="amount" type="number" :placeholder="`Avaiable: ${available.display?.amount}`" class="input border border-gray-300 dark:border-gray-600 w-full" />
-                <select v-model="amountDenom" class="select select-bordered">
+                <input v-model="amount" type="number" :placeholder="`Avaiable: ${available.display?.amount}`" class="input border border-gray-300 dark:border-gray-600 w-full dark:text-white" />
+                <select v-model="amountDenom" class="select select-bordered dark:text-white">
                     <option v-for="u in units">{{ u.denom }}</option>
                 </select>
             </label>
