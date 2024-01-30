@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 import { Coin } from '@cosmjs/amino';
-import { PropType, computed, onMounted, ref } from 'vue';
-import { toBase64 } from '@cosmjs/encoding'
-import { CoinMetadata } from '../../../utils/type';
+import { PropType, computed, ref } from 'vue';
+import type { CoinMetadata } from '../../../utils/type';
 
 const props = defineProps({
     endpoint: { type: String, required: true },
@@ -16,7 +15,7 @@ const parsed = computed(() => JSON.parse(props.params || "{}"))
 
 const contract = ref(parsed.value.contract)
 const funds = ref([] as Coin[])
-const msg = ref(JSON.stringify(parsed.value.execution) || "")
+const msg = ref("")
 
 function addFunds() {
     const denom = props.balances?.at(0)?.denom || ""
@@ -56,6 +55,7 @@ const isValid = computed(() => {
 })
 
 function initial() {
+    msg.value = JSON.stringify(parsed.value.execution) || ""
 }
 
 defineExpose({msgs, isValid, initial})
