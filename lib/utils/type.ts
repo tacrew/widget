@@ -49,3 +49,9 @@ export interface Transaction {
   memo: string; 
   signerData: SignerData 
 }
+
+export enum BroadcastMode {
+  SYNC = 'BROADCAST_MODE_SYNC', 
+  BLOCK = 'BROADCAST_MODE_BLOCK', 
+  ASYNC = 'BROADCAST_MODE_ASYNC',
+}

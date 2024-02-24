@@ -6,7 +6,7 @@ import { AuthInfo, TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
 import { AbstractWallet, WalletArgument, WalletName, createWallet } from "./Wallet";
 import { post } from "../utils/http";
-import { Transaction, TxResponse } from "../utils/type";
+import { BroadcastMode, Transaction, TxResponse } from "../utils/type";
 import { wasmTypes } from "@cosmjs/cosmwasm-stargate/build/modules";
 import { makeAuthInfoBytes, makeSignDoc, TxBodyEncodeObject } from "@cosmjs/proto-signing/build";
 import { Any } from "cosmjs-types/google/protobuf/any";
@@ -39,7 +39,8 @@ export class UniClient {
     
     async simulate (
         endpoint: string,
-        transaction: Transaction
+        transaction: Transaction,
+        mode: BroadcastMode = BroadcastMode.SYNC
       ) {
 
         const pubkey = Any.fromPartial({
@@ -73,7 +74,7 @@ export class UniClient {
         const txbytes = toBase64(TxRaw.encode(txRaw).finish())
         const request = {
           tx_bytes: txbytes,
-          mode: 'BROADCAST_MODE_ASYNC', // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
+          mode, // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
         }
         return post(`${endpoint}/cosmos/tx/v1beta1/simulate`, request).then(res => {
           if (res.code && res.code !== 0) {
@@ -123,13 +124,13 @@ export class UniClient {
     // }
 
 
-  async broadcastTx(endpoint, bodyBytes: TxRaw) : Promise<{tx_response: TxResponse}> {
+  async broadcastTx(endpoint, bodyBytes: TxRaw, mode: BroadcastMode = BroadcastMode.SYNC) : Promise<{tx_response: TxResponse}> {
     // const txbytes = bodyBytes.authInfoBytes ? TxRaw.encode(bodyBytes).finish() : bodyBytes
     const txbytes = TxRaw.encode(bodyBytes).finish() 
     const txString = toBase64(txbytes)
     const txRaw = {
       tx_bytes: txString,
-      mode: 'BROADCAST_MODE_SYNC', // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
+      mode, // BROADCAST_MODE_SYNC, BROADCAST_MODE_BLOCK, BROADCAST_MODE_ASYNC
     }
     return post(`${endpoint}/cosmos/tx/v1beta1/txs`, txRaw).then(res => {
       if (res.code && res.code !== 0) {

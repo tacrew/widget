@@ -9,7 +9,7 @@ import {
     getStakingParam,
     getTxByHash,
 } from '../../utils/http';
-import { Coin, CoinMetadata } from '../../utils/type';
+import { BroadcastMode, Coin, CoinMetadata } from '../../utils/type';
 import { WalletName, readWallet } from '../../../lib/wallet/Wallet';
 import { UniClient } from '../../../lib/wallet/UniClient';
 
@@ -102,6 +102,7 @@ const feeDenom = ref('');
 const gasInfo = ref(200000);
 const memo = ref('');
 const chainId = ref('cosmoshub-4');
+const broadcast = ref(BroadcastMode.SYNC);
 
 async function initData() {
     if (open.value && props.endpoint && props.sender) {
@@ -111,6 +112,8 @@ async function initData() {
         memo.value = props.type?.toLowerCase() === 'send' ? '' : 'ping.pub'
 
         feeAmount.value = Number(p.value?.fees?.amount || 2000)
+        feeDenom.value = balance.value[0]?.denom;
+        
         try {
             getBalance(props.endpoint, props.sender).then((x) => {
                 balance.value = x.balances;
@@ -146,14 +149,16 @@ async function initData() {
             getLatestBlock(props.endpoint).then((x) => {
                 chainId.value = x.block.header.chain_id;
             });
-            getStakingParam(props.endpoint).then((res) => {
-                feeDenom.value = res?.params?.bond_denom;
-                // props.params.denom = res?.params?.bond_denom;
-            });
+
             // Every sub component should have a initial function
             if (msgBox.value && msgBox.value.initial) msgBox.value.initial();
+            
+            // load fee denom
+            getStakingParam(props.endpoint).then((res) => {
+                feeDenom.value = res?.params?.bond_denom;
+            })
         } catch (err) {
-            error.value = new String(err);
+            error.value = String(err);
         }
 
         // account.value = await getAccount(props.endpoint, props.sender).then(x => x.account);
@@ -200,7 +205,7 @@ async function sendTx() {
         });
 
         if(!advance.value) {
-            await client.simulate(props.endpoint, tx).then(gas => {
+            await client.simulate(props.endpoint, tx, broadcast.value).then(gas => {
                 // update tx gas
                 tx.fee.gas = (gas * 1.25).toFixed()
             }).catch(() => {
@@ -213,7 +218,7 @@ async function sendTx() {
         }
 
         const txRaw = await client.sign(tx);
-        const response = await client.broadcastTx(props.endpoint, txRaw);
+        const response = await client.broadcastTx(props.endpoint, txRaw, broadcast.value);
         // show submitting view
         hash.value = response.tx_response.txhash
         showResult(response.tx_response.txhash);
@@ -224,7 +229,7 @@ async function sendTx() {
         });
     } catch (e) {
         sending.value = false;
-        error.value = new String(e);
+        error.value = String(e);
     }
 }
 
@@ -331,6 +336,17 @@ function fetchTx(tx: string) {
                                     </label>
                                     <input v-model="memo" type="text" placeholder="Memo"
                                         class="input border border-gray-300 dark:border-gray-600 dark:text-gray-300" />
+                                </div>
+                                <div class="form-control">
+                                    <label class="label">
+                                        <span class="label-text">Broadcast Mode</span>
+                                    </label>
+                                    <select v-model="broadcast"
+                                        class="select input border border-gray-300 dark:border-gray-600 w-[200px]">
+                                        <option :value="BroadcastMode.SYNC">Sync</option>
+                                        <option :value="BroadcastMode.ASYNC">Async</option>
+                                        <option :value="BroadcastMode.BLOCK">Block</option>
+                                    </select>
                                 </div>
                             </div>
                         </form>
