@@ -6,6 +6,8 @@ import { LedgerWallet } from './wallets/LedgerWallet';
 import { MetamaskWallet } from './wallets/MetamaskWallet';
 import { MetamaskSnapWallet } from './wallets/MetamaskSnapWallet';
 import { LeapWallet } from './wallets/LeapWallet';
+import { OKXWallet } from "./wallets/OKXWallet";
+import { UnisatWallet } from "./wallets/UnisatWallet";
 
 export enum WalletName {
     Keplr = "Keplr",
@@ -14,9 +16,24 @@ export enum WalletName {
     Metamask = "Metamask",
     MetamaskSnap = "MetamaskSnap",
     Leap = "Leap",
+    OKX = "OKX Wallet",
+    Unisat = "UniSat Wallet",
     // None Signning
     Address = "Address",
     NameService = "Nameservice",
+}
+
+export interface IChain {
+    chainID: string;
+    name: string;
+    prefix: string;
+    rpcUrl: string;
+    restUrl: string;
+    denom: string;
+    hdPath: string;
+    logo: string;
+    faucetUrl: string;
+    explorerUrl: string;
 }
 
 export interface ConnectedWallet {
@@ -85,9 +102,13 @@ export function extractChainId(chainId: string) {
     return 0
 }
 
-export function createWallet(name: WalletName, arg: WalletArgument, registry?: Registry): AbstractWallet {
+export function createWallet(name: WalletName, arg: WalletArgument, registry?: Registry, chain?: IChain,): AbstractWallet {
     const reg = registry || new Registry(defaultRegistryTypes)
     switch (name) {
+        case WalletName.OKX:
+            return new OKXWallet(arg, chain, reg);
+        case WalletName.Unisat:
+            return new UnisatWallet(arg, chain, reg);
         case WalletName.Keplr:
             return new KeplerWallet(arg, reg)
         case WalletName.Ledger:
