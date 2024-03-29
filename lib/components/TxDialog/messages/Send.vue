@@ -20,6 +20,7 @@ const amountDenom = ref('')
 
 const msgs = computed(() => {
     const convert = new TokenUnitConverter(props.metadata)
+    console.log(`props: `, props);
     return [
         {
             typeUrl: '/cosmos.bank.v1beta1.MsgSend',

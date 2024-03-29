@@ -10,6 +10,13 @@ export interface TokenConfig {
 
 export const tokens : TokenConfig[]= [
     {
+        denom: "uside",
+        symbol: "uside",
+        ibcDenom: "uside", // use base denom for native token
+        decimals: 6,
+        coinImageUrl: "",
+    },
+    {
         denom: "uosmo",
         symbol: "OSMO",
         ibcDenom: "uosmo", // use base denom for native token 

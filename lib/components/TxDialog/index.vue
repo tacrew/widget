@@ -101,7 +101,8 @@ const feeAmount = ref(2000);
 const feeDenom = ref('');
 const gasInfo = ref(200000);
 const memo = ref('');
-const chainId = ref('cosmoshub-4');
+// const chainId = ref('cosmoshub-4');
+const chainId = ref('taproot-1');
 const broadcast = ref(BroadcastMode.SYNC);
 
 async function initData() {
@@ -183,7 +184,7 @@ async function sendTx() {
             signerAddress: props.sender,
             messages,
             fee: {
-                gas: "200000",
+                gas: "400000",
                 amount: [
                     { amount: String(feeAmount.value), denom: feeDenom.value },
                 ],
@@ -196,7 +197,6 @@ async function sendTx() {
             },
         };
         // console.log('tx:', tx);
-
         const current = readWallet(props.hdPath);
         const wallet = current ? current.wallet : WalletName.Keplr;
         const client = new UniClient(wallet, {

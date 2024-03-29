@@ -76,8 +76,24 @@ const Archway: Config = {
     })
 }
 
+// @ts-ignore
+const btc: Config = {
+    sender: 'bc1qjdyxk9t90jxmeqpdwkn8cd7nj6cu7x3m688xlj',
+    endpoint: 'https://devnet-2-rest.side.one',
+    chainId: 'taproot-1',
+    hdPath: "m/44'/118/0'/0/0",
+    chainName: 'taproot-1',
+    params: JSON.stringify({
+        // proposal_id: '1',
+        // validator_address: "evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
+        // chain_name: 'evmos',
+        // contract: 'add',
+        // fees: {amount: '6000000000000000', denom: ''}
+    })
+}
 
-const conf = ref(JUNO)
+
+const conf = ref(btc)
 
 const types = [
     'send',
