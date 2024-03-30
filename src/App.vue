@@ -80,7 +80,7 @@ const Archway: Config = {
 const btc: Config = {
     sender: 'bc1qjdyxk9t90jxmeqpdwkn8cd7nj6cu7x3m688xlj',
     endpoint: 'https://devnet-2-rest.side.one',
-    chainId: 'taproot-1',
+    chainId: 'taproot-1', // side-testnet-1
     hdPath: "m/44'/118/0'/0/0",
     chainName: 'taproot-1',
     params: JSON.stringify({
