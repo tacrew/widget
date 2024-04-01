@@ -34,7 +34,6 @@ export class UniClient {
         //     authInfoBytes: signed.authInfoBytes,
         //     signatures: [fromBase64(signature.signature)],
         // });
-        console.log(`transaction: `, transaction);
         return this.wallet.sign(transaction)
     }
     

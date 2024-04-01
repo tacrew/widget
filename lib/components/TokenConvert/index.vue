@@ -462,9 +462,9 @@ async function doDeposit() {
         },
         memo: '',
         signerData: {
-            accountNumber: acc.account.account_number,
-            sequence: acc.account.sequence,
             chainId: chainId.value,
+            accountNumber: Number(acc.account.account_number),
+            sequence: Number(acc.account.sequence),
         },
     };
 

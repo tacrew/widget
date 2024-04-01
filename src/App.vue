@@ -82,7 +82,7 @@ const btc: Config = {
     endpoint: 'https://devnet-2-rest.side.one',
     chainId: 'taproot-1', // side-testnet-1
     hdPath: "m/44'/118/0'/0/0",
-    chainName: 'taproot-1',
+    chainName: 'side-devnet-2',
     params: JSON.stringify({
         // proposal_id: '1',
         // validator_address: "evmosvaloper1tdss4m3x7jy9mlepm2dwy8820l7uv6m2vx6z88",
@@ -93,7 +93,7 @@ const btc: Config = {
 }
 
 
-const conf = ref(btc)
+const conf = ref(JUNO)
 
 const types = [
     'send',

@@ -101,8 +101,8 @@ const feeAmount = ref(2000);
 const feeDenom = ref('');
 const gasInfo = ref(200000);
 const memo = ref('');
-// const chainId = ref('cosmoshub-4');
-const chainId = ref('taproot-1');
+const chainId = ref('cosmoshub-4');
+// const chainId = ref('taproot-1');
 const broadcast = ref(BroadcastMode.SYNC);
 
 async function initData() {
