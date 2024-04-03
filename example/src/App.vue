@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import pingWidget from 'ping-widget';
+// import pingWidget from '../../lib/components/TxDialog';
 
-const sender = 'juno1m8mma95ta2zajqtmfp5c5y3wgeyqzcrcgcnv4a';
-const endpoint = 'https://juno-api.polkachu.com';
-const chainId = 'juno-1';
+const sender = 'bc1qjdyxk9t90jxmeqpdwkn8cd7nj6cu7x3m688xlj';
+const endpoint = 'https://devnet-2-rpc.side.one';
+// const chainId = 'juno-1';
+const chainId = 'taproot-1';
 const hdPath = "m/44'/118/0'/0/0";
 
 const params = JSON.stringify({
     proposal_id: '1',
-    validator_address: 'junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2',
+    validator_address: 'bc1qjdyxk9t90jxmeqpdwkn8cd7nj6cu7x3m688xlj',
 });
+console.log(`pingWidget: `, pingWidget);
+
 
 const types = [
     'send',

@@ -1,33 +1,18 @@
-import { fromBase64, fromHex } from "@cosmjs/encoding";
-import {
-  Registry,
-  TxBodyEncodeObject,
-  makeAuthInfoBytes,
-  makeSignBytes,
-  makeSignDoc,
-} from "@cosmjs/proto-signing";
+import { fromBase64, fromHex } from '@cosmjs/encoding';
+import { makeAuthInfoBytes, makeSignBytes, makeSignDoc, Registry, TxBodyEncodeObject } from '@cosmjs/proto-signing';
 
-import { serializeSignDoc } from "@cosmjs/amino/build/signdoc";
+import { serializeSignDoc } from '@cosmjs/amino/build/signdoc';
 
-import {
-  AbstractWallet,
-  Account,
-  IChain,
-  WalletArgument,
-  WalletName,
-} from "../Wallet";
-import { Transaction } from "../utils/type";
-import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
-import { Any } from "cosmjs-types/google/protobuf/any";
-import { PubKey } from "cosmjs-types/cosmos/crypto/secp256k1/keys";
-import { SignMode } from "cosmjs-types/cosmos/tx/signing/v1beta1/signing";
-import {
-  AminoTypes,
-  createDefaultAminoConverters,
-  createIbcAminoConverters,
-} from "@cosmjs/stargate";
-import { makeSignDoc as makeSignDocAmino } from "@cosmjs/amino";
-import { createWasmAminoConverters } from "@cosmjs/cosmwasm-stargate";
+import { AbstractWallet, Account, IChain, WalletArgument, WalletName } from '../Wallet';
+import { Transaction } from '../../utils/type';
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
+import { Any } from 'cosmjs-types/google/protobuf/any';
+import { PubKey } from 'cosmjs-types/cosmos/crypto/secp256k1/keys';
+import { SignMode } from 'cosmjs-types/cosmos/tx/signing/v1beta1/signing';
+import { AminoTypes, createDefaultAminoConverters, createIbcAminoConverters } from '@cosmjs/stargate';
+import { makeSignDoc as makeSignDocAmino } from '@cosmjs/amino';
+import { createWasmAminoConverters } from '@cosmjs/cosmwasm-stargate';
+import { Buffer } from 'buffer';
 
 export class OKXWallet implements AbstractWallet {
   name: WalletName.OKX = WalletName.OKX;
@@ -67,15 +52,13 @@ export class OKXWallet implements AbstractWallet {
     // @ts-ignore
     const pbk = await window.okxwallet.bitcoin.getPublicKey();
 
-    const res = [
-      {
-        address: accounts[0],
-        pubkey: fromHex(pbk),
-        algo: "segwit",
-      },
+    return [
+        {
+            address: accounts[0],
+            pubkey: fromHex(pbk),
+            algo: 'segwit',
+        },
     ];
-
-    return res;
   }
   supportCoinType(): Promise<boolean> {
     return Promise.resolve(true);
