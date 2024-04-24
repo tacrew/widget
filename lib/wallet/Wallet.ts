@@ -75,6 +75,8 @@ export function keyType(chainId: string) {
             return "/ethermint.crypto.v1.ethsecp256k1.PubKey"
         case chainId.startsWith("injective"):
             return "/injective.crypto.v1beta1.ethsecp256k1.PubKey";
+        case chainId.startsWith("stratos"):
+            return "/stratos.crypto.v1.ethsecp256k1.PubKey";
         default:
             return "/cosmos.crypto.secp256k1.PubKey"
     }
