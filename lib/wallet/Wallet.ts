@@ -108,9 +108,9 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
     const reg = registry || new Registry(defaultRegistryTypes)
     switch (name) {
         case WalletName.OKX:
-            return new OKXWallet(arg, chain, reg);
+            return new OKXWallet(arg, <IChain>chain, reg);
         case WalletName.Unisat:
-            return new UnisatWallet(arg, chain, reg);
+            return new UnisatWallet(arg, <IChain>chain, reg);
         case WalletName.Keplr:
             return new KeplerWallet(arg, reg)
         case WalletName.Ledger:
