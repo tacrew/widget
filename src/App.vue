@@ -168,7 +168,6 @@ console.log(ethermintToEth("evmos13zl7c4ea60jt05hxhl2dp443r7zrlz4plc5m8z"))
 
         <div>&nbsp;</div>
         <ping-connect-wallet
-            :params="conf.params"
             :chain-id="conf.chainId"
             :hd-path="conf.hdPath"
             @change="walletStateChange"
