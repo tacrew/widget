@@ -12,7 +12,7 @@ import { readWallet } from '../../../lib/wallet/Wallet';
 import { Icon } from '@iconify/vue';
 
 const props = defineProps({
-    params: Object,
+    params: String,
     chainId: String,
     hdPath: String,
     addrPrefix: String // address prefix
@@ -45,7 +45,7 @@ const list = [
 ];
 
 
-let paramsWallet = JSON.parse(props?.params)?.wallet;
+let paramsWallet = JSON.parse(props?.params || "")?.wallet;
 // console.log(`props: `, props);
 // // console.log(`props: `, params);
 // debugger;
@@ -112,7 +112,7 @@ async function connect() {
             .catch((e) => {
                 error.value = e;
             });
-    } catch (e) {
+    } catch (e: any) {
         error.value = e.message;
     }
     sending.value = false;

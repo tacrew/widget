@@ -63,6 +63,22 @@ const NEUTRON: Config = {
 }
 
 // @ts-ignore
+const COSMOS: Config = {
+    sender: 'cosmos1jxv0u20scum4trha72c7ltfgfqef6nscj25050',
+    endpoint: 'https://rest.cosmos.directory/cosmoshub',
+    chainId: 'cosmoshub-4',
+    hdPath: "m/44'/118/0'/0/0",
+    chainName: 'cosmos',
+    params: JSON.stringify({
+        proposal_id: '1',
+        validator_address: "cosmosvaloper1jxv0u20scum4trha72c7ltfgfqef6nsch7q6cu",
+        chain_name: 'cosmos',
+        contract: 'junovaloper1jxv0u20scum4trha72c7ltfgfqef6nscm9pmg2',
+        fees: {amount: '6000', denom: ''}
+    })
+}
+
+// @ts-ignore
 const Archway: Config = {
     sender: 'archway1jtdje5vq42sknl22r4wu9sahryu5wcrd3yd7z8',
     endpoint: 'https://api.constantine.archway.tech',
