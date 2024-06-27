@@ -1,3 +1,4 @@
+import { FireblocksWallet } from './wallets/FireblocksWallet';
 import { Registry } from '@cosmjs/proto-signing'
 import { defaultRegistryTypes } from "@cosmjs/stargate";
 import { Transaction } from "../utils/type";
@@ -124,6 +125,8 @@ export function createWallet(name: WalletName, arg: WalletArgument, registry?: R
             return arg.hdPath && 
             (arg.hdPath.startsWith('m/44/60') || arg.hdPath.startsWith("m/44'/60")) 
             ? new MetamaskWallet(arg, reg) : new MetamaskSnapWallet(arg, reg)
-    }
+        case WalletName.Fireblocks:
+            return new FireblocksWallet(arg, reg)
+        }
     throw new Error("No wallet connected")
 }
