@@ -18,6 +18,7 @@ export enum WalletName {
     Leap = "Leap",
     OKX = "OKX Wallet",
     Unisat = "UniSat Wallet",
+    Fireblocks = "Fireblocks",
     // None Signning
     Address = "Address",
     NameService = "Nameservice",
