@@ -41,7 +41,11 @@ const list = [
     {
         wallet: WalletName.Metamask,
         logo: 'https://ping.pub/logos/metamask.png'
-    }
+    },
+    {
+        wallet: WalletName.Fireblocks,
+        logo: 'https://explorer-api.walletconnect.com/v3/logo/md/7e1514ba-932d-415d-1bdb-bccb6c2cbc00?projectId=2f05ae7f1116030fde2d36508f472bfb'
+    },
 ];
 
 
